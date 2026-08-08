@@ -743,6 +743,39 @@
         </div>
     </div>
 
+    <!-- Firebase SDK & Initialization -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCJJwNEthqInCknzzFqRLPmzH3VO4zJLXE",
+        authDomain: "our-class-web.firebaseapp.com",
+        projectId: "our-class-web",
+        storageBucket: "our-class-web.firebasestorage.app",
+        messagingSenderId: "194538455587",
+        appId: "1:194538455587:web:5060b134ff5c9fe30a2796",
+        measurementId: "G-FKTB139GVJ"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app);
+      const storage = getStorage(app);
+      
+      // 외부 파일 및 전역에서 접근할 수 있도록 window 객체에 저장
+      window.firebaseApp = app;
+      window.firebaseAnalytics = analytics;
+      window.firebaseDb = db;
+      window.firebaseStorage = storage;
+      window.db = db;
+      window.storage = storage;
+      
+      console.log("🔥 Firebase initialised successfully!");
+    </script>
     <script src="app.js"></script>
 </body>
 </html>
