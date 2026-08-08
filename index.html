@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>준우(junwoo) 모바일 웹 포털</title>
+    <!-- 구글 폰트: Noto Sans KR, Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-green mode-frame">
+
+    <!-- 모드 조작 & 커스터마이저 플로팅 툴바 -->
+    <aside class="customizer-toolbar" id="customizerToolbar">
+        <button class="customizer-toggle-btn" id="customizerToggleBtn" title="초안 설정 / 커스텀 모드">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>초안 커스텀</span>
+        </button>
+
+        <div class="customizer-panel" id="customizerPanel">
+            <div class="panel-header">
+                <h3><i class="fa-solid fa-sliders"></i> 화면 구성 커스터마이저</h3>
+                <button class="panel-close-btn" id="panelCloseBtn">&times;</button>
+            </div>
+            
+            <div class="panel-body">
+                <!-- 1. View Mode Switch -->
+                <div class="config-group">
+                    <label class="group-title"><i class="fa-solid fa-mobile-screen"></i> 미리보기 형태</label>
+                    <div class="button-group">
+                        <button class="btn-option active" data-view="frame">모바일 프레임</button>
+                        <button class="btn-option" data-view="full">전체 화면</button>
+                    </div>
+                </div>
+
+                <!-- 2. Theme Color -->
+                <div class="config-group">
+                    <label class="group-title"><i class="fa-solid fa-palette"></i> 테마 컬러</label>
+                    <div class="color-options">
+                        <button class="color-btn active" data-theme="theme-green" style="background: #10b981;" title="에메랄드 그린"></button>
+                        <button class="color-btn" data-theme="theme-blue" style="background: #2563eb;" title="스마트 오션 블루"></button>
+                        <button class="color-btn" data-theme="theme-amber" style="background: #f59e0b;" title="따뜻한 선셋 앰버"></button>
+                        <button class="color-btn" data-theme="theme-purple" style="background: #8b5cf6;" title="모던 바이올렛"></button>
+                        <button class="color-btn" data-theme="theme-dark" style="background: #1e293b;" title="다크 엘레강스"></button>
+                    </div>
+                </div>
+
+                <!-- 3. Title Customization -->
+                <div class="config-group">
+                    <label class="group-title" for="inputSchoolName"><i class="fa-solid fa-pen"></i> 기관 / 명칭 변경</label>
+                    <input type="text" id="inputSchoolName" class="config-input" value="1학년 6반 홈페이지">
+                </div>
+
+                <!-- 4. Section Visibility Toggles -->
+                <div class="config-group">
+                    <label class="group-title"><i class="fa-solid fa-layer-group"></i> 섹션 표시 / 숨기기 (ON/OFF)</label>
+                    <div class="toggle-list">
+                        <label class="toggle-item">
+                            <span>메인 슬라이드 배너</span>
+                            <input type="checkbox" class="section-toggle" data-target="sec-hero" checked>
+                            <span class="slider-switch"></span>
+                        </label>
+                        <label class="toggle-item">
+                            <span>퀵 메뉴 (아이콘 6종)</span>
+                            <input type="checkbox" class="section-toggle" data-target="sec-quick" checked>
+                            <span class="slider-switch"></span>
+                        </label>
+                        <label class="toggle-item">
+                            <span>공지사항 & 가정통신문</span>
+                            <input type="checkbox" class="section-toggle" data-target="sec-notices" checked>
+                            <span class="slider-switch"></span>
+                        </label>
+                        <label class="toggle-item">
+                            <span>학사일정 위젯</span>
+                            <input type="checkbox" class="section-toggle" data-target="sec-calendar" checked>
+                            <span class="slider-switch"></span>
+                        </label>
+                        <label class="toggle-item">
+                            <span>오늘의 식단 위젯</span>
+                            <input type="checkbox" class="section-toggle" data-target="sec-meal" checked>
+                            <span class="slider-switch"></span>
+                        </label>
+                        <label class="toggle-item">
+                            <span>팝업존 배너</span>
+                            <input type="checkbox" class="section-toggle" data-target="sec-popup" checked>
+                            <span class="slider-switch"></span>
+                        </label>
+                        <label class="toggle-item">
+                            <span>포토갤러리</span>
+                            <input type="checkbox" class="section-toggle" data-target="sec-gallery" checked>
+                            <span class="slider-switch"></span>
+                        </label>
+                        <label class="toggle-item">
+                            <span>하단 관련기관 슬라이드</span>
+                            <input type="checkbox" class="section-toggle" data-target="sec-bannerstrip" checked>
+                            <span class="slider-switch"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <button class="btn-reset" id="btnResetConfig"><i class="fa-solid fa-rotate-left"></i> 초기화</button>
+                    <p class="custom-tip"><i class="fa-solid fa-lightbulb"></i> HTML 코드 편집으로도 세부 텍스트 및 링크를 자유롭게 바꿀 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 모바일 앱 래퍼 컨테이너 -->
+    <div class="mobile-wrapper">
+        <div class="mobile-device">
+            <!-- 모바일 상단 상태바 (프레임 모드용) -->
+            <div class="mobile-statusbar">
+                <span class="time" id="statusTime">09:41</span>
+                <div class="camera-lens"></div>
+                <div class="status-icons">
+                    <i class="fa-solid fa-signal"></i>
+                    <i class="fa-solid fa-wifi"></i>
+                    <i class="fa-solid fa-battery-full"></i>
+                </div>
+            </div>
+
+            <!-- 브라우저 주소창 서브 헤더 -->
+            <div class="url-bar">
+                <i class="fa-solid fa-star star-icon"></i>
+                <span class="url-text" id="urlText">yangyoung-m.gpyeon.hs.kr</span>
+                <i class="fa-solid fa-rotate-right refresh-icon"></i>
+            </div>
+
+            <!-- 앱 메인 스크롤 영역 -->
+            <main class="app-viewport" id="appViewport">
+
+                <!-- 1. 헤더 (Header) -->
+                <header class="app-header">
+                    <button class="icon-btn drawer-btn" id="drawerOpenBtn" aria-label="메뉴 열기">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+
+                    <a href="#" class="brand-logo">
+                        <div class="school-logo-wrapper">
+                            <img src="yangyoung_logo.jpg" alt="양영중 로고" class="school-logo-left-img">
+                        </div>
+                        <h1 class="school-title" id="displaySchoolName">1학년 6반 홈페이지</h1>
+                    </a>
+
+                    <button class="icon-btn search-btn" id="searchToggleBtn" aria-label="검색">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </header>
+
+                <!-- 검색창 레이어 (숨김/열림) -->
+                <div class="search-overlay" id="searchOverlay">
+                    <div class="search-box">
+                        <input type="text" placeholder="검색어를 입력하세요 (예: 학사일정, 식단...)" id="searchInput">
+                        <button class="search-submit-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
+
+                <!-- 실시간 GPS 날씨 모달 팝업 -->
+                <div class="weather-backdrop" id="weatherBackdrop"></div>
+                <div class="weather-modal" id="weatherModal">
+                    <div class="weather-card-inner weather-bg-clear" id="weatherCardInner">
+                        <!-- 모달 카드 전용 리얼리스틱 날씨 애니메이션 이펙트 레이어 -->
+                        <div class="modal-weather-anim-layer" id="modalWeatherAnimLayer"></div>
+
+                        <div class="weather-header">
+                            <div class="location-badge">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span id="weatherLocationText">경기도 성남시 분당구 (현재 위치)</span>
+                            </div>
+                            <button class="weather-close-btn" id="weatherCloseBtn">&times;</button>
+                        </div>
+
+                        <div class="weather-body">
+                            <div class="weather-main-row">
+                                <div class="weather-icon-large" id="weatherIconLarge">
+                                    <i class="fa-solid fa-sun"></i>
+                                </div>
+                                <div class="weather-temp-block">
+                                    <span class="temp-num" id="weatherTemp">--°C</span>
+                                    <span class="status-desc" id="weatherStatusText">날씨 확인 중...</span>
+                                </div>
+                            </div>
+
+                            <!-- 바람 속도 및 미세먼지 4단계 표기 (파랑:매우좋음, 초록:보통, 노랑:나쁨, 빨강:매우나쁨 - 수치 표기 제외 고대비 뱃지) -->
+                            <div class="single-wind-info">
+                                <i class="fa-solid fa-wind"></i>
+                                <span>풍속: <strong id="weatherWindSpeed">-- m/s</strong></span>
+                                <span class="dust-divider">|</span>
+                                <i class="fa-solid fa-leaf" style="color:#00ff87; filter: drop-shadow(0 0 6px #00ff87);"></i>
+                                <span style="font-weight:700;">미세먼지: <strong style="color:#00ff87; font-weight:900; font-size:13.5px; text-shadow:0 0 8px rgba(0,255,135,0.7); background:rgba(0,255,135,0.15); padding:2px 8px; border-radius:6px; border:1px solid rgba(0,255,135,0.4);">보통</strong></span>
+                            </div>
+
+                            <!-- 08:00 ~ 24:00 시간별 날씨 예보 -->
+                            <div class="hourly-forecast-section">
+                                <div class="hourly-title">
+                                    <i class="fa-regular fa-clock"></i> <span>오늘 예보 (08:00 ~ 24:00)</span>
+                                </div>
+                                <div class="hourly-scroll-container" id="hourlyForecastList">
+                                    <!-- 08:00 ~ 24:00 날씨 수신 항목 생성 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="weather-footer">
+                            <button class="btn-refresh-weather" id="btnRefreshWeather">
+                                <i class="fa-solid fa-rotate-right"></i> 날씨 새로고침
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 식단 상세 및 일자별 이동 모달 팝업 -->
+                <div class="meal-backdrop" id="mealBackdrop"></div>
+                <div class="meal-modal" id="mealModal">
+                    <div class="meal-modal-inner">
+                        <div class="meal-modal-header">
+                            <div class="meal-modal-title">
+                                <i class="fa-solid fa-utensils"></i>
+                                <span>1학년 6반 홈페이지 급식 식단</span>
+                            </div>
+                            <button class="meal-modal-close-btn" id="mealModalCloseBtn">&times;</button>
+                        </div>
+
+                        <!-- 일자 이동 상단 컨트롤러 -->
+                        <div class="meal-date-nav-bar">
+                            <button type="button" class="meal-date-btn" id="mealModalPrevBtn" aria-label="이전일">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <h4 class="meal-modal-date-title" id="mealModalDateTitle">2026년 8월 14일 (금)</h4>
+                            <button type="button" class="meal-date-btn" id="mealModalNextBtn" aria-label="다음일">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <div class="meal-modal-body">
+                            <div class="meal-type-tag" id="mealModalTypeTag">중식 (개학 특식)</div>
+                            <div class="meal-modal-content">
+                                <div class="meal-menu-box" id="mealModalMenuBox">
+                                    <!-- 메뉴 항목들 -->
+                                </div>
+                                <div class="meal-modal-thumb">
+                                    <img src="" id="mealModalImg" alt="급식 사진">
+                                    <span class="meal-modal-calories" id="mealModalCalories">685 kcal</span>
+                                </div>
+                            </div>
+                            <div class="meal-nutrition-info" id="mealModalNutrition">
+                                단백질 28.4g | 칼슘 195mg
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1학년 6반 주간 시간표 모달 팝업 -->
+                <div class="timetable-backdrop" id="timetableBackdrop"></div>
+                <div class="timetable-modal" id="timetableModal">
+                    <div class="timetable-modal-inner">
+                        <div class="timetable-header">
+                            <div class="timetable-title">
+                                <i class="fa-solid fa-calendar-days"></i>
+                                <span>1학년 6반 주간 시간표</span>
+                            </div>
+                            <button class="timetable-close-btn" id="timetableCloseBtn">&times;</button>
+                        </div>
+                        <div class="timetable-sub-info">
+                            <span class="comtime-badge"><i class="fa-solid fa-clock"></i> 45분 수업 / 10분 쉬는시간</span>
+                            <span class="class-tag">1학년 6반</span>
+                        </div>
+                        <div class="timetable-table-wrapper">
+                            <table class="comtime-table">
+                                <thead>
+                                    <tr>
+                                        <th>교시 (시간)</th>
+                                        <th>월</th>
+                                        <th>화</th>
+                                        <th>수</th>
+                                        <th>목</th>
+                                        <th>금</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="period">1교시<br><span class="time-lbl">09:00~09:45</span></td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="period">2교시<br><span class="time-lbl">09:55~10:40</span></td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="period">3교시<br><span class="time-lbl">10:50~11:35</span></td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="period">4교시<br><span class="time-lbl">11:45~12:30</span></td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                    </tr>
+                                    <tr class="lunch-row">
+                                        <td colspan="6"><i class="fa-solid fa-utensils"></i> 점심시간 (12:30 ~ 13:30)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="period">5교시<br><span class="time-lbl">13:30~14:15</span></td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="period">6교시<br><span class="time-lbl">14:25~15:10</span></td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="period">7교시<br><span class="time-lbl">15:20~16:05</span></td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="notice-footer-bar">
+                            <button type="button" class="btn-admin-edit" onclick="alert('🔑 관리자 로그인 후 과목 및 시간표를 직접 입력/수정하실 수 있습니다.');">
+                                <i class="fa-solid fa-lock"></i> 시간표 직접 수정하기 (관리자 전용)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1학년 6반 공지사항 모달 팝업 -->
+                <div class="notice-backdrop" id="noticeBackdrop"></div>
+                <div class="notice-modal" id="noticeModal">
+                    <div class="notice-modal-inner">
+                        <div class="notice-header">
+                            <div class="notice-title">
+                                <i class="fa-solid fa-bullhorn"></i>
+                                <span>1학년 6반 공지사항</span>
+                            </div>
+                            <button class="notice-close-btn" id="noticeCloseBtn">&times;</button>
+                        </div>
+                        <div class="notice-card-content">
+                            <div class="notice-meta-bar">
+                                <span class="notice-badge red"><i class="fa-solid fa-bell"></i> [중요 공지]</span>
+                                <span class="notice-date">2026. 08. 05</span>
+                            </div>
+                            <h3 class="notice-main-heading">안전하게 여름방학 즐기기! 🍉🏖️</h3>
+                            <div class="notice-body-text">
+                                <p>1학년 6반 학생 여러분, 즐겁고 보람찬 여름방학 기간 동안 건강과 안전을 최우선으로 지켜주시기 바랍니다!</p>
+                                <div class="notice-rule-box">
+                                    <div class="rule-item">
+                                        <i class="fa-solid fa-water"></i>
+                                        <div>
+                                            <strong>1. 물놀이 안전 수칙 준수</strong>
+                                            <p>계곡, 바다, 수영장 방문 시 준비운동 필수! 구명조끼 착용 및 위급 상황 안전 수칙 준수</p>
+                                        </div>
+                                    </div>
+                                    <div class="rule-item">
+                                        <i class="fa-solid fa-person-biking"></i>
+                                        <div>
+                                            <strong>2. 교통 안전 및 킥보드 주의</strong>
+                                            <p>자전거/PM 이용 시 헬멧 필수 착용, 무단횡단 금지 및 야간 활동 주의</p>
+                                        </div>
+                                    </div>
+                                    <div class="rule-item">
+                                        <i class="fa-solid fa-book-open-reader"></i>
+                                        <div>
+                                            <strong>3. 규칙적인 생활 및 자율 학습</strong>
+                                            <p>충분한 수면과 자율 독서/학습으로 알찬 여름방학 보내기!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notice-footer-bar">
+                            <button type="button" class="btn-admin-edit" id="btnAdminNoticeEdit" onclick="alert('🔑 관리자 모드 수정 기능은 추후 전용 로그인 링크와 연동될 예정입니다.');">
+                                <i class="fa-solid fa-lock"></i> 관리자 공지 수정 (관리자 전용)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 준비물 모달 팝업 -->
+                <div class="supply-backdrop" id="supplyBackdrop"></div>
+                <div class="supply-modal" id="supplyModal">
+                    <div class="supply-modal-inner">
+                        <div class="supply-header">
+                            <div class="supply-title">
+                                <i class="fa-solid fa-clipboard-list"></i>
+                                <span>오늘의 준비물</span>
+                            </div>
+                            <button class="supply-close-btn" id="supplyCloseBtn">&times;</button>
+                        </div>
+                        <div class="supply-card-content">
+                            <div class="vacation-notice-box">
+                                <i class="fa-solid fa-umbrella-beach"></i>
+                                <h4>아직 방학이라 준비물이 없습니다! 🏖️</h4>
+                                <p>즐겁고 건강한 여름방학을 보내세요! 개학 후 준비물 목록이 업데이트됩니다.</p>
+                            </div>
+                        </div>
+                        <div class="notice-footer-bar">
+                            <button type="button" class="btn-admin-edit" onclick="alert('🔑 관리자 로그인 후 준비물 항목을 직접 등록/수정하실 수 있습니다.');">
+                                <i class="fa-solid fa-lock"></i> 준비물 수정하기 (관리자 전용)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 시험일정 모달 팝업 -->
+                <div class="exam-backdrop" id="examBackdrop"></div>
+                <div class="exam-modal" id="examModal">
+                    <div class="exam-modal-inner">
+                        <div class="exam-header">
+                            <div class="exam-title">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>시험일정 안내</span>
+                            </div>
+                            <button class="exam-close-btn" id="examCloseBtn">&times;</button>
+                        </div>
+                        <div class="exam-card-content">
+                            <div class="vacation-notice-box">
+                                <i class="fa-solid fa-pen-ruler"></i>
+                                <h4>방학이라 시험일정이 아직 없습니다! 🏖️</h4>
+                                <p>2학기 지필평가/수행평가 일정 등록 시 공지됩니다.</p>
+                            </div>
+                            <div class="exam-image-upload-slot" id="examImageSlot">
+                                <div class="slot-placeholder">
+                                    <i class="fa-solid fa-image"></i>
+                                    <span>시험일정 표 / 시간표 이미지 등록 칸</span>
+                                    <small>(나중에 올라오는 시험일정 이미지 표가 여기에 표시됩니다)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notice-footer-bar">
+                            <button type="button" class="btn-admin-edit" onclick="alert('🔑 관리자 로그인 후 시험일정 및 사진을 첨부/수정하실 수 있습니다.');">
+                                <i class="fa-solid fa-lock"></i> 시험일정 및 사진 등록 (관리자 전용)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 포토갤러리 모달 팝업 -->
+                <div class="gallery-backdrop" id="galleryBackdrop"></div>
+                <div class="gallery-modal" id="galleryModal">
+                    <div class="gallery-modal-inner">
+                        <div class="gallery-modal-header">
+                            <div class="gallery-modal-title">
+                                <i class="fa-solid fa-camera"></i>
+                                <span>1학년 6반 포토갤러리</span>
+                            </div>
+                            <button class="gallery-modal-close-btn" id="galleryCloseBtn">&times;</button>
+                        </div>
+                        <div class="gallery-modal-content">
+                            <div class="vacation-notice-box" style="margin-top: 10px;">
+                                <i class="fa-solid fa-images" style="font-size: 32px; color: #38bdf8; margin-bottom: 10px;"></i>
+                                <h4 style="font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">등록된 갤러리 사진이 없습니다 📸</h4>
+                                <p style="font-size: 11.5px; color: #94a3b8; line-height: 1.5;">나중에 관리자 기능을 통해 1학년 6반의 추억 사진(세로형 비율 권장)을 자유롭게 올려보세요!</p>
+                            </div>
+                        </div>
+                        <div class="notice-footer-bar">
+                            <button type="button" class="btn-admin-edit" onclick="alert('🔑 관리자 로그인 후 사진 및 설명을 수정하실 수 있습니다.');">
+                                <i class="fa-solid fa-lock"></i> 사진 및 설명 수정 (관리자 전용)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 이미지 클릭 시 전체 화면 확대 라이트박스 팝업 -->
+                <div class="lightbox-backdrop" id="imageLightboxBackdrop"></div>
+                <div class="lightbox-modal" id="imageLightboxModal">
+                    <button class="lightbox-close-btn" id="imageLightboxCloseBtn">&times;</button>
+                    <div class="lightbox-img-wrapper">
+                        <img id="lightboxTargetImg" src="" alt="확대 이미지">
+                        <div class="lightbox-caption-box">
+                            <span id="lightboxCaptionText" class="lightbox-caption"></span>
+                            <button type="button" class="btn-admin-edit" style="width:auto; padding:3px 10px; font-size:10px;" onclick="alert('🔑 관리자 로그인 후 설명을 수정하실 수 있습니다.');">
+                                <i class="fa-solid fa-lock"></i> 설명 수정 (관리자 전용)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 사이드 메인 드로어 메뉴 -->
+                <div class="drawer-backdrop" id="drawerBackdrop"></div>
+                <nav class="drawer-menu" id="drawerMenu">
+                    <div class="drawer-header">
+                        <div class="user-welcome">
+                            <div class="drawer-logo-badge" style="background:#ffffff; border-radius:8px; padding:4px; display:inline-flex; align-items:center; justify-content:center; margin-right:6px;">
+                                <img src="yangyoung_logo.jpg" alt="양영중 로고" style="width:22px; height:22px; object-fit:contain;">
+                            </div>
+                            <div>
+                                <strong id="drawerSchoolTitle">1학년 6반 홈페이지</strong>
+                                <p style="color:#fcd34d; font-weight:700; font-size:11.5px; margin-top:2px;">행복한 우리반 🌸</p>
+                            </div>
+                        </div>
+                        <button class="drawer-close-btn" id="drawerCloseBtn">&times;</button>
+                    </div>
+
+                    <div class="drawer-nav-list">
+                        <div class="nav-category">
+                            <h4><i class="fa-solid fa-layer-group"></i> 퀵메뉴 서비스</h4>
+                            <ul>
+                                <li><a href="javascript:void(0)" id="drawerNoticeBtn"><i class="fa-solid fa-bullhorn"></i> 공지사항</a></li>
+                                <li><a href="javascript:void(0)" id="drawerTimetableBtn"><i class="fa-solid fa-calendar-days"></i> 시간표</a></li>
+                                <li><a href="javascript:void(0)" id="drawerExamBtn"><i class="fa-solid fa-pen-to-square"></i> 시험일정</a></li>
+                                <li><a href="javascript:void(0)" id="drawerWeatherBtn"><i class="fa-solid fa-cloud-sun"></i> 날씨</a></li>
+                                <li><a href="javascript:void(0)" id="drawerMealBtn"><i class="fa-solid fa-utensils"></i> 급식</a></li>
+                                <li><a href="javascript:void(0)" id="drawerSupplyBtn"><i class="fa-solid fa-clipboard-list"></i> 준비물</a></li>
+                            </ul>
+                        </div>
+
+                        <div class="nav-category">
+                            <h4><i class="fa-solid fa-images"></i> 갤러리</h4>
+                            <ul>
+                                <li><a href="#sec-gallery" id="drawerGalleryBtn"><i class="fa-solid fa-camera"></i> 포토갤러리</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- 2. 메인 비주얼 배너 (Hero Carousel) -->
+                <section class="section sec-hero" id="sec-hero">
+                    <div class="hero-carousel" id="heroCarousel">
+                        <div class="carousel-track">
+                            <!-- Slide 1: 1학년 6반 화이팅 + 독서/학업 감성 일러스트 (첫 번째 배너) -->
+                            <div class="carousel-slide active" style="background-image: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.55)), url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1000&auto=format&fit=crop');">
+                                <div class="slide-caption">
+                                    <span class="badge-tag"><i class="fa-solid fa-star"></i> 우리반 소식</span>
+                                    <h2 class="slide-main-title">1학년 6반 화이팅! 🔥</h2>
+                                    <div class="hero-datetime-box">
+                                        <div class="h-date"><i class="fa-regular fa-calendar-days"></i> <span id="heroDateText">2026년 08월 04일 (화)</span></div>
+                                        <div class="h-time"><i class="fa-regular fa-clock"></i> <strong id="heroClockText">00:00:00</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Slide 2: 중요한 시험일정 (두 번째 배너에는 디데이 표시) -->
+                            <div class="carousel-slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1000&auto=format&fit=crop');">
+                                <div class="slide-caption">
+                                    <span class="badge-tag red-badge"><i class="fa-solid fa-triangle-exclamation"></i> 중요한 시험일정</span>
+                                    <h2>2026학년도 1학년<br>지필고사 <span class="dday-large-tag" id="slide2DdayTag">D-98</span></h2>
+                                    <p><i class="fa-solid fa-pen-to-square"></i> 평가기간: 11월 10일(화) ~ 11월 12일(목)</p>
+                                </div>
+                            </div>
+                            <!-- Slide 3: 학사일정 진짜 달력 & 주요 일정 리스트 (8월~12월 선택 가능) -->
+                            <div class="carousel-slide" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=1000&auto=format&fit=crop');">
+                                <div class="slide-caption slide-calendar-caption">
+                                    <div class="cal-split-container">
+                                        <!-- 진짜 달력 위젯 (달력 바로 위 월 선택 헤더 바 위치) -->
+                                        <div class="hero-mini-calendar">
+                                            <div class="mini-cal-header-bar">
+                                                <button type="button" class="mini-cal-nav-btn" id="heroCalPrevBtn" onclick="if(window.changeHeroCalMonth) window.changeHeroCalMonth(-1); event.stopPropagation();" aria-label="이전 달">
+                                                    <i class="fa-solid fa-chevron-left"></i>
+                                                </button>
+                                                <h3 class="mini-cal-title" id="heroCalMonthTitle">2026년 8월</h3>
+                                                <button type="button" class="mini-cal-nav-btn" id="heroCalNextBtn" onclick="if(window.changeHeroCalMonth) window.changeHeroCalMonth(1); event.stopPropagation();" aria-label="다음 달">
+                                                    <i class="fa-solid fa-chevron-right"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="cal-weekdays">
+                                                <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span>
+                                            </div>
+                                            <div class="cal-days-grid" id="heroCalDaysGrid">
+                                                <!-- JS로 실시간 달력 날짜 생성 -->
+                                            </div>
+                                        </div>
+
+                                        <!-- 달력 일정 상세 안내 박스 (JS 동적 렌더링) -->
+                                        <div class="cal-event-list-box" id="heroCalEventListBox">
+                                            <div class="cal-event-title"><i class="fa-solid fa-bookmark"></i> 이달의 학사일정</div>
+                                            <div id="calEventItems">
+                                                <!-- JS로 월별 이벤트 생성 -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 컨트롤 및 인디케이터 -->
+                        <div class="hero-controls">
+                            <span class="slide-counter"><strong id="heroCurrentSlide">1</strong> / 3</span>
+                            <div class="hero-dots">
+                                <span class="dot active" data-slide="0"></span>
+                                <span class="dot" data-slide="1"></span>
+                                <span class="dot" data-slide="2"></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. 퀵 메뉴 (Quick Icons Grid 2x3) -->
+                <section class="section sec-quick" id="sec-quick">
+                    <div class="quick-grid">
+                        <button type="button" class="quick-item" id="quickNoticeBtn">
+                            <div class="icon-circle">
+                                <i class="fa-solid fa-bullhorn"></i>
+                            </div>
+                            <span class="label">공지사항</span>
+                        </button>
+                        <button type="button" class="quick-item" id="quickTimetableBtn">
+                            <div class="icon-circle">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </div>
+                            <span class="label">시간표</span>
+                        </button>
+                        <button type="button" class="quick-item" id="quickExamBtn">
+                            <div class="icon-circle">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </div>
+                            <span class="label">시험일정</span>
+                        </button>
+                        <button type="button" class="quick-item" id="quickWeatherBtn">
+                            <div class="icon-circle" id="quickWeatherIconCircle">
+                                <i class="fa-solid fa-cloud-sun" id="quickWeatherIcon"></i>
+                            </div>
+                            <span class="label">날씨</span>
+                            <span class="weather-mini-badge" id="weatherMiniBadge">--°C</span>
+                        </button>
+                        <button type="button" class="quick-item" id="quickMealBtn">
+                            <div class="icon-circle">
+                                <i class="fa-solid fa-utensils"></i>
+                            </div>
+                            <span class="label">급식</span>
+                        </button>
+                        <button type="button" class="quick-item" id="quickSupplyBtn">
+                            <div class="icon-circle">
+                                <i class="fa-solid fa-clipboard-list"></i>
+                            </div>
+                            <span class="label">준비물</span>
+                        </button>
+                    </div>
+                </section>
+
+
+
+                <!-- 6. 오늘의 식단 위젯 (Today's Cafeteria Widget) -->
+                <section class="section sec-meal" id="sec-meal">
+                    <div class="section-header">
+                        <div class="sec-title-group">
+                            <h3>오늘의 식단</h3>
+                        </div>
+                        <a href="https://yangyoung-m.goesy.kr/yangyoung-m/na/nt/selectNoticeList.do?mi=10557" target="_blank" rel="noopener noreferrer" class="more-btn" aria-label="식단 더보기"><i class="fa-solid fa-plus"></i></a>
+                    </div>
+
+                    <div class="meal-card" id="mealCard">
+                        <div class="meal-content">
+                            <div class="meal-status">
+                                <span class="meal-date-tag" id="mealDateTag">2026-08-03 (월) 중식</span>
+                                <div class="meal-items-box" id="mealItemsBox">
+                                    <ul class="meal-menu-list">
+                                        <li><i class="fa-solid fa-check"></i> 발아현미밥</li>
+                                        <li><i class="fa-solid fa-check"></i> 쇠고기미역국</li>
+                                        <li><i class="fa-solid fa-check"></i> 돈육고추장불고기</li>
+                                        <li><i class="fa-solid fa-check"></i> 계란말이 & 샐러드</li>
+                                        <li><i class="fa-solid fa-check"></i> 배추김치 / 샤인머스캣</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="meal-illustration">
+                                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop" alt="맛있는 식단" class="meal-img">
+                                <span class="calories-badge">645 kcal</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+
+                <!-- 8. 포토갤러리 (Photo Gallery 2 columns) -->
+                <section class="section sec-gallery" id="sec-gallery">
+                    <div class="accordion-box open">
+                        <div class="accordion-header">
+                            <div class="sec-title-group">
+                                <h3>포토갤러리</h3>
+                            </div>
+                            <button class="accordion-toggle" aria-label="접기/펼치기"><i class="fa-solid fa-minus"></i></button>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="vacation-notice-box" style="margin: 10px 0;">
+                                <i class="fa-solid fa-images" style="font-size: 28px; color: #38bdf8; margin-bottom: 8px; display: block;"></i>
+                                <h4 style="font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">아직 등록된 학급 사진이 없습니다 📸</h4>
+                                <p style="font-size: 11px; color: #cbd5e1; margin: 0;">추후 학급 행사 및 소중한 추억 사진이 업데이트될 예정입니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+
+                <!-- 10. 푸터 (Footer) -->
+                <footer class="app-footer">
+                    <div class="footer-nav">
+                        <a href="javascript:void(0)" onclick="alert('📍 위치 설정 안내: 스마트폰 실시간 GPS 위치 및 성남시 분당구 역지오코딩 자동 연동 반영');">위치 정보 반영 방식</a>
+                        <span class="divider">|</span>
+                        <a href="javascript:void(0)">사용자 이름: [사용자 이름]</a>
+                    </div>
+
+                    <div class="footer-info">
+                        <p class="school-name-ft">1학년 6반 홈페이지</p>
+                        <p>우) 13589 경기도 성남시 분당구 불정로 00</p>
+                        <p>📞 부회장: <a href="tel:01073687973" style="color:#38bdf8; font-weight:700;">010-7368-7973</a> | 🏫 양영중 교무실: <a href="tel:0317014470" style="color:#38bdf8; font-weight:700;">031-701-4470</a></p>
+                        <p class="copyright">Copyright © 1학년 6반 홈페이지. All Rights Reserved.</p>
+                    </div>
+
+                    <div class="search-engine-badge">
+                        <i class="fa-brands fa-google"></i>
+                        <span>구글 웹마스터 모바일 최적화</span>
+                    </div>
+
+                    <!-- Scroll to Top Button -->
+                    <button class="scroll-top-btn" id="scrollTopBtn" aria-label="맨 위로 이동">
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                </footer>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
