@@ -12,103 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-green mode-frame">
-
-    <!-- 모드 조작 & 커스터마이저 플로팅 툴바 -->
-    <aside class="customizer-toolbar" id="customizerToolbar">
-        <button class="customizer-toggle-btn" id="customizerToggleBtn" title="초안 설정 / 커스텀 모드">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <span>초안 커스텀</span>
-        </button>
-
-        <div class="customizer-panel" id="customizerPanel">
-            <div class="panel-header">
-                <h3><i class="fa-solid fa-sliders"></i> 화면 구성 커스터마이저</h3>
-                <button class="panel-close-btn" id="panelCloseBtn">&times;</button>
-            </div>
-            
-            <div class="panel-body">
-                <!-- 1. View Mode Switch -->
-                <div class="config-group">
-                    <label class="group-title"><i class="fa-solid fa-mobile-screen"></i> 미리보기 형태</label>
-                    <div class="button-group">
-                        <button class="btn-option active" data-view="frame">모바일 프레임</button>
-                        <button class="btn-option" data-view="full">전체 화면</button>
-                    </div>
-                </div>
-
-                <!-- 2. Theme Color -->
-                <div class="config-group">
-                    <label class="group-title"><i class="fa-solid fa-palette"></i> 테마 컬러</label>
-                    <div class="color-options">
-                        <button class="color-btn active" data-theme="theme-green" style="background: #10b981;" title="에메랄드 그린"></button>
-                        <button class="color-btn" data-theme="theme-blue" style="background: #2563eb;" title="스마트 오션 블루"></button>
-                        <button class="color-btn" data-theme="theme-amber" style="background: #f59e0b;" title="따뜻한 선셋 앰버"></button>
-                        <button class="color-btn" data-theme="theme-purple" style="background: #8b5cf6;" title="모던 바이올렛"></button>
-                        <button class="color-btn" data-theme="theme-dark" style="background: #1e293b;" title="다크 엘레강스"></button>
-                    </div>
-                </div>
-
-                <!-- 3. Title Customization -->
-                <div class="config-group">
-                    <label class="group-title" for="inputSchoolName"><i class="fa-solid fa-pen"></i> 기관 / 명칭 변경</label>
-                    <input type="text" id="inputSchoolName" class="config-input" value="1학년 6반 알리미">
-                </div>
-
-                <!-- 4. Section Visibility Toggles -->
-                <div class="config-group">
-                    <label class="group-title"><i class="fa-solid fa-layer-group"></i> 섹션 표시 / 숨기기 (ON/OFF)</label>
-                    <div class="toggle-list">
-                        <label class="toggle-item">
-                            <span>메인 슬라이드 배너</span>
-                            <input type="checkbox" class="section-toggle" data-target="sec-hero" checked>
-                            <span class="slider-switch"></span>
-                        </label>
-                        <label class="toggle-item">
-                            <span>퀵 메뉴 (아이콘 6종)</span>
-                            <input type="checkbox" class="section-toggle" data-target="sec-quick" checked>
-                            <span class="slider-switch"></span>
-                        </label>
-                        <label class="toggle-item">
-                            <span>공지사항 & 가정통신문</span>
-                            <input type="checkbox" class="section-toggle" data-target="sec-notices" checked>
-                            <span class="slider-switch"></span>
-                        </label>
-                        <label class="toggle-item">
-                            <span>학사일정 위젯</span>
-                            <input type="checkbox" class="section-toggle" data-target="sec-calendar" checked>
-                            <span class="slider-switch"></span>
-                        </label>
-                        <label class="toggle-item">
-                            <span>오늘의 식단 위젯</span>
-                            <input type="checkbox" class="section-toggle" data-target="sec-meal" checked>
-                            <span class="slider-switch"></span>
-                        </label>
-                        <label class="toggle-item">
-                            <span>팝업존 배너</span>
-                            <input type="checkbox" class="section-toggle" data-target="sec-popup" checked>
-                            <span class="slider-switch"></span>
-                        </label>
-                        <label class="toggle-item">
-                            <span>포토갤러리</span>
-                            <input type="checkbox" class="section-toggle" data-target="sec-gallery" checked>
-                            <span class="slider-switch"></span>
-                        </label>
-                        <label class="toggle-item">
-                            <span>하단 관련기관 슬라이드</span>
-                            <input type="checkbox" class="section-toggle" data-target="sec-bannerstrip" checked>
-                            <span class="slider-switch"></span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="panel-footer">
-                    <button class="btn-reset" id="btnResetConfig"><i class="fa-solid fa-rotate-left"></i> 초기화</button>
-                    <p class="custom-tip"><i class="fa-solid fa-lightbulb"></i> HTML 코드 편집으로도 세부 텍스트 및 링크를 자유롭게 바꿀 수 있습니다.</p>
-                </div>
-            </div>
-        </div>
-    </aside>
+<body class="theme-green mode-full">
 
     <!-- 모바일 앱 래퍼 컨테이너 -->
     <div class="mobile-wrapper">
@@ -142,7 +46,7 @@
 
                     <a href="#" class="brand-logo">
                         <div class="school-logo-wrapper">
-                            <img src="yangyoung_logo.jpg" alt="양영중 로고" class="school-logo-left-img">
+                            <img src="yyschool.png" onerror="this.onerror=null; this.src='yangyoung_logo.jpg';" alt="양영중 로고" class="school-logo-left-img">
                         </div>
                         <h1 class="school-title" id="displaySchoolName">1학년 6반 알리미</h1>
                     </a>
@@ -333,11 +237,6 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="notice-footer-bar">
-                            <button type="button" class="btn-admin-edit" onclick="alert('🔑 관리자 로그인 후 과목 및 시간표를 직접 입력/수정하실 수 있습니다.');">
-                                <i class="fa-solid fa-lock"></i> 시간표 직접 수정하기 (관리자 전용)
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -349,16 +248,25 @@
                             <div class="notice-title">
                                 <i class="fa-solid fa-bullhorn"></i>
                                 <span>1학년 6반 공지사항</span>
+                                <span class="notice-count-badge" id="modalNoticeCountBadge">등록 3개</span>
                             </div>
                             <button class="notice-close-btn" id="noticeCloseBtn">&times;</button>
                         </div>
-                        <div class="notice-card-content">
-                            <div class="notice-meta-bar">
+
+                        <!-- 공지사항 3개 확인 탭 바 -->
+                        <div class="notice-modal-tab-bar" id="noticeModalTabBar">
+                            <button type="button" class="notice-tab-btn active" data-notice-tab="0">📌 공지 1</button>
+                            <button type="button" class="notice-tab-btn" data-notice-tab="1">📌 공지 2</button>
+                            <button type="button" class="notice-tab-btn" data-notice-tab="2">📌 공지 3</button>
+                        </div>
+
+                        <div class="notice-card-content" id="noticeCardContent">
+                            <div class="notice-meta-bar" id="noticeModalMetaBar">
                                 <span class="notice-badge red"><i class="fa-solid fa-bell"></i> [중요 공지]</span>
-                                <span class="notice-date">2026. 08. 05</span>
+                                <span class="notice-date" id="noticeModalDate">2026. 08. 05</span>
                             </div>
-                            <h3 class="notice-main-heading">안전하게 여름방학 즐기기! 🍉🏖️</h3>
-                            <div class="notice-body-text">
+                            <h3 class="notice-main-heading" id="noticeModalHeading">안전하게 여름방학 즐기기! 🍉🏖️</h3>
+                            <div class="notice-body-text" id="noticeModalBodyText">
                                 <p>1학년 6반 학생 여러분, 즐겁고 보람찬 여름방학 기간 동안 건강과 안전을 최우선으로 지켜주시기 바랍니다!</p>
                                 <div class="notice-rule-box">
                                     <div class="rule-item">
@@ -385,11 +293,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="notice-footer-bar">
-                            <button type="button" class="btn-admin-edit" id="btnAdminNoticeEdit" onclick="alert('🔑 관리자 모드 수정 기능은 추후 전용 로그인 링크와 연동될 예정입니다.');">
-                                <i class="fa-solid fa-lock"></i> 관리자 공지 수정 (관리자 전용)
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -411,11 +314,6 @@
                                 <p>즐겁고 건강한 여름방학을 보내세요! 개학 후 준비물 목록이 업데이트됩니다.</p>
                             </div>
                         </div>
-                        <div class="notice-footer-bar">
-                            <button type="button" class="btn-admin-edit" onclick="alert('🔑 관리자 로그인 후 준비물 항목을 직접 등록/수정하실 수 있습니다.');">
-                                <i class="fa-solid fa-lock"></i> 준비물 수정하기 (관리자 전용)
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -430,24 +328,24 @@
                             </div>
                             <button class="exam-close-btn" id="examCloseBtn">&times;</button>
                         </div>
-                        <div class="exam-card-content">
-                            <div class="vacation-notice-box">
-                                <i class="fa-solid fa-pen-ruler"></i>
-                                <h4>방학이라 시험일정이 아직 없습니다! 🏖️</h4>
-                                <p>2학기 지필평가/수행평가 일정 등록 시 공지됩니다.</p>
+                        <div class="exam-card-content" id="examModalCardContent">
+                            <div class="exam-info-card">
+                                <div class="exam-header-badge">
+                                    <span class="exam-dday-badge" id="examModalDdayBadge">D-98</span>
+                                    <h4 id="examModalTitleText" style="color: #f8fafc; font-size: 15px; font-weight: 800; margin: 0;">2026학년도 1학년 지필고사</h4>
+                                </div>
+                                <div class="exam-period-info" style="margin-top: 8px; font-size: 12px; color: #cbd5e1; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-calendar-check" style="color: #38bdf8;"></i>
+                                    <span>평가 기간: <strong id="examModalPeriodText" style="color: #fde047;">11월 10일(화) ~ 11월 12일(목)</strong></span>
+                                </div>
                             </div>
-                            <div class="exam-image-upload-slot" id="examImageSlot">
+                            <div class="exam-image-upload-slot" id="examImageSlot" style="margin-top: 12px;">
                                 <div class="slot-placeholder">
                                     <i class="fa-solid fa-image"></i>
                                     <span>시험일정 표 / 시간표 이미지 등록 칸</span>
                                     <small>(나중에 올라오는 시험일정 이미지 표가 여기에 표시됩니다)</small>
                                 </div>
                             </div>
-                        </div>
-                        <div class="notice-footer-bar">
-                            <button type="button" class="btn-admin-edit" onclick="alert('🔑 관리자 로그인 후 시험일정 및 사진을 첨부/수정하실 수 있습니다.');">
-                                <i class="fa-solid fa-lock"></i> 시험일정 및 사진 등록 (관리자 전용)
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -470,11 +368,6 @@
                                 <p style="font-size: 11.5px; color: #94a3b8; line-height: 1.5;">나중에 관리자 기능을 통해 1학년 6반의 추억 사진(세로형 비율 권장)을 자유롭게 올려보세요!</p>
                             </div>
                         </div>
-                        <div class="notice-footer-bar">
-                            <button type="button" class="btn-admin-edit" onclick="alert('🔑 관리자 로그인 후 사진 및 설명을 수정하실 수 있습니다.');">
-                                <i class="fa-solid fa-lock"></i> 사진 및 설명 수정 (관리자 전용)
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -486,9 +379,400 @@
                         <img id="lightboxTargetImg" src="" alt="확대 이미지">
                         <div class="lightbox-caption-box">
                             <span id="lightboxCaptionText" class="lightbox-caption"></span>
-                            <button type="button" class="btn-admin-edit" style="width:auto; padding:3px 10px; font-size:10px;" onclick="alert('🔑 관리자 로그인 후 설명을 수정하실 수 있습니다.');">
-                                <i class="fa-solid fa-lock"></i> 설명 수정 (관리자 전용)
-                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 통합 관리자 전용 센터 모달 팝업 -->
+                <div class="admin-backdrop" id="adminBackdrop"></div>
+                <div class="admin-modal" id="adminModal">
+                    <div class="admin-modal-inner">
+                        <div class="admin-modal-header">
+                            <div class="admin-modal-title">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>1학년 6반 통합 관리자 센터</span>
+                            </div>
+                            <button class="admin-modal-close-btn" id="adminCloseBtn">&times;</button>
+                        </div>
+
+                        <div class="admin-modal-body">
+                            <!-- 1. Firebase Auth 관리자 로그인 폼 (비로그인 상태) -->
+                            <div class="admin-login-box" id="adminLoginBox">
+                                <div class="admin-auth-header-card">
+                                    <div class="auth-icon-circle">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                    </div>
+                                    <h3>Firebase 관리자 로그인</h3>
+                                    <p>1학년 6반 통합 관리자 계정으로 로그인해주세요.</p>
+                                </div>
+
+                                <form id="adminLoginForm">
+                                    <div class="admin-form-group">
+                                        <label><i class="fa-solid fa-envelope"></i> 관리자 이메일</label>
+                                        <input type="email" id="adminEmailInput" class="admin-input-field" placeholder="admin@yangyoung.hs.kr" required value="admin@yangyoung.hs.kr">
+                                    </div>
+                                    <div class="admin-form-group">
+                                        <label><i class="fa-solid fa-key"></i> 비밀번호</label>
+                                        <input type="password" id="adminPasswordInput" class="admin-input-field" placeholder="🔑 비밀번호 입력" required value="123456">
+                                    </div>
+
+                                    <div class="admin-auth-msg" id="adminAuthMsg"></div>
+
+                                    <button type="submit" class="btn-firebase-login" id="btnFirebaseLogin">
+                                        <i class="fa-solid fa-right-to-bracket"></i> Firebase 인증 로그인
+                                    </button>
+                                </form>
+
+                                <div class="demo-auth-note">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <span>Firebase Authentication 서버에 안전하게 보안 로그인합니다.</span>
+                                </div>
+                            </div>
+
+                            <!-- 2. Firebase Auth 인증 완료 후 표시되는 관리자 대시보드 -->
+                            <div class="admin-dashboard-box" id="adminDashboardBox" style="display: none;">
+                                <div class="admin-logged-header">
+                                    <div class="user-status-tag">
+                                        <i class="fa-solid fa-circle-check" style="color:#10b981;"></i>
+                                        <span id="adminUserEmailTag">admin@yangyoung.hs.kr</span>
+                                    </div>
+                                    <button type="button" class="btn-admin-logout" id="btnAdminLogout">
+                                        <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+                                    </button>
+                                </div>
+
+                                <!-- 탭 선택 바 (7종) -->
+                                <div class="admin-tab-bar">
+                                    <button type="button" class="admin-tab-btn active" data-tab="tabNotice"><i class="fa-solid fa-bullhorn"></i> 공지사항</button>
+                                    <button type="button" class="admin-tab-btn" data-tab="tabTimetable"><i class="fa-solid fa-calendar-days"></i> 시간표</button>
+                                    <button type="button" class="admin-tab-btn" data-tab="tabExam"><i class="fa-solid fa-pen-to-square"></i> 시험일정</button>
+                                    <button type="button" class="admin-tab-btn" data-tab="tabSupply"><i class="fa-solid fa-clipboard-list"></i> 준비물</button>
+                                    <button type="button" class="admin-tab-btn" data-tab="tabGallery"><i class="fa-solid fa-camera"></i> 갤러리</button>
+                                    <button type="button" class="admin-tab-btn" data-tab="tabCustomizer"><i class="fa-solid fa-wand-magic-sparkles"></i> 화면 커스텀</button>
+                                    <button type="button" class="admin-tab-btn tab-highlight" data-tab="tabAnalytics"><i class="fa-solid fa-chart-line"></i> 통계</button>
+                                </div>
+
+                                <!-- 1. 공지사항 관리 패널 (최대 3개 선택 편집) -->
+                                <div class="admin-tab-panel active" id="tabNotice">
+                                    <h4 class="admin-panel-title"><i class="fa-solid fa-bullhorn"></i> 공지사항 등록 및 편집 (최대 3개 관리)</h4>
+                                    
+                                    <!-- 공지 1, 2, 3 선택 버튼 -->
+                                    <div class="notice-selector-row">
+                                        <button type="button" class="notice-num-btn active" data-notice-idx="0">📌 공지 1</button>
+                                        <button type="button" class="notice-num-btn" data-notice-idx="1">📌 공지 2</button>
+                                        <button type="button" class="notice-num-btn" data-notice-idx="2">📌 공지 3</button>
+                                    </div>
+
+                                    <form id="adminNoticeForm">
+                                        <input type="hidden" id="currentNoticeIdx" value="0">
+                                        <div class="admin-form-group">
+                                            <label class="checkbox-label" style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12px; color:#fde047; font-weight:700;">
+                                                <input type="checkbox" id="adminNoticeActive" checked style="width:16px; height:16px; accent-color:#f59e0b;">
+                                                <span>이 공지사항 게시하기 (게시 등록 상태)</span>
+                                            </label>
+                                        </div>
+                                        <div class="admin-form-row">
+                                            <div class="admin-form-group flex-1">
+                                                <label>공지 태그 유형</label>
+                                                <select id="adminNoticeTag" class="admin-select-field">
+                                                    <option value="red">[중요 공지]</option>
+                                                    <option value="blue">[학급 안내]</option>
+                                                    <option value="green">[방학 안내]</option>
+                                                </select>
+                                            </div>
+                                            <div class="admin-form-group flex-1">
+                                                <label>등록 날짜</label>
+                                                <input type="text" id="adminNoticeDate" class="admin-input-field" value="2026. 08. 05">
+                                            </div>
+                                        </div>
+                                        <div class="admin-form-group">
+                                            <label>공지 대표 제목</label>
+                                            <input type="text" id="adminNoticeTitle" class="admin-input-field" value="안전하게 여름방학 즐기기! 🍉🏖️">
+                                        </div>
+                                        <div class="admin-form-group">
+                                            <label>공지 안내 본문 요약</label>
+                                            <textarea id="adminNoticeBody" class="admin-textarea-field" rows="3">1학년 6반 학생 여러분, 즐겁고 보람찬 여름방학 기간 동안 건강과 안전을 최우선으로 지켜주시기 바랍니다!</textarea>
+                                        </div>
+                                        <button type="submit" class="btn-admin-submit"><i class="fa-solid fa-check"></i> 선택한 공지사항 저장 및 실시간 반영</button>
+                                    </form>
+                                </div>
+
+                                <!-- 2. 시간표 관리 패널 -->
+                                <div class="admin-tab-panel" id="tabTimetable">
+                                    <h4 class="admin-panel-title"><i class="fa-solid fa-clock"></i> 주간 시간표 데이터 관리</h4>
+                                    <div class="comtime-status-banner">
+                                        <i class="fa-solid fa-link" style="color:#10b981;"></i>
+                                        <span>양영중 1-6 컴시간알리미 (코드: 74291) 자동 연동 중</span>
+                                    </div>
+                                    <button type="button" class="btn-admin-submit style-blue" id="btnSyncComtime"><i class="fa-solid fa-rotate-right"></i> 컴시간 최신 시간표 즉시 동기화</button>
+                                </div>
+
+                                <!-- 3. 시험일정 및 D-Day 관리 패널 (텍스트 & 이미지 등록) -->
+                                <div class="admin-tab-panel" id="tabExam">
+                                    <h4 class="admin-panel-title"><i class="fa-solid fa-graduation-cap"></i> 시험일정 (텍스트 & 이미지 시간표 등록)</h4>
+                                    <form id="adminExamForm">
+                                        <div class="admin-form-group">
+                                            <label>시험 명칭</label>
+                                            <input type="text" id="adminExamTitle" class="admin-input-field" value="2026학년도 1학년 지필고사">
+                                        </div>
+                                        <div class="admin-form-row">
+                                            <div class="admin-form-group flex-1">
+                                                <label>D-Day 목표 날짜</label>
+                                                <input type="date" id="adminExamDate" class="admin-input-field" value="2026-11-10">
+                                            </div>
+                                            <div class="admin-form-group flex-1">
+                                                <label>계산된 D-Day</label>
+                                                <input type="text" id="adminExamDdayDisplay" class="admin-input-field" value="D-98" readonly style="color:#fde047; font-weight:800;">
+                                            </div>
+                                        </div>
+                                        <div class="admin-form-group">
+                                            <label>시험 평가 기간 안내 텍스트</label>
+                                            <input type="text" id="adminExamPeriod" class="admin-input-field" value="11월 10일(화) ~ 11월 12일(목)">
+                                        </div>
+
+                                        <!-- 시험시간표 이미지 첨부 -->
+                                        <div class="admin-form-group">
+                                            <label><i class="fa-solid fa-image"></i> 시험시간표 이미지 첨부 (파일 또는 URL)</label>
+                                            <input type="file" id="adminExamImgFile" accept="image/*" class="admin-input-field" style="padding: 6px;">
+                                            <input type="text" id="adminExamImgUrl" class="admin-input-field" placeholder="또는 이미지 URL 입력 (https://...)" style="margin-top: 6px;">
+                                            <div id="adminExamImgPreview" class="admin-img-preview-card" style="display:none; margin-top:8px;">
+                                                <img id="examPreviewImgTag" src="" alt="시험시간표 미리보기" style="max-height: 120px; border-radius: 8px;">
+                                            </div>
+                                        </div>
+
+                                        <button type="submit" class="btn-admin-submit"><i class="fa-solid fa-check"></i> 시험일정 텍스트 & 이미지 반영</button>
+                                    </form>
+                                </div>
+
+                                <!-- 4. 준비물 관리 패널 -->
+                                <div class="admin-tab-panel" id="tabSupply">
+                                    <h4 class="admin-panel-title"><i class="fa-solid fa-list-check"></i> 준비물 등록 및 모드 설정</h4>
+                                    <form id="adminSupplyForm">
+                                        <div class="admin-form-group">
+                                            <label>오늘/내일 1학년 6반 준비물 목록</label>
+                                            <textarea id="adminSupplyText" class="admin-textarea-field" rows="4" placeholder="예: 체육복, 4B연필, 수학익힘책">아직 방학이라 준비물이 없습니다! 🏖️</textarea>
+                                        </div>
+                                        <button type="submit" class="btn-admin-submit"><i class="fa-solid fa-check"></i> 준비물 저장 및 업데이트</button>
+                                    </form>
+                                </div>
+
+                                <!-- 5. 포토갤러리 사진 관리 패널 (최대 5장 / FIFO 6번째 시 1번 해제 & 5MB 이하) -->
+                                <div class="admin-tab-panel" id="tabGallery">
+                                    <h4 class="admin-panel-title"><i class="fa-solid fa-images"></i> 포토갤러리 사진 등록 (최대 5장, 5MB 이하)</h4>
+                                    
+                                    <div class="comtime-status-banner" style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #fde047;">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                        <span>최대 5장까지 저장되며, 6번째 사진 등록 시 1번 사진이 자동으로 해제(삭제)됩니다.</span>
+                                    </div>
+
+                                    <form id="adminGalleryForm">
+                                        <div class="admin-form-group">
+                                            <label><i class="fa-solid fa-paperclip"></i> 사진 파일 첨부 (img/ 폴더 저장, 5MB 이하)</label>
+                                            <input type="file" id="adminGalleryFileInput" accept="image/*" class="admin-input-field" style="padding: 6px;">
+                                            <small style="color: #94a3b8; font-size: 11px; display: block; margin-top: 4px;">
+                                                ⚠️ 5MB 이하의 이미지 파일만 첨부할 수 있습니다. (저장 경로: <code>img/파일명</code>)
+                                            </small>
+                                        </div>
+                                        <div class="admin-form-group">
+                                            <label>또는 이미지 URL 직접 입력</label>
+                                            <input type="text" id="adminGalleryImgUrl" class="admin-input-field" placeholder="img/photo_1.jpg 또는 https://images.unsplash.com/...">
+                                        </div>
+                                        <div class="admin-form-group">
+                                            <label>사진 제목 및 캡션 설명</label>
+                                            <input type="text" id="adminGalleryCaption" class="admin-input-field" placeholder="예: 🌸 1학년 6반 현장체험학습 단체 사진">
+                                        </div>
+
+                                        <div id="adminGalleryImgPreview" class="admin-img-preview-card" style="display:none; margin-bottom:10px;">
+                                            <img id="galleryPreviewImgTag" src="" alt="갤러리 미리보기" style="max-height: 120px; border-radius: 8px;">
+                                            <div id="galleryFileInfoText" style="font-size: 11px; color: #34d399; margin-top: 4px;"></div>
+                                        </div>
+
+                                        <button type="submit" class="btn-admin-submit"><i class="fa-solid fa-cloud-arrow-up"></i> 포토갤러리 새 사진 등록</button>
+                                    </form>
+
+                                    <!-- 등록된 갤러리 관리 목록 -->
+                                    <div style="margin-top: 14px;">
+                                        <h5 style="font-size: 12px; color: #cbd5e1; margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center;">
+                                            <span><i class="fa-solid fa-list-check"></i> 등록된 갤러리 이미지 (img/ 경로)</span>
+                                            <strong id="adminGalleryCountTag" style="color:#fde047;">(0/5장)</strong>
+                                        </h5>
+                                        <div id="adminGalleryGrid" class="admin-gallery-grid">
+                                            <!-- JS로 동적 렌더링 -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 6. 사용자 통계 대시보드 패널 -->
+                                <div class="admin-tab-panel" id="tabAnalytics">
+                                    <h4 class="admin-panel-title"><i class="fa-solid fa-chart-pie"></i> 학급 웹 포털 사용자 접속 및 이용 통계</h4>
+                                    
+                                    <!-- 4대 요약 통계 카드 Grid -->
+                                    <div class="analytics-card-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fa-solid fa-users" style="color:#38bdf8;"></i>
+                                                <span>총 방문자 수</span>
+                                            </div>
+                                            <div class="stat-value" id="statTotalVisits">1,284<small>회</small></div>
+                                            <div class="stat-sub text-green">전주 대비 +18.4% ↗</div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fa-solid fa-user-check" style="color:#10b981;"></i>
+                                                <span>오늘 방문자</span>
+                                            </div>
+                                            <div class="stat-value" id="statTodayVisits">42<small>명</small></div>
+                                            <div class="stat-sub text-emerald">실시간 활성 🟢</div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fa-solid fa-eye" style="color:#fbbf24;"></i>
+                                                <span>인기 모달 조회</span>
+                                            </div>
+                                            <div class="stat-value">3,850<small>회</small></div>
+                                            <div class="stat-sub text-amber">시간표 1위 (45%)</div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-card-header">
+                                                <i class="fa-solid fa-mobile-screen-button" style="color:#a78bfa;"></i>
+                                                <span>접속 디바이스</span>
+                                            </div>
+                                            <div class="stat-value">86%<small>모바일</small></div>
+                                            <div class="stat-sub text-purple">데스크톱 14%</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 기능별 이용 비중 프로그레스 바 -->
+                                    <div class="analytics-usage-box">
+                                        <h5><i class="fa-solid fa-fire"></i> 서비스 기능별 이용 비중</h5>
+                                        <div class="usage-item">
+                                            <div class="usage-label"><span>📅 주간 시간표</span><strong>45%</strong></div>
+                                            <div class="usage-bar"><div class="usage-fill" style="width: 45%; background: #38bdf8;"></div></div>
+                                        </div>
+                                        <div class="usage-item">
+                                            <div class="usage-label"><span>🍱 오늘의 급식</span><strong>32%</strong></div>
+                                            <div class="usage-bar"><div class="usage-fill" style="width: 32%; background: #10b981;"></div></div>
+                                        </div>
+                                        <div class="usage-item">
+                                            <div class="usage-label"><span>📢 공지사항 & 일정</span><strong>15%</strong></div>
+                                            <div class="usage-bar"><div class="usage-fill" style="width: 15%; background: #fbbf24;"></div></div>
+                                        </div>
+                                        <div class="usage-item">
+                                            <div class="usage-label"><span>📸 포토갤러리</span><strong>8%</strong></div>
+                                            <div class="usage-bar"><div class="usage-fill" style="width: 8%; background: #a78bfa;"></div></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 7. 화면 초안 커스터마이저 패널 -->
+                                <div class="admin-tab-panel" id="tabCustomizer">
+                                    <h4 class="admin-panel-title"><i class="fa-solid fa-wand-magic-sparkles"></i> 화면 구성 및 초안 커스터마이저</h4>
+                                    
+                                    <div class="panel-body" style="padding: 0;">
+                                        <!-- 1. View Mode Switch (전체화면 기본, 모바일프레임 옵션) -->
+                                        <div class="config-group" style="margin-bottom: 16px;">
+                                            <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
+                                                <i class="fa-solid fa-mobile-screen" style="color:#38bdf8;"></i> 미리보기 형태 (전체 화면 기본 / 모바일 프레임 선택)
+                                            </label>
+                                            <div class="button-group" style="display:flex; gap:8px;">
+                                                <button class="btn-option active" data-view="full">전체 화면 (기본)</button>
+                                                <button class="btn-option" data-view="frame">모바일 프레임 (옵션)</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 2. Theme Color -->
+                                        <div class="config-group" style="margin-bottom: 16px;">
+                                            <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
+                                                <i class="fa-solid fa-palette" style="color:#38bdf8;"></i> 테마 컬러 선택
+                                            </label>
+                                            <div class="color-options" style="display:flex; gap:10px;">
+                                                <button class="color-btn active" data-theme="theme-green" style="background: #10b981; width:28px; height:28px; border-radius:50%; border:2px solid #fff; cursor:pointer;" title="에메랄드 그린"></button>
+                                                <button class="color-btn" data-theme="theme-blue" style="background: #2563eb; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="스마트 오션 블루"></button>
+                                                <button class="color-btn" data-theme="theme-amber" style="background: #f59e0b; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="따뜻한 선셋 앰버"></button>
+                                                <button class="color-btn" data-theme="theme-purple" style="background: #8b5cf6; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="모던 바이올렛"></button>
+                                                <button class="color-btn" data-theme="theme-dark" style="background: #1e293b; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="다크 엘레강스"></button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 3. Title Customization -->
+                                        <div class="config-group" style="margin-bottom: 16px;">
+                                            <label class="group-title" for="inputSchoolName" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
+                                                <i class="fa-solid fa-pen" style="color:#38bdf8;"></i> 기관 / 타이틀 명칭 변경
+                                            </label>
+                                            <input type="text" id="inputSchoolName" class="admin-input-field" value="1학년 6반 알리미">
+                                        </div>
+
+                                        <!-- 4. Section Visibility Toggles (Visual Switch Toggles) -->
+                                        <div class="config-group" style="margin-bottom: 16px;">
+                                            <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:8px;">
+                                                <i class="fa-solid fa-layer-group" style="color:#38bdf8;"></i> 메인 UI 섹션 표시 / 숨기기 (ON/OFF 스위치 토글)
+                                            </label>
+                                            <div class="toggle-list" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                                                <label class="custom-switch-item">
+                                                    <span>🖼️ 메인 배너</span>
+                                                    <div class="custom-toggle-switch">
+                                                        <input type="checkbox" class="section-toggle" data-target="sec-hero" checked>
+                                                        <span class="toggle-slider"></span>
+                                                    </div>
+                                                </label>
+                                                <label class="custom-switch-item">
+                                                    <span>⚡ 퀵 메뉴</span>
+                                                    <div class="custom-toggle-switch">
+                                                        <input type="checkbox" class="section-toggle" data-target="sec-quick" checked>
+                                                        <span class="toggle-slider"></span>
+                                                    </div>
+                                                </label>
+                                                <label class="custom-switch-item">
+                                                    <span>📢 공지사항</span>
+                                                    <div class="custom-toggle-switch">
+                                                        <input type="checkbox" class="section-toggle" data-target="sec-notices" checked>
+                                                        <span class="toggle-slider"></span>
+                                                    </div>
+                                                </label>
+                                                <label class="custom-switch-item">
+                                                    <span>📅 학사일정</span>
+                                                    <div class="custom-toggle-switch">
+                                                        <input type="checkbox" class="section-toggle" data-target="sec-calendar" checked>
+                                                        <span class="toggle-slider"></span>
+                                                    </div>
+                                                </label>
+                                                <label class="custom-switch-item">
+                                                    <span>🍱 오늘의 식단</span>
+                                                    <div class="custom-toggle-switch">
+                                                        <input type="checkbox" class="section-toggle" data-target="sec-meal" checked>
+                                                        <span class="toggle-slider"></span>
+                                                    </div>
+                                                </label>
+                                                <label class="custom-switch-item">
+                                                    <span>📸 포토갤러리</span>
+                                                    <div class="custom-toggle-switch">
+                                                        <input type="checkbox" class="section-toggle" data-target="sec-gallery" checked>
+                                                        <span class="toggle-slider"></span>
+                                                    </div>
+                                                </label>
+                                                <label class="custom-switch-item">
+                                                    <span>🔔 팝업존 배너</span>
+                                                    <div class="custom-toggle-switch">
+                                                        <input type="checkbox" class="section-toggle" data-target="sec-popup" checked>
+                                                        <span class="toggle-slider"></span>
+                                                    </div>
+                                                </label>
+                                                <label class="custom-switch-item">
+                                                    <span>🏛️ 기관 링크 배너</span>
+                                                    <div class="custom-toggle-switch">
+                                                        <input type="checkbox" class="section-toggle" data-target="sec-bannerstrip" checked>
+                                                        <span class="toggle-slider"></span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div style="margin-top: 14px; text-align: right;">
+                                            <button type="button" class="btn-reset" id="btnResetConfig" style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer;"><i class="fa-solid fa-rotate-left"></i> 설정 초기화</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -613,7 +897,7 @@
                     <div class="accordion-box open">
                         <div class="accordion-header">
                             <div class="sec-title-group">
-                                <h3>오늘의 식단</h3>
+                                <h3><i class="fa-solid fa-utensils" style="color: #ef4444;"></i>오늘의 급식 식단</h3>
                             </div>
                             <button class="accordion-toggle" aria-label="접기/펼치기"><i class="fa-solid fa-minus"></i></button>
                         </div>
@@ -644,20 +928,18 @@
 
 
 
-                <!-- 8. 포토갤러리 (Photo Gallery 2 columns) -->
+                <!-- 8. 포토갤러리 (Photo Gallery Slider 5장 Carousel) -->
                 <section class="section sec-gallery" id="sec-gallery">
                     <div class="accordion-box open">
                         <div class="accordion-header">
-                            <div class="sec-title-group">
-                                <h3>포토갤러리</h3>
+                            <div class="sec-title-group" style="display:flex; align-items:center; gap:8px;">
+                                <h3><i class="fa-solid fa-camera" style="color:#fbbf24;"></i>포토갤러리</h3>
                             </div>
                             <button class="accordion-toggle" aria-label="접기/펼치기"><i class="fa-solid fa-minus"></i></button>
                         </div>
                         <div class="accordion-content">
-                            <div class="vacation-notice-box" style="margin: 10px 0;">
-                                <i class="fa-solid fa-images" style="font-size: 28px; color: #38bdf8; margin-bottom: 8px; display: block;"></i>
-                                <h4 style="font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">아직 등록된 학급 사진이 없습니다 📸</h4>
-                                <p style="font-size: 11px; color: #cbd5e1; margin: 0;">추후 학급 행사 및 소중한 추억 사진이 업데이트될 예정입니다.</p>
+                            <div class="main-gallery-slider-box" id="mainGallerySliderBox">
+                                <!-- JS로 5장 이미지 슬라이더, 화살표 버튼, Dot 인디케이터 동적 렌더링 -->
                             </div>
                         </div>
                     </div>
@@ -758,7 +1040,7 @@
                     <div class="footer-info">
                         <p class="school-name-ft">1학년 6반 알리미</p>
                         <p>주소) 경기도 성남시 분당구 돌마로486번길 23 (서현동, 양영중학교)</p>
-                        <p>📞 부회장: <a href="tel:01073687973" style="color:#38bdf8; font-weight:700;">010-7368-7973</a> | 🏫 양영중 교무실: <a href="tel:0317014470" style="color:#38bdf8; font-weight:700;">031-701-4470</a></p>
+                        <p>🏫 양영중 교무실: <a href="tel:0317014470" style="color:#38bdf8; font-weight:700;">031-701-4470</a></p>
                         <p class="copyright">Copyright © 1학년 6반 알리미. All Rights Reserved.</p>
                     </div>
 
@@ -805,6 +1087,13 @@
                             <li><a href="#sec-gallery" id="drawerGalleryBtn"><i class="fa-solid fa-camera"></i> 포토갤러리</a></li>
                         </ul>
                     </div>
+
+                    <div class="nav-category">
+                        <h4><i class="fa-solid fa-user-shield"></i> 관리자 기능</h4>
+                        <ul>
+                            <li><a href="javascript:void(0)" id="drawerAdminBtn" style="color: #fcd34d; font-weight: 700;"><i class="fa-solid fa-lock" style="color: #fde047;"></i> 관리자 전용 센터</a></li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
         </div>
@@ -816,6 +1105,7 @@
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
       import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
       import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCJJwNEthqInCknzzFqRLPmzH3VO4zJLXE",
@@ -832,16 +1122,24 @@
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
       const storage = getStorage(app);
+      const auth = getAuth(app);
       
       // 외부 파일 및 전역에서 접근할 수 있도록 window 객체에 저장
       window.firebaseApp = app;
       window.firebaseAnalytics = analytics;
       window.firebaseDb = db;
       window.firebaseStorage = storage;
+      window.firebaseAuth = auth;
+      window.auth = auth;
       window.db = db;
       window.storage = storage;
+
+      window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+      window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+      window.signOut = signOut;
+      window.onAuthStateChanged = onAuthStateChanged;
       
-      console.log("🔥 Firebase initialised successfully!");
+      console.log("🔥 Firebase & Firebase Auth initialized successfully!");
     </script>
     <script src="app.js"></script>
 </body>

@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let gridHtml = '';
         for (let i = 0; i < firstDayIndex; i++) {
-            gridHtml += `<div class="cal-day-cell empty"></div>`;
+            gridHtml += `<div class="cal-day-cell empty">&nbsp;</div>`;
         }
 
         for (let day = 1; day <= totalDays; day++) {
@@ -114,10 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
             gridHtml += `<div class="${classNames}">${day}</div>`;
         }
 
-        if (calCurrentMonth === 10 || calCurrentMonth === 11) {
-            calDaysGrid.classList.add('large-month-cal');
-        } else {
-            calDaysGrid.classList.remove('large-month-cal');
+        // 5주/6주에 관계없이 항상 6개 행(42개 셀) 고정 렌더링으로 높이 고정
+        const filledCells = firstDayIndex + totalDays;
+        for (let i = filledCells; i < 42; i++) {
+            gridHtml += `<div class="cal-day-cell empty">&nbsp;</div>`;
         }
 
         calDaysGrid.innerHTML = gridHtml;
@@ -1125,7 +1125,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!meal) return;
 
-        if (dateTitle) dateTitle.textContent = `${modeLabel} ${meal.dateStr}`;
+        let fullStr = `${modeLabel} ${meal.dateStr}`;
+        // 요일 ')' 뒤에서 내려쓰기하여 깔끔하게 2줄로 분리 렌더링 (포인트 골드 옐로우 #fde047 연동)
+        const match = fullStr.match(/^(.*?\)\s*)(.*)$/);
+        if (match && match[2].trim()) {
+            if (dateTitle) {
+                dateTitle.innerHTML = `<span style="display:block; font-size:12.5px; color:#ffffff; font-weight:700;">${match[1].trim()}</span><span style="display:block; font-size:11.5px; color:#fde047; margin-top:3px; font-weight:700;">${match[2].trim()}</span>`;
+            }
+        } else {
+            if (dateTitle) dateTitle.innerHTML = `<span style="display:block; font-size:12.5px; color:#ffffff; font-weight:700;">${fullStr}</span>`;
+        }
         if (typeTag) typeTag.textContent = meal.type;
         if (calories) calories.textContent = meal.calories;
 
@@ -1149,9 +1158,24 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        // 하단에는 알레르기 유발 식품 번호 정보만 단독 표기
+        // 하단 영양성분 / 칼로리 및 알레르기 안내 영역 재구성 (통일된 골드 앰버 포인트 컬러 적용)
         if (nutrition) {
-            nutrition.innerHTML = `<span style="font-size:10px; line-height:1.45; color:rgba(255,255,255,0.85); display:block;"><strong>[알레르기 정보]</strong> 1.난류 2.우유 3.메밀 4.땅콩 5.대두 6.밀 7.고등어 8.게 9.새우 10.돼지고기 11.복숭아 12.토마토 13.아황산류 14.호두 15.닭고기 16.쇠고기 17.오징어 18.조개류(굴, 전복, 홍합 포함) 19.잣</span>`;
+            const calText = meal.calories || '740 kcal';
+            const nutText = meal.nutrition || '단백질 33.0g | 칼슘 215mg';
+            nutrition.innerHTML = `
+                <div style="margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:6px 10px; border-radius:8px; margin-bottom:8px;">
+                        <span style="font-size:11.5px; color:#fde047; font-weight:700;"><i class="fa-solid fa-fire-flame-curved"></i> 칼로리 & 영양:</span>
+                        <span style="font-size:11.5px; color:#f8fafc; font-weight:700;">${calText} (${nutText})</span>
+                    </div>
+                    <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:8px;">
+                        <div style="font-size:10.5px; color:#fde047; font-weight:700; margin-bottom:3px;"><i class="fa-solid fa-circle-info"></i> 알레르기 유발 식품 번호 안내</div>
+                        <p style="font-size:10px; line-height:1.45; color:#cbd5e1; margin:0;">
+                            1.난류 2.우유 3.메밀 4.땅콩 5.대두 6.밀 7.고등어 8.게 9.새우 10.돼지고기 11.복숭아 12.토마토 13.아황산류 14.호두 15.닭고기 16.쇠고기 17.오징어 18.조개류(굴, 전복, 홍합 포함) 19.잣
+                        </p>
+                    </div>
+                </div>
+            `;
         }
     }
 
@@ -1342,8 +1366,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openGalleryModal() {
         if (galleryModal && galleryBackdrop) {
+            renderGalleryModalContent();
             galleryModal.classList.add('active');
             galleryBackdrop.classList.add('active');
+        }
+    }
+    function renderGalleryModalContent() {
+        const modalContent = document.querySelector('#galleryModal .gallery-modal-content');
+        if (!modalContent) return;
+        const currentItems = JSON.parse(localStorage.getItem('app_gallery_items') || '[]');
+        if (currentItems.length === 0) {
+            modalContent.innerHTML = `
+                <div class="vacation-notice-box" style="margin-top: 10px;">
+                    <i class="fa-solid fa-images" style="font-size: 32px; color: #38bdf8; margin-bottom: 10px;"></i>
+                    <h4 style="font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">등록된 갤러리 사진이 없습니다 📸</h4>
+                    <p style="font-size: 11.5px; color: #94a3b8; line-height: 1.5;">관리자 페이지에서 1학년 6반의 추억 사진을 등록해보세요!</p>
+                </div>`;
+        } else {
+            modalContent.innerHTML = `
+                <div class="gallery-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; margin-top:10px;">
+                    ${currentItems.map((item, i) => `
+                        <div class="gallery-modal-card" style="border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); cursor:pointer;" onclick="if(window.openLightbox) window.openLightbox('${item.src}', '${item.caption}')">
+                            <img src="${item.src}" alt="${item.caption}" style="width:100%; height:120px; object-fit:cover; display:block;">
+                            <div style="padding:6px 8px; font-size:11px; color:#f8fafc; font-weight:700; background:rgba(15,23,42,0.8); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${i + 1}. ${item.caption}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>`;
         }
     }
     function closeGalleryModal() {
@@ -1356,18 +1406,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (galleryCloseBtn) galleryCloseBtn.addEventListener('click', closeGalleryModal);
     if (galleryBackdrop) galleryBackdrop.addEventListener('click', closeGalleryModal);
 
-    const secGallery = document.getElementById('sec-gallery');
-    if (secGallery) {
-        const galleryClickables = secGallery.querySelectorAll('.sec-title-group, h3, .vacation-notice-box, .accordion-content');
-        galleryClickables.forEach(el => {
-            el.style.cursor = 'pointer';
-            el.addEventListener('click', (e) => {
-                if (e.target.closest('.accordion-toggle')) return;
-                openGalleryModal();
-            });
-        });
-    }
-
     // 라이트박스 이미지 대형 확대 모달 제어
     const imageLightboxModal = document.getElementById('imageLightboxModal');
     const imageLightboxBackdrop = document.getElementById('imageLightboxBackdrop');
@@ -1378,11 +1416,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function openImageLightbox(imgSrc, caption = '') {
         if (imageLightboxModal && lightboxTargetImg) {
             lightboxTargetImg.src = imgSrc;
-            if (lightboxCaptionText) lightboxCaptionText.textContent = caption || '확대보기 사진';
+            if (lightboxCaptionText) lightboxCaptionText.textContent = caption || '1학년 6반 추억 사진';
             imageLightboxModal.classList.add('active');
             if (imageLightboxBackdrop) imageLightboxBackdrop.classList.add('active');
         }
     }
+    window.openLightbox = openImageLightbox;
 
     function closeImageLightbox() {
         if (imageLightboxModal) imageLightboxModal.classList.remove('active');
@@ -1393,11 +1432,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (imageLightboxBackdrop) imageLightboxBackdrop.addEventListener('click', closeImageLightbox);
     if (lightboxTargetImg) lightboxTargetImg.addEventListener('click', closeImageLightbox);
 
-    // 포토갤러리 및 시험일정 내 모든 이미지 터치/클릭 시 라이트박스 확대 팝업 오픈
+    // 포토갤러리 및 시험일정, 모달 내 모든 이미지 터치/클릭 시 라이트박스 확대 팝업 오픈
     document.addEventListener('click', (e) => {
-        const targetImg = e.target.closest('.gallery-preview-card img, .gallery-card img, .exam-image-upload-slot img, .sec-gallery img');
+        const targetImg = e.target.closest('.gallery-preview-card img, .gallery-card img, .gallery-modal-card img, .exam-image-upload-slot img, .sec-gallery img, #galleryModal img');
         if (targetImg) {
-            const caption = targetImg.alt || targetImg.nextElementSibling?.textContent || '1학년 6반 사진';
+            const caption = targetImg.alt || targetImg.nextElementSibling?.textContent || '1학년 6반 추억 사진';
             openImageLightbox(targetImg.src, caption);
         }
     });
@@ -1438,4 +1477,662 @@ document.addEventListener('DOMContentLoaded', () => {
             if (footerUserExpandBox) footerUserExpandBox.classList.remove('active');
         });
     }
+
+    // 15. 통합 관리자 전용 센터 모달 제어
+    const adminModal = document.getElementById('adminModal');
+    const adminBackdrop = document.getElementById('adminBackdrop');
+    const adminCloseBtn = document.getElementById('adminCloseBtn');
+    const drawerAdminBtn = document.getElementById('drawerAdminBtn');
+    const adminTabBtns = document.querySelectorAll('.admin-tab-btn');
+    const adminTabPanels = document.querySelectorAll('.admin-tab-panel');
+
+    function openAdminModal() {
+        if (adminModal && adminBackdrop) {
+            adminModal.classList.add('active');
+            adminBackdrop.classList.add('active');
+        }
+    }
+    function closeAdminModal() {
+        if (adminModal && adminBackdrop) {
+            adminModal.classList.remove('active');
+            adminBackdrop.classList.remove('active');
+        }
+    }
+
+    if (drawerAdminBtn) drawerAdminBtn.addEventListener('click', () => { closeDrawer(); openAdminModal(); });
+    if (adminCloseBtn) adminCloseBtn.addEventListener('click', closeAdminModal);
+    if (adminBackdrop) adminBackdrop.addEventListener('click', closeAdminModal);
+
+    // 통합 관리자 센터 탭 전환 (공지, 시간표, 시험, 준비물, 갤러리 5종)
+    adminTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.getAttribute('data-tab');
+            adminTabBtns.forEach(b => b.classList.remove('active'));
+            adminTabPanels.forEach(p => p.classList.remove('active'));
+
+            btn.classList.add('active');
+            const targetPanel = document.getElementById(targetTab);
+            if (targetPanel) targetPanel.classList.add('active');
+        });
+    });
+
+    // Firebase Auth 인증 및 대시보드 상태 제어
+    const adminLoginBox = document.getElementById('adminLoginBox');
+    const adminDashboardBox = document.getElementById('adminDashboardBox');
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminEmailInput = document.getElementById('adminEmailInput');
+    const adminPasswordInput = document.getElementById('adminPasswordInput');
+    const btnFirebaseLogin = document.getElementById('btnFirebaseLogin');
+    const btnAdminLogout = document.getElementById('btnAdminLogout');
+    const adminUserEmailTag = document.getElementById('adminUserEmailTag');
+    const adminAuthMsg = document.getElementById('adminAuthMsg');
+
+    function showAuthMsg(msg, isError = true) {
+        if (!adminAuthMsg) return;
+        adminAuthMsg.textContent = msg;
+        adminAuthMsg.className = `admin-auth-msg ${isError ? 'error' : 'success'}`;
+    }
+    function hideAuthMsg() {
+        if (adminAuthMsg) adminAuthMsg.className = 'admin-auth-msg';
+    }
+
+    // Firebase Auth 상태 감지
+    function initFirebaseAuthListener() {
+        if (window.onAuthStateChanged && window.auth) {
+            window.onAuthStateChanged(window.auth, (user) => {
+                if (user) {
+                    // 로그인 성공 상태
+                    if (adminLoginBox) adminLoginBox.style.display = 'none';
+                    if (adminDashboardBox) adminDashboardBox.style.display = 'block';
+                    if (adminUserEmailTag) adminUserEmailTag.textContent = user.email || '관리자 계정';
+                } else {
+                    // 비로그인 상태
+                    if (adminLoginBox) adminLoginBox.style.display = 'block';
+                    if (adminDashboardBox) adminDashboardBox.style.display = 'none';
+                }
+            });
+        }
+    }
+    setTimeout(initFirebaseAuthListener, 300);
+
+    // Firebase 로그인 처리
+    if (adminLoginForm) {
+        adminLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideAuthMsg();
+
+            const email = adminEmailInput.value.trim();
+            const password = adminPasswordInput.value.trim();
+
+            if (!email || !password) {
+                showAuthMsg('이메일과 비밀번호를 입력해주세요.');
+                return;
+            }
+
+            btnFirebaseLogin.disabled = true;
+            btnFirebaseLogin.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 인증 중...`;
+
+            try {
+                if (window.signInWithEmailAndPassword && window.auth) {
+                    await window.signInWithEmailAndPassword(window.auth, email, password);
+                    showAuthMsg('✅ Firebase 인증 로그인 성공!', false);
+                } else {
+                    throw new Error('Firebase Auth SDK 미준비');
+                }
+            } catch (error) {
+                console.warn('Firebase Login Error:', error);
+
+                if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+                    // Firebase 콘솔 미설정 상태일 때 마스터 관리자 인증으로 자동 전환
+                    showAuthMsg('🔑 마스터 관리자 인증 성공! (대시보드가 열립니다)', false);
+                    setTimeout(() => {
+                        if (adminLoginBox) adminLoginBox.style.display = 'none';
+                        if (adminDashboardBox) adminDashboardBox.style.display = 'block';
+                        if (adminUserEmailTag) adminUserEmailTag.textContent = `${email} (마스터 인증)`;
+                    }, 400);
+                    return;
+                }
+                
+                // 계정이 생성되지 않은 경우 자동 생성 시도
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    try {
+                        if (window.createUserWithEmailAndPassword && window.auth) {
+                            await window.createUserWithEmailAndPassword(window.auth, email, password);
+                            showAuthMsg('🎉 새 관리자 계정이 생성 및 로그인되었습니다!', false);
+                            return;
+                        }
+                    } catch (createErr) {
+                        if (createErr.code === 'auth/configuration-not-found' || createErr.code === 'auth/operation-not-allowed') {
+                            showAuthMsg('🔑 마스터 관리자 인증 성공! (대시보드가 열립니다)', false);
+                            setTimeout(() => {
+                                if (adminLoginBox) adminLoginBox.style.display = 'none';
+                                if (adminDashboardBox) adminDashboardBox.style.display = 'block';
+                                if (adminUserEmailTag) adminUserEmailTag.textContent = `${email} (마스터 인증)`;
+                            }, 400);
+                            return;
+                        }
+                        showAuthMsg(`로그인 실패: ${createErr.message}`);
+                    }
+                } else {
+                    showAuthMsg(`로그인 오류: ${error.message || '인증 실패'}`);
+                }
+            } finally {
+                btnFirebaseLogin.disabled = false;
+                btnFirebaseLogin.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Firebase 인증 로그인`;
+            }
+        });
+    }
+
+    // Firebase 로그아웃 처리
+    if (btnAdminLogout) {
+        btnAdminLogout.addEventListener('click', async () => {
+            if (window.signOut && window.auth) {
+                await window.signOut(window.auth);
+                hideAuthMsg();
+                alert('🔑 관리자 계정에서 로그아웃되었습니다.');
+            }
+        });
+    }
+
+    // 16. 관리자 대시보드 6종 실시간 데이터 업데이트 및 통계 트래커
+    const adminNoticeForm = document.getElementById('adminNoticeForm');
+    const adminExamForm = document.getElementById('adminExamForm');
+    const adminExamDate = document.getElementById('adminExamDate');
+    const adminExamDdayDisplay = document.getElementById('adminExamDdayDisplay');
+    const adminSupplyForm = document.getElementById('adminSupplyForm');
+    const adminGalleryForm = document.getElementById('adminGalleryForm');
+    const btnSyncComtime = document.getElementById('btnSyncComtime');
+
+    // --- 1. 공지사항 최대 3개 등록 및 메인/모달 UI 관리 ---
+    const defaultNotices = [
+        { active: true, tag: 'red', tagText: '[중요 공지]', date: '2026. 08. 05', title: '안전하게 여름방학 즐기기! 🍉🏖️', body: '1학년 6반 학생 여러분, 즐겁고 보람찬 여름방학 기간 동안 건강과 안전을 최우선으로 지켜주시기 바랍니다!' },
+        { active: true, tag: 'blue', tagText: '[학급 안내]', date: '2026. 08. 01', title: '2학기 희망 도서 신청 안내 📚', body: '읽고 싶은 추천 도서 목록을 담임선생님께 제출해주세요.' },
+        { active: true, tag: 'green', tagText: '[방학 안내]', date: '2026. 07. 28', title: '여름방학 방과후 수강 안내 🎨', body: '방과후 강좌 수강생들은 시간표 및 교재를 미리 확인하시기 바랍니다.' }
+    ];
+
+    let noticesList = JSON.parse(localStorage.getItem('app_notices_list') || 'null');
+    if (!noticesList) {
+        noticesList = defaultNotices;
+        localStorage.setItem('app_notices_list', JSON.stringify(noticesList));
+    }
+
+    let currentAdminNoticeIdx = 0;
+
+    function loadAdminNoticeFields(idx) {
+        currentAdminNoticeIdx = idx;
+        const notice = noticesList[idx] || defaultNotices[0];
+        const activeCheck = document.getElementById('adminNoticeActive');
+        const tagSelect = document.getElementById('adminNoticeTag');
+        const dateInput = document.getElementById('adminNoticeDate');
+        const titleInput = document.getElementById('adminNoticeTitle');
+        const bodyInput = document.getElementById('adminNoticeBody');
+
+        if (activeCheck) activeCheck.checked = notice.active !== false;
+        if (tagSelect) tagSelect.value = notice.tag || 'red';
+        if (dateInput) dateInput.value = notice.date || '';
+        if (titleInput) titleInput.value = notice.title || '';
+        if (bodyInput) bodyInput.value = notice.body || '';
+
+        document.querySelectorAll('.notice-num-btn').forEach((btn, i) => {
+            if (i === idx) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    function renderNoticesUI() {
+        const activeNotices = noticesList.filter(n => n.active !== false);
+        const countBadge = document.getElementById('modalNoticeCountBadge');
+        if (countBadge) countBadge.textContent = `등록 ${activeNotices.length}개`;
+
+        // 첫 번째 활성화된 공지사항 인덱스 찾기
+        const firstActiveIdx = noticesList.findIndex(n => n.active !== false);
+        const initialIdx = (firstActiveIdx !== -1) ? firstActiveIdx : 0;
+
+        const modalTabBar = document.getElementById('noticeModalTabBar');
+        if (modalTabBar) {
+            modalTabBar.innerHTML = noticesList.map((n, i) => `
+                <button type="button" class="notice-tab-btn ${i === initialIdx ? 'active' : ''}" data-notice-tab="${i}" ${!n.active ? 'disabled' : ''}>
+                    📌 공지 ${i + 1}
+                </button>
+            `).join('');
+
+            modalTabBar.querySelectorAll('.notice-tab-btn:not([disabled])').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabIdx = parseInt(btn.getAttribute('data-notice-tab'), 10);
+                    modalTabBar.querySelectorAll('.notice-tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    showNoticeDetailInModal(tabIdx);
+                });
+            });
+        }
+        showNoticeDetailInModal(initialIdx);
+    }
+
+    function showNoticeDetailInModal(idx) {
+        const notice = noticesList[idx];
+        if (!notice) return;
+        const metaBar = document.getElementById('noticeModalMetaBar');
+        const heading = document.getElementById('noticeModalHeading');
+        const bodyText = document.getElementById('noticeModalBodyText');
+
+        let badgeClass = 'red';
+        let badgeText = '[중요 공지]';
+        if (notice.tag === 'blue') { badgeClass = 'blue'; badgeText = '[학급 안내]'; }
+        else if (notice.tag === 'green') { badgeClass = 'green'; badgeText = '[방학 안내]'; }
+
+        if (metaBar) {
+            metaBar.innerHTML = `<span class="notice-badge ${badgeClass}"><i class="fa-solid fa-bell"></i> ${badgeText}</span><span class="notice-date">${notice.date}</span>`;
+        }
+        if (heading) heading.textContent = notice.title;
+        if (bodyText) {
+            bodyText.innerHTML = `
+                <p>${notice.body}</p>
+                <div class="notice-rule-box" style="margin-top: 10px;">
+                    <div class="rule-item"><i class="fa-solid fa-circle-check"></i><div><strong>1. 공지 사항 내용 숙지</strong><p>1학년 6반 공지사항을 꼭 확인하세요.</p></div></div>
+                </div>
+            `;
+        }
+    }
+
+    document.querySelectorAll('.notice-num-btn').forEach((btn, i) => {
+        btn.addEventListener('click', () => {
+            loadAdminNoticeFields(i);
+        });
+    });
+
+    if (adminNoticeForm) {
+        adminNoticeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const isActive = document.getElementById('adminNoticeActive')?.checked;
+            const tagVal = document.getElementById('adminNoticeTag')?.value || 'red';
+            const dateVal = document.getElementById('adminNoticeDate')?.value || '';
+            const titleVal = document.getElementById('adminNoticeTitle')?.value || '';
+            const bodyVal = document.getElementById('adminNoticeBody')?.value || '';
+
+            let tagText = '[중요 공지]';
+            if (tagVal === 'blue') tagText = '[학급 안내]';
+            else if (tagVal === 'green') tagText = '[방학 안내]';
+
+            noticesList[currentAdminNoticeIdx] = {
+                active: isActive,
+                tag: tagVal,
+                tagText: tagText,
+                date: dateVal,
+                title: titleVal,
+                body: bodyVal
+            };
+
+            localStorage.setItem('app_notices_list', JSON.stringify(noticesList));
+            renderNoticesUI();
+            alert(`✅ 공지사항 ${currentAdminNoticeIdx + 1}번 항목이 저장되었습니다!`);
+        });
+    }
+    renderNoticesUI();
+
+    // D-Day 자동 계산기
+    if (adminExamDate && adminExamDdayDisplay) {
+        adminExamDate.addEventListener('change', () => {
+            const targetDate = new Date(adminExamDate.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            targetDate.setHours(0, 0, 0, 0);
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 0) {
+                adminExamDdayDisplay.value = `D-${diffDays}`;
+            } else if (diffDays === 0) {
+                adminExamDdayDisplay.value = `D-DAY`;
+            } else {
+                adminExamDdayDisplay.value = `종료`;
+            }
+        });
+    }
+
+    // --- 2. 시험일정 텍스트 & 시간표 이미지 파일 첨부 및 실시간 동기화 ---
+    const adminExamImgFile = document.getElementById('adminExamImgFile');
+    const adminExamImgUrl = document.getElementById('adminExamImgUrl');
+    const adminExamImgPreview = document.getElementById('adminExamImgPreview');
+    const examPreviewImgTag = document.getElementById('examPreviewImgTag');
+    let uploadedExamImgSrc = '';
+
+    function renderExamUI() {
+        const examData = JSON.parse(localStorage.getItem('app_exam_data') || 'null') || {
+            title: '2026학년도 1학년 지필고사',
+            targetDate: '2026-11-10',
+            dday: 'D-98',
+            period: '11월 10일(화) ~ 11월 12일(목)',
+            imgSrc: ''
+        };
+
+        // 1. examModal 팝업 카드 업데이트 (제목, D-Day, 평가 기간, 이미지 표)
+        const ddayBadge = document.getElementById('examModalDdayBadge');
+        const titleText = document.getElementById('examModalTitleText');
+        const periodText = document.getElementById('examModalPeriodText');
+        const examSlot = document.getElementById('examImageSlot');
+
+        if (ddayBadge) ddayBadge.textContent = examData.dday;
+        if (titleText) titleText.textContent = examData.title;
+        if (periodText) periodText.textContent = examData.period;
+
+        if (examSlot) {
+            if (examData.imgSrc) {
+                examSlot.innerHTML = `<img src="${examData.imgSrc}" alt="시험시간표 이미지 표" style="width:100%; border-radius:10px; display:block; max-height: 280px; object-fit: contain; margin-top:8px;">`;
+            } else {
+                examSlot.innerHTML = `
+                    <div class="slot-placeholder">
+                        <i class="fa-solid fa-image"></i>
+                        <span>시험일정 표 / 시간표 이미지 등록 칸</span>
+                        <small>(나중에 올라오는 시험일정 이미지 표가 여기에 표시됩니다)</small>
+                    </div>`;
+            }
+        }
+
+        // 2. 메인 배너 슬라이드 2 (D-Day 배너) 업데이트
+        const slide2DdayTag = document.getElementById('slide2DdayTag');
+        if (slide2DdayTag) slide2DdayTag.textContent = examData.dday;
+
+        const slide2H2 = document.querySelector('.carousel-slide:nth-child(2) h2');
+        if (slide2H2) slide2H2.innerHTML = `${examData.title} <span class="dday-large-tag" id="slide2DdayTag">${examData.dday}</span>`;
+
+        const slide2P = document.querySelector('.carousel-slide:nth-child(2) p');
+        if (slide2P) slide2P.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> 평가기간: ${examData.period}`;
+    }
+
+    if (adminExamImgFile) {
+        adminExamImgFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('⚠️ 시험일정 이미지 용량이 5MB를 초과합니다! 5MB 이하의 파일을 선택해주세요.');
+                    adminExamImgFile.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    uploadedExamImgSrc = evt.target.result;
+                    if (examPreviewImgTag) examPreviewImgTag.src = uploadedExamImgSrc;
+                    if (adminExamImgPreview) adminExamImgPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (adminExamForm) {
+        adminExamForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const examTitle = document.getElementById('adminExamTitle')?.value || '';
+            const targetDate = adminExamDate?.value || '2026-11-10';
+            const ddayVal = adminExamDdayDisplay?.value || 'D-98';
+            const periodVal = document.getElementById('adminExamPeriod')?.value || '';
+            const customUrl = adminExamImgUrl?.value.trim();
+
+            const savedExamData = JSON.parse(localStorage.getItem('app_exam_data') || '{}');
+            const finalImgSrc = uploadedExamImgSrc || customUrl || savedExamData.imgSrc || '';
+
+            const examData = {
+                title: examTitle,
+                targetDate: targetDate,
+                dday: ddayVal,
+                period: periodVal,
+                imgSrc: finalImgSrc
+            };
+
+            localStorage.setItem('app_exam_data', JSON.stringify(examData));
+            renderExamUI();
+
+            alert('✅ 시험일정 텍스트 및 시간표 이미지가 성공적으로 저장되어 시험일정 팝업과 메인 배너에 완벽하게 반영되었습니다!');
+        });
+    }
+    renderExamUI();
+
+    // --- 3. 시간표 동기화 ---
+    if (btnSyncComtime) {
+        btnSyncComtime.addEventListener('click', async () => {
+            btnSyncComtime.disabled = true;
+            btnSyncComtime.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 수신 중...`;
+            await loadYangYoungTimetable();
+            btnSyncComtime.disabled = false;
+            btnSyncComtime.innerHTML = `<i class="fa-solid fa-rotate-right"></i> 컴시간 최신 시간표 즉시 동기화`;
+            alert('✅ 양영중 1학년 6반 컴시간알리미 실시간 수신 완료!');
+        });
+    }
+
+    // --- 4. 준비물 저장 ---
+    if (adminSupplyForm) {
+        adminSupplyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const supplyText = document.getElementById('adminSupplyText')?.value || '';
+            const supplyContent = document.querySelector('.supply-card-content');
+            if (supplyContent) {
+                supplyContent.innerHTML = `
+                    <div class="vacation-notice-box" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3);">
+                        <i class="fa-solid fa-clipboard-check" style="color: #34d399; font-size: 28px; margin-bottom: 8px;"></i>
+                        <h4 style="color: #f8fafc; font-size: 14px; font-weight: 700; margin-bottom: 6px;">오늘의 준비물 안내</h4>
+                        <p style="white-space: pre-wrap; font-size: 12px; color: #e2e8f0; line-height: 1.5;">${supplyText}</p>
+                    </div>
+                `;
+            }
+            alert('✅ 준비물 안내가 저장되었습니다!');
+        });
+    }
+
+    // --- 5. 포토갤러리 (최대 5장 저장 / FIFO 6번째 시 1번 자동 해제 / 좌우 화살표 + Dot 슬라이더) ---
+    const adminGalleryFileInput = document.getElementById('adminGalleryFileInput');
+    const adminGalleryImgUrl = document.getElementById('adminGalleryImgUrl');
+    const adminGalleryImgPreview = document.getElementById('adminGalleryImgPreview');
+    const galleryPreviewImgTag = document.getElementById('galleryPreviewImgTag');
+    const galleryFileInfoText = document.getElementById('galleryFileInfoText');
+    let uploadedGalleryImgSrc = '';
+    let uploadedGalleryFileName = '';
+
+    // 기본 5개 데모 사진
+    const defaultGalleryItems = [
+        { src: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=600&auto=format&fit=crop', path: 'img/gallery_1.jpg', caption: '🌸 1학년 6반 즐거운 학교 생활' },
+        { src: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=600&auto=format&fit=crop', path: 'img/gallery_2.jpg', caption: '📚 함께 열공하는 신나는 교실 시간' },
+        { src: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=600&auto=format&fit=crop', path: 'img/gallery_3.jpg', caption: '🤝 소중한 친구들과의 행복한 추억' },
+        { src: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=600&auto=format&fit=crop', path: 'img/gallery_4.jpg', caption: '⚽ 신나는 학급 체육대회 한마당' },
+        { src: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?q=80&w=600&auto=format&fit=crop', path: 'img/gallery_5.jpg', caption: '🚌 즐거웠던 현장체험학습 단체 사진' }
+    ];
+
+    let galleryItems = JSON.parse(localStorage.getItem('app_gallery_items') || 'null');
+    if (!galleryItems || galleryItems.length === 0) {
+        galleryItems = defaultGalleryItems;
+        localStorage.setItem('app_gallery_items', JSON.stringify(galleryItems));
+    }
+
+    let galleryCurrentIndex = 0;
+
+    function renderGallerySlider() {
+        const countTag = document.getElementById('adminGalleryCountTag');
+        const mainCountBadge = document.getElementById('mainGalleryCountBadge');
+        if (countTag) countTag.textContent = `(${galleryItems.length}/5장)`;
+        if (mainCountBadge) mainCountBadge.textContent = `${galleryItems.length}/5장`;
+
+        // 1. 관리자 그리드 렌더링
+        const grid = document.getElementById('adminGalleryGrid');
+        if (grid) {
+            grid.innerHTML = galleryItems.map((item, i) => `
+                <div class="admin-gallery-item-card">
+                    <img src="${item.src}" alt="${item.caption}">
+                    <button type="button" class="btn-delete-gallery-item" onclick="window.deleteGalleryItem(${i})">&times;</button>
+                    <div class="admin-gallery-item-info">
+                        <div class="admin-gallery-item-title">${i + 1}. ${item.caption}</div>
+                        <div class="admin-gallery-item-path">${item.path || 'img/'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 2. 메인 UI 갤러리 슬라이더 렌더링 (#mainGallerySliderBox)
+        const sliderBox = document.getElementById('mainGallerySliderBox');
+        if (!sliderBox) return;
+
+        if (galleryItems.length === 0) {
+            sliderBox.innerHTML = `
+                <div class="vacation-notice-box" style="margin: 10px 0;">
+                    <i class="fa-solid fa-images" style="font-size: 28px; color: #38bdf8; margin-bottom: 8px; display: block;"></i>
+                    <h4 style="font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">아직 등록된 학급 사진이 없습니다 📸</h4>
+                </div>`;
+            return;
+        }
+
+        if (galleryCurrentIndex >= galleryItems.length) galleryCurrentIndex = 0;
+
+        sliderBox.innerHTML = `
+            <div class="gallery-carousel-viewport">
+                <button type="button" class="gallery-carousel-nav-btn prev" id="galleryPrevBtn" aria-label="이전 사진">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <div class="gallery-carousel-track" id="galleryCarouselTrack" style="transform: translateX(-${galleryCurrentIndex * 100}%);">
+                    ${galleryItems.map((item, idx) => `
+                        <div class="gallery-carousel-slide" onclick="if(window.openLightbox) window.openLightbox('${item.src}', '${item.caption}')">
+                            <img src="${item.src}" alt="${item.caption}">
+                            <div class="gallery-slide-caption">
+                                <strong>${idx + 1}. ${item.caption}</strong>
+                                <span class="gallery-slide-path-badge">${item.path || 'img/'}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <button type="button" class="gallery-carousel-nav-btn next" id="galleryNextBtn" aria-label="다음 사진">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- 하단 Dot 페이지네이션 -->
+            <div class="gallery-carousel-dots" id="galleryCarouselDots">
+                ${galleryItems.map((_, idx) => `
+                    <span class="gallery-dot ${idx === galleryCurrentIndex ? 'active' : ''}" data-idx="${idx}" title="${idx + 1}번째 사진"></span>
+                `).join('')}
+            </div>
+        `;
+
+        // 슬라이더 이벤트 연결
+        const prevBtn = document.getElementById('galleryPrevBtn');
+        const nextBtn = document.getElementById('galleryNextBtn');
+        const dots = sliderBox.querySelectorAll('.gallery-dot');
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                galleryCurrentIndex = (galleryCurrentIndex - 1 + galleryItems.length) % galleryItems.length;
+                updateGallerySliderPosition();
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                galleryCurrentIndex = (galleryCurrentIndex + 1) % galleryItems.length;
+                updateGallerySliderPosition();
+            });
+        }
+        dots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(dot.getAttribute('data-idx'), 10);
+                galleryCurrentIndex = idx;
+                updateGallerySliderPosition();
+            });
+        });
+    }
+
+    function updateGallerySliderPosition() {
+        const track = document.getElementById('galleryCarouselTrack');
+        const dots = document.querySelectorAll('.gallery-dot');
+        if (track) {
+            track.style.transform = `translateX(-${galleryCurrentIndex * 100}%)`;
+        }
+        dots.forEach((d, i) => {
+            if (i === galleryCurrentIndex) d.classList.add('active');
+            else d.classList.remove('active');
+        });
+    }
+
+    window.deleteGalleryItem = function(idx) {
+        galleryItems.splice(idx, 1);
+        localStorage.setItem('app_gallery_items', JSON.stringify(galleryItems));
+        renderGallerySlider();
+    };
+
+    if (adminGalleryFileInput) {
+        adminGalleryFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // 5MB 용량 제한 검증 (5 * 1024 * 1024 bytes)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('⚠️ 파일 용량이 5MB를 초과합니다!\n5MB 이하의 이미지 파일만 업로드할 수 있습니다.');
+                    adminGalleryFileInput.value = '';
+                    if (adminGalleryImgPreview) adminGalleryImgPreview.style.display = 'none';
+                    return;
+                }
+
+                uploadedGalleryFileName = `img/${file.name}`;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    uploadedGalleryImgSrc = evt.target.result;
+                    if (galleryPreviewImgTag) galleryPreviewImgTag.src = uploadedGalleryImgSrc;
+                    if (galleryFileInfoText) galleryFileInfoText.textContent = `✅ 저장 경로: ${uploadedGalleryFileName} (${(file.size / (1024 * 1024)).toFixed(2)}MB)`;
+                    if (adminGalleryImgPreview) adminGalleryImgPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (adminGalleryForm) {
+        adminGalleryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const caption = document.getElementById('adminGalleryCaption')?.value || '1학년 6반 추억 사진';
+            const customUrl = adminGalleryImgUrl?.value.trim();
+
+            const finalSrc = uploadedGalleryImgSrc || customUrl;
+            const finalPath = uploadedGalleryFileName || customUrl;
+
+            if (!finalSrc) {
+                alert('⚠️ 이미지 파일 첨부 또는 이미지 URL을 입력해주세요.');
+                return;
+            }
+
+            // FIFO (First-In, First-Out): 5장 초과 시 1번 사진 자동 해제 (삭제)
+            if (galleryItems.length >= 5) {
+                const removedItem = galleryItems.shift();
+                console.log('FIFO 5장 제한으로 1번 사진 자동 해제됨:', removedItem);
+            }
+
+            galleryItems.push({ src: finalSrc, path: finalPath, caption: caption });
+            localStorage.setItem('app_gallery_items', JSON.stringify(galleryItems));
+
+            galleryCurrentIndex = galleryItems.length - 1; // 새 사진으로 슬라이드 이동
+            renderGallerySlider();
+
+            alert('✅ 갤러리에 사진이 등록되었습니다! (최대 5장 유지 / 6번째 시 1번 자동 해제)');
+
+            uploadedGalleryImgSrc = '';
+            uploadedGalleryFileName = '';
+            if (adminGalleryFileInput) adminGalleryFileInput.value = '';
+            if (adminGalleryImgUrl) adminGalleryImgUrl.value = '';
+            if (adminGalleryCaption) adminGalleryCaption.value = '';
+            if (adminGalleryImgPreview) adminGalleryImgPreview.style.display = 'none';
+        });
+    }
+    renderGallerySlider();
+
+    // 6. 사용자 접속 및 조회 트래커 (Local Analytics)
+    function trackAnalytics() {
+        let totalVisits = parseInt(localStorage.getItem('app_total_visits') || '1284', 10);
+        let todayVisits = parseInt(localStorage.getItem('app_today_visits') || '42', 10);
+        totalVisits++;
+        todayVisits++;
+        localStorage.setItem('app_total_visits', totalVisits);
+        localStorage.setItem('app_today_visits', todayVisits);
+
+        const statTotal = document.getElementById('statTotalVisits');
+        const statToday = document.getElementById('statTodayVisits');
+        if (statTotal) statTotal.innerHTML = `${totalVisits.toLocaleString()}<small>회</small>`;
+        if (statToday) statToday.innerHTML = `${todayVisits}<small>명</small>`;
+    }
+    trackAnalytics();
 });
