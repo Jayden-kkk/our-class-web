@@ -52,7 +52,7 @@
                 <!-- 3. Title Customization -->
                 <div class="config-group">
                     <label class="group-title" for="inputSchoolName"><i class="fa-solid fa-pen"></i> 기관 / 명칭 변경</label>
-                    <input type="text" id="inputSchoolName" class="config-input" value="1학년 6반 홈페이지">
+                    <input type="text" id="inputSchoolName" class="config-input" value="1학년 6반 알리미">
                 </div>
 
                 <!-- 4. Section Visibility Toggles -->
@@ -144,21 +144,9 @@
                         <div class="school-logo-wrapper">
                             <img src="yangyoung_logo.jpg" alt="양영중 로고" class="school-logo-left-img">
                         </div>
-                        <h1 class="school-title" id="displaySchoolName">1학년 6반 홈페이지</h1>
+                        <h1 class="school-title" id="displaySchoolName">1학년 6반 알리미</h1>
                     </a>
-
-                    <button class="icon-btn search-btn" id="searchToggleBtn" aria-label="검색">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
                 </header>
-
-                <!-- 검색창 레이어 (숨김/열림) -->
-                <div class="search-overlay" id="searchOverlay">
-                    <div class="search-box">
-                        <input type="text" placeholder="검색어를 입력하세요 (예: 학사일정, 식단...)" id="searchInput">
-                        <button class="search-submit-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>
-                </div>
 
                 <!-- 실시간 GPS 날씨 모달 팝업 -->
                 <div class="weather-backdrop" id="weatherBackdrop"></div>
@@ -170,7 +158,7 @@
                         <div class="weather-header">
                             <div class="location-badge">
                                 <i class="fa-solid fa-location-dot"></i>
-                                <span id="weatherLocationText">경기도 성남시 분당구 (현재 위치)</span>
+                                <span id="weatherLocationText">현재 위치 확인 중...</span>
                             </div>
                             <button class="weather-close-btn" id="weatherCloseBtn">&times;</button>
                         </div>
@@ -186,13 +174,13 @@
                                 </div>
                             </div>
 
-                            <!-- 바람 속도 및 미세먼지 4단계 표기 (파랑:매우좋음, 초록:보통, 노랑:나쁨, 빨강:매우나쁨 - 수치 표기 제외 고대비 뱃지) -->
+                            <!-- 바람 속도 및 미세먼지 4단계 고대비 뱃지 -->
                             <div class="single-wind-info">
                                 <i class="fa-solid fa-wind"></i>
-                                <span>풍속: <strong id="weatherWindSpeed">-- m/s</strong></span>
+                                <span>풍속: <strong id="weatherWindSpeed">1.8 m/s</strong></span>
                                 <span class="dust-divider">|</span>
-                                <i class="fa-solid fa-leaf" style="color:#00ff87; filter: drop-shadow(0 0 6px #00ff87);"></i>
-                                <span style="font-weight:700;">미세먼지: <strong style="color:#00ff87; font-weight:900; font-size:13.5px; text-shadow:0 0 8px rgba(0,255,135,0.7); background:rgba(0,255,135,0.15); padding:2px 8px; border-radius:6px; border:1px solid rgba(0,255,135,0.4);">보통</strong></span>
+                                <span style="font-weight:700;">미세먼지:</span>
+                                <strong id="weatherDustLevel" class="dust-pill dust-good"><i class="fa-solid fa-face-laugh-beam"></i> 좋음</strong>
                             </div>
 
                             <!-- 08:00 ~ 24:00 시간별 날씨 예보 -->
@@ -221,7 +209,7 @@
                         <div class="meal-modal-header">
                             <div class="meal-modal-title">
                                 <i class="fa-solid fa-utensils"></i>
-                                <span>1학년 6반 홈페이지 급식 식단</span>
+                                <span>1학년 6반 알리미 급식 식단</span>
                             </div>
                             <button class="meal-modal-close-btn" id="mealModalCloseBtn">&times;</button>
                         </div>
@@ -505,44 +493,6 @@
                     </div>
                 </div>
 
-                <!-- 사이드 메인 드로어 메뉴 -->
-                <div class="drawer-backdrop" id="drawerBackdrop"></div>
-                <nav class="drawer-menu" id="drawerMenu">
-                    <div class="drawer-header">
-                        <div class="user-welcome">
-                            <div class="drawer-logo-badge" style="background:#ffffff; border-radius:8px; padding:4px; display:inline-flex; align-items:center; justify-content:center; margin-right:6px;">
-                                <img src="yangyoung_logo.jpg" alt="양영중 로고" style="width:22px; height:22px; object-fit:contain;">
-                            </div>
-                            <div>
-                                <strong id="drawerSchoolTitle">1학년 6반 홈페이지</strong>
-                                <p style="color:#fcd34d; font-weight:700; font-size:11.5px; margin-top:2px;">행복한 우리반 🌸</p>
-                            </div>
-                        </div>
-                        <button class="drawer-close-btn" id="drawerCloseBtn">&times;</button>
-                    </div>
-
-                    <div class="drawer-nav-list">
-                        <div class="nav-category">
-                            <h4><i class="fa-solid fa-layer-group"></i> 퀵메뉴 서비스</h4>
-                            <ul>
-                                <li><a href="javascript:void(0)" id="drawerNoticeBtn"><i class="fa-solid fa-bullhorn"></i> 공지사항</a></li>
-                                <li><a href="javascript:void(0)" id="drawerTimetableBtn"><i class="fa-solid fa-calendar-days"></i> 시간표</a></li>
-                                <li><a href="javascript:void(0)" id="drawerExamBtn"><i class="fa-solid fa-pen-to-square"></i> 시험일정</a></li>
-                                <li><a href="javascript:void(0)" id="drawerWeatherBtn"><i class="fa-solid fa-cloud-sun"></i> 날씨</a></li>
-                                <li><a href="javascript:void(0)" id="drawerMealBtn"><i class="fa-solid fa-utensils"></i> 급식</a></li>
-                                <li><a href="javascript:void(0)" id="drawerSupplyBtn"><i class="fa-solid fa-clipboard-list"></i> 준비물</a></li>
-                            </ul>
-                        </div>
-
-                        <div class="nav-category">
-                            <h4><i class="fa-solid fa-images"></i> 갤러리</h4>
-                            <ul>
-                                <li><a href="#sec-gallery" id="drawerGalleryBtn"><i class="fa-solid fa-camera"></i> 포토갤러리</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-
                 <!-- 2. 메인 비주얼 배너 (Hero Carousel) -->
                 <section class="section sec-hero" id="sec-hero">
                     <div class="hero-carousel" id="heroCarousel">
@@ -550,7 +500,6 @@
                             <!-- Slide 1: 1학년 6반 화이팅 + 독서/학업 감성 일러스트 (첫 번째 배너) -->
                             <div class="carousel-slide active" style="background-image: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.55)), url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1000&auto=format&fit=crop');">
                                 <div class="slide-caption">
-                                    <span class="badge-tag"><i class="fa-solid fa-star"></i> 우리반 소식</span>
                                     <h2 class="slide-main-title">1학년 6반 화이팅! 🔥</h2>
                                     <div class="hero-datetime-box">
                                         <div class="h-date"><i class="fa-regular fa-calendar-days"></i> <span id="heroDateText">2026년 08월 04일 (화)</span></div>
@@ -661,30 +610,33 @@
 
                 <!-- 6. 오늘의 식단 위젯 (Today's Cafeteria Widget) -->
                 <section class="section sec-meal" id="sec-meal">
-                    <div class="section-header">
-                        <div class="sec-title-group">
-                            <h3>오늘의 식단</h3>
-                        </div>
-                        <a href="https://yangyoung-m.goesy.kr/yangyoung-m/na/nt/selectNoticeList.do?mi=10557" target="_blank" rel="noopener noreferrer" class="more-btn" aria-label="식단 더보기"><i class="fa-solid fa-plus"></i></a>
-                    </div>
-
-                    <div class="meal-card" id="mealCard">
-                        <div class="meal-content">
-                            <div class="meal-status">
-                                <span class="meal-date-tag" id="mealDateTag">2026-08-03 (월) 중식</span>
-                                <div class="meal-items-box" id="mealItemsBox">
-                                    <ul class="meal-menu-list">
-                                        <li><i class="fa-solid fa-check"></i> 발아현미밥</li>
-                                        <li><i class="fa-solid fa-check"></i> 쇠고기미역국</li>
-                                        <li><i class="fa-solid fa-check"></i> 돈육고추장불고기</li>
-                                        <li><i class="fa-solid fa-check"></i> 계란말이 & 샐러드</li>
-                                        <li><i class="fa-solid fa-check"></i> 배추김치 / 샤인머스캣</li>
-                                    </ul>
-                                </div>
+                    <div class="accordion-box open">
+                        <div class="accordion-header">
+                            <div class="sec-title-group">
+                                <h3>오늘의 식단</h3>
                             </div>
-                            <div class="meal-illustration">
-                                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop" alt="맛있는 식단" class="meal-img">
-                                <span class="calories-badge">645 kcal</span>
+                            <button class="accordion-toggle" aria-label="접기/펼치기"><i class="fa-solid fa-minus"></i></button>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="meal-card" id="mealCard">
+                                <div class="meal-content">
+                                    <div class="meal-status">
+                                        <span class="meal-date-tag" id="mealDateTag">2026-08-03 (월) 중식</span>
+                                        <div class="meal-items-box" id="mealItemsBox">
+                                            <ul class="meal-menu-list">
+                                                <li><i class="fa-solid fa-check"></i> 발아현미밥</li>
+                                                <li><i class="fa-solid fa-check"></i> 쇠고기미역국</li>
+                                                <li><i class="fa-solid fa-check"></i> 돈육고추장불고기</li>
+                                                <li><i class="fa-solid fa-check"></i> 계란말이 & 샐러드</li>
+                                                <li><i class="fa-solid fa-check"></i> 배추김치 / 샤인머스캣</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="meal-illustration">
+                                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop" alt="맛있는 식단" class="meal-img">
+                                        <span class="calories-badge">645 kcal</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -716,21 +668,98 @@
                 <!-- 10. 푸터 (Footer) -->
                 <footer class="app-footer">
                     <div class="footer-nav">
-                        <a href="javascript:void(0)" onclick="alert('📍 위치 설정 안내: 스마트폰 실시간 GPS 위치 및 성남시 분당구 역지오코딩 자동 연동 반영');">위치 정보 반영 방식</a>
+                        <a href="javascript:void(0)" id="btnOpenLocationInfo"><i class="fa-solid fa-location-dot"></i> 위치 정보 반영 방식</a>
                         <span class="divider">|</span>
-                        <a href="javascript:void(0)">사용자 이름: [사용자 이름]</a>
+                        <a href="javascript:void(0)" id="btnOpenUserInfo"><i class="fa-solid fa-users"></i> 1학년 6반 학급 명단</a>
+                    </div>
+
+                    <!-- 위치 정보 반영 방식 인라인 펼침 영역 (네비게이션 바로 밑) -->
+                    <div class="footer-inline-box" id="footerLocationExpandBox">
+                        <div class="inline-box-inner">
+                            <div class="inline-box-header">
+                                <span><i class="fa-solid fa-location-crosshairs"></i> 위치 정보 반영 및 날씨 연동 방식</span>
+                                <button type="button" class="inline-close-btn" id="btnCloseLocationInline">&times;</button>
+                            </div>
+                            <div class="inline-box-body">
+                                <div class="inline-loc-card">
+                                    <i class="fa-solid fa-cloud-sun"></i>
+                                    <p>스마트폰/PC 디바이스의 위치(GPS 및 IP)를 감지하여 <strong>현재 계신 지역(예: 경기도 광주시, 성남시 분당구 등)의 실시간 날씨</strong>를 맞춤 연동합니다.</p>
+                                </div>
+                                <div class="inline-step-grid">
+                                    <div class="inline-step">
+                                        <span class="s-num">1</span>
+                                        <p><strong>접속 위치 측정:</strong> 위도·경도 좌표를 디바이스에서 실시간 감지</p>
+                                    </div>
+                                    <div class="inline-step">
+                                        <span class="s-num">2</span>
+                                        <p><strong>역지오코딩:</strong> 한글 행정구역명(예: 경기도 광주시)으로 즉시 변환</p>
+                                    </div>
+                                    <div class="inline-step">
+                                        <span class="s-num">3</span>
+                                        <p><strong>날씨 API 수신:</strong> 해당 좌표의 기온, 풍속, 24시간 예보 연동</p>
+                                    </div>
+                                    <div class="inline-step">
+                                        <span class="s-num">4</span>
+                                        <p><strong>보안/개인정보:</strong> 서버 미저장, 브라우저 단 1회성 안전 사용</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 1학년 6반 학급 명단 인라인 펼침 영역 -->
+                    <div class="footer-inline-box" id="footerUserExpandBox">
+                        <div class="inline-box-inner">
+                            <div class="inline-box-header">
+                                <span><i class="fa-solid fa-users"></i> 1학년 6반 학급 명단</span>
+                                <button type="button" class="inline-close-btn" id="btnCloseUserInline">&times;</button>
+                            </div>
+                            <div class="inline-box-body">
+                                <div class="class-roster-simple">
+                                    <div class="roster-teacher-badge">
+                                        <i class="fa-solid fa-crown"></i> <strong>담임선생님:</strong> 최정은 선생님
+                                    </div>
+                                    <div class="roster-student-list">
+                                        <span class="roster-item"><strong>1번</strong> 공우준</span>
+                                        <span class="roster-item"><strong>2번</strong> 구연우</span>
+                                        <span class="roster-item"><strong>3번</strong> 김동후</span>
+                                        <span class="roster-item"><strong>4번</strong> 김수아</span>
+                                        <span class="roster-item"><strong>5번</strong> 김이을</span>
+                                        <span class="roster-item"><strong>6번</strong> 김재림</span>
+                                        <span class="roster-item"><strong>7번</strong> 김준우</span>
+                                        <span class="roster-item"><strong>8번</strong> 남서진</span>
+                                        <span class="roster-item"><strong>9번</strong> 박지호</span>
+                                        <span class="roster-item"><strong>10번</strong> 박하윤</span>
+                                        <span class="roster-item"><strong>11번</strong> 박태호</span>
+                                        <span class="roster-item"><strong>12번</strong> 서준원</span>
+                                        <span class="roster-item"><strong>13번</strong> 송이석</span>
+                                        <span class="roster-item"><strong>14번</strong> 신현진</span>
+                                        <span class="roster-item"><strong>15번</strong> 양선우</span>
+                                        <span class="roster-item"><strong>16번</strong> 오예준</span>
+                                        <span class="roster-item"><strong>17번</strong> 우채연</span>
+                                        <span class="roster-item"><strong>18번</strong> 이승아</span>
+                                        <span class="roster-item"><strong>19번</strong> 이승주</span>
+                                        <span class="roster-item"><strong>20번</strong> 이은석</span>
+                                        <span class="roster-item"><strong>21번</strong> 이현성</span>
+                                        <span class="roster-item"><strong>22번</strong> 임채원</span>
+                                        <span class="roster-item"><strong>23번</strong> 정서준</span>
+                                        <span class="roster-item"><strong>24번</strong> 정소율</span>
+                                        <span class="roster-item"><strong>25번</strong> 정진모</span>
+                                        <span class="roster-item"><strong>26번</strong> 지은우</span>
+                                        <span class="roster-item"><strong>27번</strong> 진우재</span>
+                                        <span class="roster-item"><strong>28번</strong> 호연아</span>
+                                        <span class="roster-item"><strong>29번</strong> 한성현</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="footer-info">
-                        <p class="school-name-ft">1학년 6반 홈페이지</p>
-                        <p>우) 13589 경기도 성남시 분당구 불정로 00</p>
+                        <p class="school-name-ft">1학년 6반 알리미</p>
+                        <p>주소) 경기도 성남시 분당구 돌마로486번길 23 (서현동, 양영중학교)</p>
                         <p>📞 부회장: <a href="tel:01073687973" style="color:#38bdf8; font-weight:700;">010-7368-7973</a> | 🏫 양영중 교무실: <a href="tel:0317014470" style="color:#38bdf8; font-weight:700;">031-701-4470</a></p>
-                        <p class="copyright">Copyright © 1학년 6반 홈페이지. All Rights Reserved.</p>
-                    </div>
-
-                    <div class="search-engine-badge">
-                        <i class="fa-brands fa-google"></i>
-                        <span>구글 웹마스터 모바일 최적화</span>
+                        <p class="copyright">Copyright © 1학년 6반 알리미. All Rights Reserved.</p>
                     </div>
 
                     <!-- Scroll to Top Button -->
@@ -740,6 +769,44 @@
                 </footer>
 
             </main>
+
+            <!-- 핸드폰 프레임/화면 내 맞춤 사이드 드로어 메뉴 -->
+            <div class="drawer-backdrop" id="drawerBackdrop"></div>
+            <nav class="drawer-menu" id="drawerMenu">
+                <div class="drawer-header">
+                    <div class="user-welcome">
+                        <div class="drawer-logo-badge" style="background:#ffffff; border-radius:8px; padding:4px; display:inline-flex; align-items:center; justify-content:center; margin-right:6px;">
+                            <img src="yangyoung_logo.jpg" alt="양영중 로고" style="width:22px; height:22px; object-fit:contain;">
+                        </div>
+                        <div>
+                            <strong id="drawerSchoolTitle">1학년 6반 알리미</strong>
+                            <p style="color:#fcd34d; font-weight:700; font-size:11.5px; margin-top:2px;">행복한 우리반 🌸</p>
+                        </div>
+                    </div>
+                    <button class="drawer-close-btn" id="drawerCloseBtn">&times;</button>
+                </div>
+
+                <div class="drawer-nav-list">
+                    <div class="nav-category">
+                        <h4><i class="fa-solid fa-layer-group"></i> 퀵메뉴 서비스</h4>
+                        <ul>
+                            <li><a href="javascript:void(0)" id="drawerNoticeBtn"><i class="fa-solid fa-bullhorn"></i> 공지사항</a></li>
+                            <li><a href="javascript:void(0)" id="drawerTimetableBtn"><i class="fa-solid fa-calendar-days"></i> 시간표</a></li>
+                            <li><a href="javascript:void(0)" id="drawerExamBtn"><i class="fa-solid fa-pen-to-square"></i> 시험일정</a></li>
+                            <li><a href="javascript:void(0)" id="drawerWeatherBtn"><i class="fa-solid fa-cloud-sun"></i> 날씨</a></li>
+                            <li><a href="javascript:void(0)" id="drawerMealBtn"><i class="fa-solid fa-utensils"></i> 급식</a></li>
+                            <li><a href="javascript:void(0)" id="drawerSupplyBtn"><i class="fa-solid fa-clipboard-list"></i> 준비물</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-category">
+                        <h4><i class="fa-solid fa-images"></i> 갤러리</h4>
+                        <ul>
+                            <li><a href="#sec-gallery" id="drawerGalleryBtn"><i class="fa-solid fa-camera"></i> 포토갤러리</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
         </div>
     </div>
 

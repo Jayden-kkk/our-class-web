@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnResetConfig) {
         btnResetConfig.addEventListener('click', () => {
             if (inputSchoolName) {
-                inputSchoolName.value = '1학년 6반 홈페이지';
+                inputSchoolName.value = '1학년 6반 알리미';
                 inputSchoolName.dispatchEvent(new Event('input'));
             }
             colorButtons[0].click();
@@ -274,19 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (drawerOpenBtn) drawerOpenBtn.addEventListener('click', openDrawer);
     if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
     if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
-
-    // 4. 검색창 레이어 토글
-    const searchToggleBtn = document.getElementById('searchToggleBtn');
-    const searchOverlay = document.getElementById('searchOverlay');
-    if (searchToggleBtn && searchOverlay) {
-        searchToggleBtn.addEventListener('click', () => {
-            searchOverlay.classList.toggle('active');
-            if (searchOverlay.classList.contains('active')) {
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) searchInput.focus();
-            }
-        });
-    }
 
     // 5. 메인 비주얼 배너 (Hero Carousel Slider)
     const heroSlides = document.querySelectorAll('.carousel-slide');
@@ -568,15 +555,58 @@ document.addEventListener('DOMContentLoaded', () => {
         hourlyForecastList.innerHTML = slotsHtml;
     }
 
-    async function fetchWeatherData(lat = 37.3595, lon = 127.1053) {
-        // 즉시 기본값 및 시간별 예보 렌더링 (대기 시간 없는 100% 즉시 표시)
+    let cachedLat = 37.3595;
+    let cachedLon = 127.1053;
+    let cachedLocText = '현재 위치 확인 중...';
+
+    async function updateLocationName(lat, lon) {
+        // 1차: BigDataCloud Reverse Geocoding API
+        try {
+            const resp = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=ko`);
+            if (resp.ok) {
+                const data = await resp.json();
+                const region = data.principalSubdivision || '';
+                const city = data.city || data.locality || '';
+                if (region || city) {
+                    cachedLocText = `${region} ${city} (현재 위치)`.trim();
+                    if (weatherLocationText) weatherLocationText.textContent = cachedLocText;
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        // 2차: Nominatim OpenStreetMap Reverse Geocoding API
+        try {
+            const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=ko`);
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data && data.address) {
+                    const prov = data.address.province || data.address.state || '';
+                    const city = data.address.city || data.address.borough || data.address.county || data.address.suburb || '';
+                    if (prov || city) {
+                        cachedLocText = `${prov} ${city} (현재 위치)`.trim();
+                        if (weatherLocationText) weatherLocationText.textContent = cachedLocText;
+                        return;
+                    }
+                }
+            }
+        } catch (e) {}
+
+        cachedLocText = '현재 위치';
+        if (weatherLocationText) weatherLocationText.textContent = cachedLocText;
+    }
+
+    async function fetchWeatherData(lat = cachedLat, lon = cachedLon, customLocText = null) {
+        const displayLoc = customLocText || cachedLocText;
+
+        // 즉시 기본값 및 시간별 예보 렌더링
         if (weatherTemp) weatherTemp.textContent = '27°C';
         if (weatherMiniBadge) weatherMiniBadge.textContent = '27°C';
         if (weatherStatusText) weatherStatusText.textContent = '맑음';
         if (weatherWindSpeed) weatherWindSpeed.textContent = '1.8 m/s';
         if (weatherIconLarge) weatherIconLarge.innerHTML = `<i class="fa-solid fa-sun"></i>`;
         if (quickWeatherIcon) quickWeatherIcon.className = 'fa-solid fa-sun';
-        if (weatherLocationText) weatherLocationText.textContent = '경기도 성남시 분당구 (현재 위치)';
+        if (weatherLocationText) weatherLocationText.textContent = displayLoc;
         if (weatherCardInner) weatherCardInner.className = 'weather-card-inner weather-bg-clear';
         renderRealisticWeatherEffects('맑음');
         renderHourlyForecastFallback();
@@ -598,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (weatherMiniBadge) weatherMiniBadge.textContent = `${tempVal}°C`;
                 if (weatherStatusText) weatherStatusText.textContent = wmoInfo.text;
                 if (weatherWindSpeed) weatherWindSpeed.textContent = `${windVal} m/s`;
-                if (weatherLocationText) weatherLocationText.textContent = '경기도 성남시 분당구 (현재 위치)';
+                if (weatherLocationText) weatherLocationText.textContent = displayLoc;
 
                 // 아이콘 및 배경 업데이트
                 if (weatherIconLarge) weatherIconLarge.innerHTML = `<i class="${wmoInfo.icon}"></i>`;
@@ -611,7 +641,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 모달 및 전체 앱에 리얼리스틱 날씨 배경 이펙트 적용
                 renderRealisticWeatherEffects(wmoInfo.text);
 
-                // 08:00 ~ 24:00 시간별 예보 생성 (안전 동기 렌더링)
+                // 미세먼지 수치 실시간 연동
+                updateAirQuality(lat, lon);
+
+                // 08:00 ~ 24:00 시간별 예보 생성
                 const hourlyForecastList = document.getElementById('hourlyForecastList');
                 if (hourlyForecastList) {
                     if (data.hourly && data.hourly.time && data.hourly.time.length > 0) {
@@ -670,14 +703,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Open-Meteo fallback active');
         }
 
-        // 네트워크/API 수신 에러 시 '경기도 성남시 분당구 (현재 위치)' 27°C 맑음으로 항상 안전하게 자동 표시!
+        // 수신 에러 시 안전 자동 표시
         if (weatherTemp) weatherTemp.textContent = '27°C';
         if (weatherMiniBadge) weatherMiniBadge.textContent = '27°C';
         if (weatherStatusText) weatherStatusText.textContent = '맑음';
         if (weatherWindSpeed) weatherWindSpeed.textContent = '1.8 m/s';
         if (weatherIconLarge) weatherIconLarge.innerHTML = `<i class="fa-solid fa-sun"></i>`;
         if (quickWeatherIcon) quickWeatherIcon.className = 'fa-solid fa-sun';
-        if (weatherLocationText) weatherLocationText.textContent = '경기도 성남시 분당구 (현재 위치)';
+        if (weatherLocationText) weatherLocationText.textContent = displayLoc;
         if (weatherCardInner) weatherCardInner.className = 'weather-card-inner weather-bg-clear';
         renderRealisticWeatherEffects('맑음');
         renderHourlyForecastFallback();
@@ -688,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderRealisticWeatherEffects(weatherText) {
         if (!modalWeatherAnimLayer) return;
-        modalWeatherAnimLayer.innerHTML = ''; // 기존 입자 초기화
+        modalWeatherAnimLayer.innerHTML = '';
 
         if (weatherText === '맑음' || weatherText === '구름조금') {
             const glow = document.createElement('div');
@@ -732,22 +765,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function updateAirQuality(lat, lon) {
+        const weatherDustLevel = document.getElementById('weatherDustLevel');
+        if (!weatherDustLevel) return;
+
+        try {
+            const resp = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,pm2_5`);
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data && data.current) {
+                    const pm10 = data.current.pm10 || 15;
+                    if (pm10 <= 30) {
+                        weatherDustLevel.className = 'dust-pill dust-good';
+                        weatherDustLevel.innerHTML = `<i class="fa-solid fa-face-laugh-beam"></i> 좋음`;
+                    } else if (pm10 <= 80) {
+                        weatherDustLevel.className = 'dust-pill dust-normal';
+                        weatherDustLevel.innerHTML = `<i class="fa-solid fa-face-meh"></i> 보통`;
+                    } else if (pm10 <= 150) {
+                        weatherDustLevel.className = 'dust-pill dust-bad';
+                        weatherDustLevel.innerHTML = `<i class="fa-solid fa-face-frown"></i> 나쁨`;
+                    } else {
+                        weatherDustLevel.className = 'dust-pill dust-vbad';
+                        weatherDustLevel.innerHTML = `<i class="fa-solid fa-face-angry"></i> 매우나쁨`;
+                    }
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        weatherDustLevel.className = 'dust-pill dust-good';
+        weatherDustLevel.innerHTML = `<i class="fa-solid fa-face-laugh-beam"></i> 좋음`;
+    }
+
+    async function fetchIpLocationFallback() {
+        try {
+            const resp = await fetch('https://ipapi.co/json/');
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data && data.latitude && data.longitude) {
+                    cachedLat = data.latitude;
+                    cachedLon = data.longitude;
+                    const regionName = data.region || '';
+                    const cityName = data.city || '';
+                    const locName = `${regionName} ${cityName} (현재 위치)`.trim() || '현재 위치';
+                    cachedLocText = locName;
+                    fetchWeatherData(cachedLat, cachedLon, cachedLocText);
+                    return true;
+                }
+            }
+        } catch (e) {}
+        return false;
+    }
+
     function initLocationAndWeather() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const lat = pos.coords.latitude;
-                    const lon = pos.coords.longitude;
-                    fetchWeatherData(lat, lon, true);
+                async (pos) => {
+                    cachedLat = pos.coords.latitude;
+                    cachedLon = pos.coords.longitude;
+                    await updateLocationName(cachedLat, cachedLon);
+                    fetchWeatherData(cachedLat, cachedLon);
                 },
-                (err) => {
-                    console.log('GPS 권한 미허용 또는 오류 -> 기본 위치 사용:', err);
-                    fetchWeatherData(37.3595, 127.1053, false);
+                async (err) => {
+                    console.log('GPS 권한 미허용 또는 오류 -> IP 기반 위치 자동 확인 시도:', err);
+                    const ipSuccess = await fetchIpLocationFallback();
+                    if (!ipSuccess) {
+                        fetchWeatherData(cachedLat, cachedLon, '내 위치 (GPS 기반)');
+                    }
                 },
-                { timeout: 8000 }
+                { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
             );
         } else {
-            fetchWeatherData(37.3595, 127.1053, false);
+            fetchIpLocationFallback().then(ipSuccess => {
+                if (!ipSuccess) {
+                    fetchWeatherData(cachedLat, cachedLon, '내 위치 (GPS 기반)');
+                }
+            });
         }
     }
 
@@ -755,7 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function openWeatherModal() {
         if (weatherModal && weatherBackdrop) {
             renderHourlyForecastFallback();
-            fetchWeatherData();
+            fetchWeatherData(cachedLat, cachedLon);
             weatherModal.classList.add('active');
             weatherBackdrop.classList.add('active');
         }
@@ -772,10 +865,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (weatherBackdrop) weatherBackdrop.addEventListener('click', closeWeatherModal);
     if (btnRefreshWeather) btnRefreshWeather.addEventListener('click', () => initLocationAndWeather());
 
-    // 첫 실행 즉시 날씨 렌더링 & 30초마다 자동 업데이트
-    fetchWeatherData(37.3595, 127.1053);
+    // 초기 1회 사용자 위치 GPS 확인 및 10분 주기 배경 자동 갱신 (반복 권한 팝업 방지)
     initLocationAndWeather();
-    setInterval(initLocationAndWeather, 30000);
+    setInterval(() => fetchWeatherData(cachedLat, cachedLon), 600000);
 
     // 9. 양영중학교 실시간 8월 실제 급식 식단 데이터베이스 (이미지 원본 식단 100% 매핑)
     const mealDatabase = [
@@ -1264,10 +1356,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (galleryCloseBtn) galleryCloseBtn.addEventListener('click', closeGalleryModal);
     if (galleryBackdrop) galleryBackdrop.addEventListener('click', closeGalleryModal);
 
-    const secGalleryTitle = document.querySelector('.sec-gallery .section-title');
-    if (secGalleryTitle) {
-        secGalleryTitle.style.cursor = 'pointer';
-        secGalleryTitle.addEventListener('click', openGalleryModal);
+    const secGallery = document.getElementById('sec-gallery');
+    if (secGallery) {
+        const galleryClickables = secGallery.querySelectorAll('.sec-title-group, h3, .vacation-notice-box, .accordion-content');
+        galleryClickables.forEach(el => {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', (e) => {
+                if (e.target.closest('.accordion-toggle')) return;
+                openGalleryModal();
+            });
+        });
     }
 
     // 라이트박스 이미지 대형 확대 모달 제어
@@ -1307,10 +1405,37 @@ document.addEventListener('DOMContentLoaded', () => {
     if (drawerWeatherBtn) drawerWeatherBtn.addEventListener('click', () => { closeDrawer(); openWeatherModal(); });
     if (drawerMealBtn) drawerMealBtn.addEventListener('click', () => { closeDrawer(); openMealModal(); });
 
-    if (drawerGalleryBtn) {
-        drawerGalleryBtn.addEventListener('click', (e) => {
-            closeDrawer();
-            openGalleryModal();
+    // 푸터 하단 인라인 펼침 박스 제어 (위치 정보 반영 방식 & 1학년 6반 학급 명단)
+    const btnOpenLocationInfo = document.getElementById('btnOpenLocationInfo');
+    const btnOpenUserInfo = document.getElementById('btnOpenUserInfo');
+    const footerLocationExpandBox = document.getElementById('footerLocationExpandBox');
+    const footerUserExpandBox = document.getElementById('footerUserExpandBox');
+    const btnCloseLocationInline = document.getElementById('btnCloseLocationInline');
+    const btnCloseUserInline = document.getElementById('btnCloseUserInline');
+
+    if (btnOpenLocationInfo) {
+        btnOpenLocationInfo.addEventListener('click', () => {
+            if (footerUserExpandBox) footerUserExpandBox.classList.remove('active');
+            if (footerLocationExpandBox) footerLocationExpandBox.classList.toggle('active');
+        });
+    }
+
+    if (btnOpenUserInfo) {
+        btnOpenUserInfo.addEventListener('click', () => {
+            if (footerLocationExpandBox) footerLocationExpandBox.classList.remove('active');
+            if (footerUserExpandBox) footerUserExpandBox.classList.toggle('active');
+        });
+    }
+
+    if (btnCloseLocationInline) {
+        btnCloseLocationInline.addEventListener('click', () => {
+            if (footerLocationExpandBox) footerLocationExpandBox.classList.remove('active');
+        });
+    }
+
+    if (btnCloseUserInline) {
+        btnCloseUserInline.addEventListener('click', () => {
+            if (footerUserExpandBox) footerUserExpandBox.classList.remove('active');
         });
     }
 });

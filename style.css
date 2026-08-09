@@ -195,13 +195,18 @@ body.mode-full .url-bar {
     background-color: var(--bg-surface);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0 16px;
     position: sticky;
     top: 0;
     z-index: 100;
     box-shadow: var(--shadow-sm);
     border-bottom: 1px solid var(--border-color);
+}
+
+.drawer-btn {
+    position: absolute;
+    left: 16px;
 }
 
 .brand-logo {
@@ -288,15 +293,21 @@ body.mode-full .url-bar {
     font-size: 14px;
 }
 
-/* 6. 사이드 드로어 메뉴 */
+/* 6. 사이드 드로어 메뉴 (핸드폰 화면 내부 규격 맞춤) */
+.mobile-device {
+    position: relative;
+}
+
 .drawer-backdrop {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s;
-    z-index: 200;
+    transition: opacity 0.3s ease;
+    z-index: 500;
 }
 .drawer-backdrop.active {
     opacity: 1;
@@ -305,15 +316,19 @@ body.mode-full .url-bar {
 
 .drawer-menu {
     position: absolute;
-    top: 0; left: -280px;
-    width: 280px;
-    height: 100%;
+    top: 0; left: -100%;
+    width: 82%;
+    max-width: 310px;
+    height: auto;
+    max-height: 88%;
     background: var(--bg-surface);
-    z-index: 201;
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 501;
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 5px 10px 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    border-bottom-right-radius: 24px;
 }
 .drawer-menu.active {
     left: 0;
@@ -349,12 +364,14 @@ body.mode-full .url-bar {
 }
 
 .drawer-nav-list {
-    flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 16px 16px 20px;
 }
 .nav-category {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+}
+.nav-category:last-child {
+    margin-bottom: 4px;
 }
 .nav-category h4 {
     font-size: 14px;
@@ -419,6 +436,9 @@ body.mode-full .url-bar {
     align-items: flex-end;
     padding: 12px 14px 24px;
 }
+.carousel-slide:nth-child(1) {
+    padding-bottom: 32px;
+}
 .carousel-slide.active {
     opacity: 1;
     pointer-events: auto;
@@ -429,13 +449,17 @@ body.mode-full .url-bar {
     text-shadow: 0 2px 6px rgba(0,0,0,0.5);
 }
 .badge-tag {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    line-height: 1;
     background: rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.4);
     color: #fff;
     font-size: 11px;
-    padding: 2px 8px;
+    padding: 5px 10px;
     border-radius: 12px;
     margin-bottom: 6px;
 }
@@ -444,10 +468,18 @@ body.mode-full .url-bar {
     font-weight: 700;
     line-height: 1.25;
 }
+.slide-main-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.25;
+}
 .slide-caption p {
     font-size: 12px;
     opacity: 0.9;
     margin-top: 4px;
+}
+.carousel-slide:nth-child(2) .slide-caption p {
+    margin-top: 10px;
 }
 
 .hero-datetime-box {
@@ -2597,6 +2629,175 @@ body.theme-dark .meal-menu-list li {
     transform: translate(-50%, -50%) scale(1) !important;
 }
 
+/* 푸터 하단 네비게이션 바로 밑 인라인 펼침 박스 */
+.footer-inline-box {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0 auto;
+    width: 100%;
+    max-width: 380px;
+}
+.footer-inline-box.active {
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 10px;
+    margin-bottom: 14px;
+}
+
+.inline-box-inner {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: left;
+    color: #f8fafc;
+    box-shadow: var(--shadow-md);
+}
+
+.inline-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #38bdf8;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+}
+.inline-close-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+}
+.inline-close-btn:hover {
+    color: #f8fafc;
+}
+
+.inline-loc-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.35;
+}
+.inline-loc-card i {
+    font-size: 16px;
+    color: #fbbf24;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+.inline-loc-card p {
+    margin: 0;
+}
+
+.inline-step-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.inline-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 10.5px;
+}
+.s-num {
+    width: 16px;
+    height: 16px;
+    background: #38bdf8;
+    color: #0f172a;
+    font-weight: 800;
+    font-size: 9.5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.inline-step p {
+    margin: 0;
+    color: #94a3b8;
+    line-height: 1.3;
+}
+.inline-step strong {
+    color: #f1f5f9;
+}
+
+/* 사용자 이름 변경 인라인 폼 */
+.user-inline-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.user-inline-form label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #f8fafc;
+}
+.input-row {
+    display: flex;
+    gap: 6px;
+}
+/* 1학년 6반 심플 학급 명단 전용 스타일 */
+.class-roster-simple {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.roster-teacher-badge {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15));
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    color: #fbbf24;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: center;
+}
+.roster-teacher-badge i {
+    margin-right: 4px;
+}
+.roster-student-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 6px;
+    max-height: 230px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.roster-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.roster-item strong {
+    color: #38bdf8;
+    font-size: 10.5px;
+}
+
 .btn-upload-exam:hover {
     background: linear-gradient(135deg, #059669, #047857);
     transform: scale(1.02);
@@ -2610,4 +2811,66 @@ body.theme-dark .meal-menu-list li {
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
+}
+
+/* 미세먼지 고대비 전용 선명한 뱃지 스타일 */
+.single-wind-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 8px 12px;
+    margin: 12px 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.dust-divider {
+    color: rgba(255, 255, 255, 0.3);
+    margin: 0 2px;
+}
+
+.dust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    line-height: 1;
+    letter-spacing: -0.2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dust-pill.dust-good {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border: 1px solid #38bdf8 !important;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.7) !important;
+}
+
+.dust-pill.dust-normal {
+    background: #15803d !important;
+    color: #ffffff !important;
+    border: 1px solid #4ade80 !important;
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.7) !important;
+}
+
+.dust-pill.dust-bad {
+    background: #d97706 !important;
+    color: #ffffff !important;
+    border: 1px solid #fbbf24 !important;
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.7) !important;
+}
+
+.dust-pill.dust-vbad {
+    background: #b91c1c !important;
+    color: #ffffff !important;
+    border: 1px solid #f87171 !important;
+    box-shadow: 0 0 12px rgba(248, 113, 113, 0.7) !important;
 }
