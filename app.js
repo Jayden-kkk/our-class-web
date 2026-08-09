@@ -865,9 +865,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (weatherBackdrop) weatherBackdrop.addEventListener('click', closeWeatherModal);
     if (btnRefreshWeather) btnRefreshWeather.addEventListener('click', () => initLocationAndWeather());
 
-    // 초기 1회 사용자 위치 GPS 확인 및 10분 주기 배경 자동 갱신 (반복 권한 팝업 방지)
-    initLocationAndWeather();
-    setInterval(() => fetchWeatherData(cachedLat, cachedLon), 600000);
+    // 메인 날씨 카드가 존재하는 학생 포털(index.html)에서만 1회 위치 GPS 권한 확인 및 날씨 갱신 (admin.html 에서는 불필요한 위치 권한 팝업 차단)
+    if (document.getElementById('weatherCardInner') || document.getElementById('weatherTemp')) {
+        initLocationAndWeather();
+        setInterval(() => fetchWeatherData(cachedLat, cachedLon), 600000);
+    }
 
     // 9. 양영중학교 실시간 8월 실제 급식 식단 데이터베이스 (이미지 원본 식단 100% 매핑)
     const mealDatabase = [
@@ -1487,21 +1489,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminTabPanels = document.querySelectorAll('.admin-tab-panel');
 
     function openAdminModal() {
-        if (adminModal && adminBackdrop) {
-            adminModal.classList.add('active');
-            adminBackdrop.classList.add('active');
-        }
-    }
-    function closeAdminModal() {
-        if (adminModal && adminBackdrop) {
-            adminModal.classList.remove('active');
-            adminBackdrop.classList.remove('active');
-        }
+        window.open('admin.html', '_blank');
     }
 
-    if (drawerAdminBtn) drawerAdminBtn.addEventListener('click', () => { closeDrawer(); openAdminModal(); });
+    if (drawerAdminBtn) drawerAdminBtn.addEventListener('click', (e) => {
+        closeDrawer();
+        openAdminModal();
+    });
     if (adminCloseBtn) adminCloseBtn.addEventListener('click', closeAdminModal);
     if (adminBackdrop) adminBackdrop.addEventListener('click', closeAdminModal);
+
+    // 새창 관리자 페이지(admin.html) 저장 시 실시간 멀티탭/새창 동기화 리스너
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'app_notices_list' && typeof renderNoticesUI === 'function') {
+            renderNoticesUI();
+        } else if (e.key === 'app_exam_data' && typeof renderExamUI === 'function') {
+            renderExamUI();
+        } else if (e.key === 'app_gallery_items' && typeof renderGallerySlider === 'function') {
+            renderGallerySlider();
+        } else if (e.key === 'app_school_name') {
+            const name = localStorage.getItem('app_school_name');
+            if (name) {
+                const titleEl = document.getElementById('displaySchoolName');
+                if (titleEl) titleEl.textContent = name;
+            }
+        }
+    });
 
     // 통합 관리자 센터 탭 전환 (공지, 시간표, 시험, 준비물, 갤러리 5종)
     adminTabBtns.forEach(btn => {
@@ -1536,26 +1549,41 @@ document.addEventListener('DOMContentLoaded', () => {
         if (adminAuthMsg) adminAuthMsg.className = 'admin-auth-msg';
     }
 
-    // Firebase Auth 상태 감지
+    // Firebase Auth 및 로컬 세션 로그인 상태 유지 체크
+    function checkAdminLoginSession() {
+        const savedUser = sessionStorage.getItem('app_admin_logged_in');
+        if (savedUser) {
+            if (adminLoginBox) adminLoginBox.style.display = 'none';
+            if (adminDashboardBox) adminDashboardBox.style.display = 'block';
+            if (adminUserEmailTag) adminUserEmailTag.textContent = `${savedUser} (관리자)`;
+            return true;
+        }
+        return false;
+    }
+
     function initFirebaseAuthListener() {
+        if (checkAdminLoginSession()) return;
+
         if (window.onAuthStateChanged && window.auth) {
             window.onAuthStateChanged(window.auth, (user) => {
                 if (user) {
-                    // 로그인 성공 상태
                     if (adminLoginBox) adminLoginBox.style.display = 'none';
                     if (adminDashboardBox) adminDashboardBox.style.display = 'block';
                     if (adminUserEmailTag) adminUserEmailTag.textContent = user.email || '관리자 계정';
                 } else {
-                    // 비로그인 상태
-                    if (adminLoginBox) adminLoginBox.style.display = 'block';
-                    if (adminDashboardBox) adminDashboardBox.style.display = 'none';
+                    if (!sessionStorage.getItem('app_admin_logged_in')) {
+                        if (adminLoginBox) adminLoginBox.style.display = 'block';
+                        if (adminDashboardBox) adminDashboardBox.style.display = 'none';
+                    }
                 }
             });
+        } else {
+            checkAdminLoginSession();
         }
     }
     setTimeout(initFirebaseAuthListener, 300);
 
-    // Firebase 로그인 처리
+    // 100% 순수 Firebase Authentication 전용 로그인 처리 (더미/하드코딩 이메일 제거)
     if (adminLoginForm) {
         adminLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1565,72 +1593,66 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = adminPasswordInput.value.trim();
 
             if (!email || !password) {
-                showAuthMsg('이메일과 비밀번호를 입력해주세요.');
+                showAuthMsg('이메일과 비밀번호를 모두 입력해주세요.');
                 return;
             }
 
             btnFirebaseLogin.disabled = true;
-            btnFirebaseLogin.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 인증 중...`;
+            btnFirebaseLogin.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 인증 확인 중...`;
 
             try {
                 if (window.signInWithEmailAndPassword && window.auth) {
-                    await window.signInWithEmailAndPassword(window.auth, email, password);
-                    showAuthMsg('✅ Firebase 인증 로그인 성공!', false);
-                } else {
-                    throw new Error('Firebase Auth SDK 미준비');
-                }
-            } catch (error) {
-                console.warn('Firebase Login Error:', error);
-
-                if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
-                    // Firebase 콘솔 미설정 상태일 때 마스터 관리자 인증으로 자동 전환
-                    showAuthMsg('🔑 마스터 관리자 인증 성공! (대시보드가 열립니다)', false);
+                    const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
+                    const user = userCredential.user;
+                    
+                    showAuthMsg('✅ 관리자 로그인 성공!', false);
+                    sessionStorage.setItem('app_admin_logged_in', user.email || email);
+                    
                     setTimeout(() => {
                         if (adminLoginBox) adminLoginBox.style.display = 'none';
                         if (adminDashboardBox) adminDashboardBox.style.display = 'block';
-                        if (adminUserEmailTag) adminUserEmailTag.textContent = `${email} (마스터 인증)`;
+                        if (adminUserEmailTag) adminUserEmailTag.textContent = user.email || email;
                     }, 400);
-                    return;
-                }
-                
-                // 계정이 생성되지 않은 경우 자동 생성 시도
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                    try {
-                        if (window.createUserWithEmailAndPassword && window.auth) {
-                            await window.createUserWithEmailAndPassword(window.auth, email, password);
-                            showAuthMsg('🎉 새 관리자 계정이 생성 및 로그인되었습니다!', false);
-                            return;
-                        }
-                    } catch (createErr) {
-                        if (createErr.code === 'auth/configuration-not-found' || createErr.code === 'auth/operation-not-allowed') {
-                            showAuthMsg('🔑 마스터 관리자 인증 성공! (대시보드가 열립니다)', false);
-                            setTimeout(() => {
-                                if (adminLoginBox) adminLoginBox.style.display = 'none';
-                                if (adminDashboardBox) adminDashboardBox.style.display = 'block';
-                                if (adminUserEmailTag) adminUserEmailTag.textContent = `${email} (마스터 인증)`;
-                            }, 400);
-                            return;
-                        }
-                        showAuthMsg(`로그인 실패: ${createErr.message}`);
-                    }
                 } else {
-                    showAuthMsg(`로그인 오류: ${error.message || '인증 실패'}`);
+                    showAuthMsg('❌ 로그인 오류: 인증 서비스 연결 준비 중입니다.');
                 }
+            } catch (error) {
+                console.error('Auth Login Error:', error);
+                
+                let errStr = '❌ 로그인 실패: 등록된 관리자 이메일 또는 비밀번호가 올바르지 않습니다.';
+                if (error.code === 'auth/invalid-email') {
+                    errStr = '❌ 로그인 실패: 올바른 이메일 형식이 아닙니다.';
+                } else if (error.code === 'auth/user-disabled') {
+                    errStr = '❌ 로그인 실패: 비활성화된 계정입니다.';
+                } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    errStr = '❌ 로그인 실패: 등록된 관리자 계정 이메일 또는 비밀번호가 일치하지 않습니다.';
+                }
+                showAuthMsg(errStr);
             } finally {
                 btnFirebaseLogin.disabled = false;
-                btnFirebaseLogin.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Firebase 인증 로그인`;
+                btnFirebaseLogin.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> 관리자 인증 로그인`;
             }
         });
     }
 
-    // Firebase 로그아웃 처리
+    // 관리자 로그아웃 처리
     if (btnAdminLogout) {
         btnAdminLogout.addEventListener('click', async () => {
-            if (window.signOut && window.auth) {
-                await window.signOut(window.auth);
-                hideAuthMsg();
-                alert('🔑 관리자 계정에서 로그아웃되었습니다.');
-            }
+            try {
+                if (window.signOut && window.auth) {
+                    await window.signOut(window.auth);
+                }
+            } catch (e) {}
+
+            sessionStorage.removeItem('app_admin_logged_in');
+            
+            if (adminLoginBox) adminLoginBox.style.display = 'block';
+            if (adminDashboardBox) adminDashboardBox.style.display = 'none';
+            if (adminEmailInput) adminEmailInput.value = '';
+            if (adminPasswordInput) adminPasswordInput.value = '';
+            
+            hideAuthMsg();
+            showAuthMsg('🔒 성공적으로 로그아웃되었습니다.', false);
         });
     }
 
