@@ -2557,12 +2557,28 @@ body.theme-dark .meal-menu-list li {
     transform: translate(-50%, -50%) scale(1) !important;
 }
 
+/* 모달 열림 시 모바일 뷰포트 바운스 스크롤 방지 */
+body.modal-open {
+    overflow: hidden !important;
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+}
+
 /* 모달 열림 시 배경 요소 트랜지션 및 롤링 완전 고정 (배경 변화로 인한 블러 재계산 및 팝업 깜빡임 100% 원천 차단) */
 body.modal-open .carousel-slide,
 body.modal-open .hero-carousel,
 body.modal-open .popup-carousel-track {
     transition: none !important;
     animation: none !important;
+}
+
+/* 📱 모바일 브라우저 전용 백드롭 렌더링 최적화 (모바일 GPU 비트맵 블러 연산 부하 및 깜빡임 100% 원천 제거) */
+@media (max-width: 768px) {
+    .supply-backdrop, .exam-backdrop, .gallery-backdrop, .notice-backdrop, .timetable-backdrop, .weather-backdrop, .meal-backdrop, .drawer-backdrop, .lightbox-backdrop, .admin-backdrop {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(10, 15, 28, 0.85) !important;
+    }
 }
 
 .notice-modal-inner, .timetable-modal-inner, .supply-modal-inner, .exam-modal-inner, .gallery-modal-inner, .weather-modal-inner, .meal-modal-inner { padding: 14px; }
