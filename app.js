@@ -486,6 +486,32 @@ function initApp() {
         }
     }
 
+    let modalCloseTimer = null;
+
+    // 팝업/모달 오픈 시 배경 롤링 타이머 일시 정지 (배경 롤링으로 인한 깜빡임 100% 원천 차단)
+    function pauseAllBackgroundTimers() {
+        if (modalCloseTimer) {
+            clearTimeout(modalCloseTimer);
+            modalCloseTimer = null;
+        }
+        stopHeroTimer();
+        if (typeof stopPopupTimer === 'function') stopPopupTimer();
+        document.body.classList.add('modal-open');
+    }
+
+    function resumeAllBackgroundTimers() {
+        if (modalCloseTimer) clearTimeout(modalCloseTimer);
+        // 모달 닫힘 CSS 애니메이션(300ms)이 완전히 끝난 후 배경 롤링 및 트랜지션 해제 (닫을 때 깜빡임 완전 차단)
+        modalCloseTimer = setTimeout(() => {
+            const activeModal = document.querySelector('.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active, .lightbox-modal.active, .drawer-menu.active, .admin-modal.active');
+            if (!activeModal) {
+                startHeroTimer();
+                if (typeof startPopupTimer === 'function') startPopupTimer();
+                document.body.classList.remove('modal-open');
+            }
+        }, 320);
+    }
+
     if (heroPlayPauseBtn) {
         heroPlayPauseBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1067,8 +1093,6 @@ function initApp() {
     // 모달 제어
     function openWeatherModal() {
         if (weatherModal && weatherBackdrop) {
-            renderHourlyForecastFallback();
-            fetchWeatherData(cachedLat, cachedLon);
             pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 weatherModal.classList.add('active');
