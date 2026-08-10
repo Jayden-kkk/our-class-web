@@ -310,7 +310,7 @@ body.mode-full .url-bar {
 }
 
 .drawer-backdrop {
-    position: fixed;
+    position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.65);
@@ -318,10 +318,7 @@ body.mode-full .url-bar {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-    z-index: 9990;
-    will-change: opacity;
-    transform: translateZ(0);
-    backface-visibility: hidden;
+    z-index: 500;
 }
 .drawer-backdrop.active {
     opacity: 1;
@@ -329,23 +326,21 @@ body.mode-full .url-bar {
 }
 
 .drawer-menu {
-    position: fixed;
+    position: absolute;
     top: 0; left: 0;
     width: 82%;
     max-width: 310px;
     height: 100%;
-    background: #0f172a;
-    z-index: 9995;
+    background: var(--bg-surface);
+    z-index: 501;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
-    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
+    box-shadow: none !important;
     overflow-y: auto;
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
-    will-change: transform;
-    backface-visibility: hidden;
 }
 .drawer-menu.active {
     transform: translateX(0);
