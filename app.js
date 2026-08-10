@@ -418,12 +418,16 @@ function initApp() {
     const drawerBackdrop = document.getElementById('drawerBackdrop');
 
     function openDrawer() {
-        drawerMenu.classList.add('active');
-        drawerBackdrop.classList.add('active');
+        pauseAllBackgroundTimers();
+        requestAnimationFrame(() => {
+            drawerMenu.classList.add('active');
+            drawerBackdrop.classList.add('active');
+        });
     }
     function closeDrawer() {
         drawerMenu.classList.remove('active');
         drawerBackdrop.classList.remove('active');
+        resumeAllBackgroundTimers();
     }
 
     if (drawerOpenBtn) drawerOpenBtn.addEventListener('click', openDrawer);
@@ -610,6 +614,25 @@ function initApp() {
                 updatePopupSlide();
             }
         }, 5000);
+    }
+    function stopPopupTimer() {
+        if (popupTimer) clearInterval(popupTimer);
+    }
+
+    // 팝업/모달 오픈 시 배경 롤링 타이머 일시 정지 (배경 롤링으로 인한 깜빡임 100% 원천 차단)
+    function pauseAllBackgroundTimers() {
+        stopHeroTimer();
+        stopPopupTimer();
+        document.body.classList.add('modal-open');
+    }
+
+    function resumeAllBackgroundTimers() {
+        const activeModal = document.querySelector('.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active, .lightbox-modal.active, .drawer-menu.active, .admin-modal.active');
+        if (!activeModal) {
+            startHeroTimer();
+            startPopupTimer();
+            document.body.classList.remove('modal-open');
+        }
     }
 
     if (popupPrevBtn) {
@@ -1004,6 +1027,7 @@ function initApp() {
         if (weatherModal && weatherBackdrop) {
             renderHourlyForecastFallback();
             fetchWeatherData(cachedLat, cachedLon);
+            pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 weatherModal.classList.add('active');
                 weatherBackdrop.classList.add('active');
@@ -1014,6 +1038,7 @@ function initApp() {
         if (weatherModal && weatherBackdrop) {
             weatherModal.classList.remove('active');
             weatherBackdrop.classList.remove('active');
+            resumeAllBackgroundTimers();
         }
     }
 
@@ -1355,6 +1380,7 @@ function initApp() {
         if (mealModal && mealBackdrop) {
             mealPairMode = 0; // 모달을 닫고 다시 열면 항상 가장 최신(오늘 급식) 탭으로 자동 초기화
             renderMealModalData();
+            pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 mealModal.classList.add('active');
                 mealBackdrop.classList.add('active');
@@ -1366,6 +1392,7 @@ function initApp() {
         if (mealModal && mealBackdrop) {
             mealModal.classList.remove('active');
             mealBackdrop.classList.remove('active');
+            resumeAllBackgroundTimers();
         }
     }
 
@@ -1426,6 +1453,7 @@ function initApp() {
     function openTimetableModal() {
         if (timetableModal && timetableBackdrop) {
             loadYangYoungTimetable();
+            pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 timetableModal.classList.add('active');
                 timetableBackdrop.classList.add('active');
@@ -1436,6 +1464,7 @@ function initApp() {
         if (timetableModal && timetableBackdrop) {
             timetableModal.classList.remove('active');
             timetableBackdrop.classList.remove('active');
+            resumeAllBackgroundTimers();
         }
     }
 
@@ -1468,6 +1497,7 @@ function initApp() {
             if (typeof renderNoticesUI === 'function') {
                 renderNoticesUI(validIdx);
             }
+            pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 noticeModal.classList.add('active');
                 noticeBackdrop.classList.add('active');
@@ -1478,6 +1508,7 @@ function initApp() {
         if (noticeModal && noticeBackdrop) {
             noticeModal.classList.remove('active');
             noticeBackdrop.classList.remove('active');
+            resumeAllBackgroundTimers();
         }
     }
 
@@ -1493,6 +1524,7 @@ function initApp() {
 
     function openSupplyModal() {
         if (supplyModal && supplyBackdrop) {
+            pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 supplyModal.classList.add('active');
                 supplyBackdrop.classList.add('active');
@@ -1503,6 +1535,7 @@ function initApp() {
         if (supplyModal && supplyBackdrop) {
             supplyModal.classList.remove('active');
             supplyBackdrop.classList.remove('active');
+            resumeAllBackgroundTimers();
         }
     }
     if (drawerSupplyBtn) drawerSupplyBtn.addEventListener('click', () => { closeDrawer(); openSupplyModal(); });
@@ -1521,6 +1554,7 @@ function initApp() {
             if (typeof renderExamUI === 'function') {
                 renderExamUI(validIdx);
             }
+            pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 examModal.classList.add('active');
                 examBackdrop.classList.add('active');
@@ -1532,6 +1566,7 @@ function initApp() {
         if (examModal && examBackdrop) {
             examModal.classList.remove('active');
             examBackdrop.classList.remove('active');
+            resumeAllBackgroundTimers();
         }
     }
     if (drawerExamBtn) drawerExamBtn.addEventListener('click', () => { closeDrawer(); openExamModal(); });
@@ -1547,6 +1582,7 @@ function initApp() {
     function openGalleryModal() {
         if (galleryModal && galleryBackdrop) {
             renderGalleryModalContent();
+            pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 galleryModal.classList.add('active');
                 galleryBackdrop.classList.add('active');
@@ -1582,6 +1618,7 @@ function initApp() {
         if (galleryModal && galleryBackdrop) {
             galleryModal.classList.remove('active');
             galleryBackdrop.classList.remove('active');
+            resumeAllBackgroundTimers();
         }
     }
     if (drawerGalleryBtn) drawerGalleryBtn.addEventListener('click', () => { closeDrawer(); openGalleryModal(); });
@@ -1599,6 +1636,7 @@ function initApp() {
         if (imageLightboxModal && lightboxTargetImg) {
             lightboxTargetImg.src = imgSrc;
             if (lightboxCaptionText) lightboxCaptionText.textContent = caption || '1학년 6반 추억 사진';
+            pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 imageLightboxModal.classList.add('active');
                 if (imageLightboxBackdrop) imageLightboxBackdrop.classList.add('active');
@@ -1610,6 +1648,7 @@ function initApp() {
     function closeImageLightbox() {
         if (imageLightboxModal) imageLightboxModal.classList.remove('active');
         if (imageLightboxBackdrop) imageLightboxBackdrop.classList.remove('active');
+        resumeAllBackgroundTimers();
     }
 
     if (imageLightboxCloseBtn) imageLightboxCloseBtn.addEventListener('click', closeImageLightbox);
