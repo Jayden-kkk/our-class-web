@@ -2541,11 +2541,14 @@ body.theme-dark .meal-menu-list li {
     color: #64748b;
 }
 
-/* 준비물, 시험, 갤러리 백드롭 및 모달 */
-.supply-backdrop, .exam-backdrop, .gallery-backdrop {
+/* 준비물, 시험, 갤러리 백드롭 및 모달 (GPU 하드웨어 가속 & 깜빡임 100% 방지) */
+.supply-backdrop, .exam-backdrop, .gallery-backdrop, .notice-backdrop, .timetable-backdrop, .weather-backdrop, .meal-backdrop, .drawer-backdrop, .lightbox-backdrop, .admin-backdrop {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(5px);
     z-index: 9998; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    will-change: opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 .supply-backdrop.active, .exam-backdrop.active, .gallery-backdrop.active { opacity: 1; pointer-events: auto; }
 
@@ -2565,9 +2568,12 @@ body.theme-dark .meal-menu-list li {
     z-index: 9999;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
     overflow-y: auto !important;
     color: #f8fafc;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
 }
 
 .notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active {

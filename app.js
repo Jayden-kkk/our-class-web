@@ -1004,8 +1004,10 @@ function initApp() {
         if (weatherModal && weatherBackdrop) {
             renderHourlyForecastFallback();
             fetchWeatherData(cachedLat, cachedLon);
-            weatherModal.classList.add('active');
-            weatherBackdrop.classList.add('active');
+            requestAnimationFrame(() => {
+                weatherModal.classList.add('active');
+                weatherBackdrop.classList.add('active');
+            });
         }
     }
     function closeWeatherModal() {
@@ -1353,8 +1355,10 @@ function initApp() {
         if (mealModal && mealBackdrop) {
             mealPairMode = 0; // 모달을 닫고 다시 열면 항상 가장 최신(오늘 급식) 탭으로 자동 초기화
             renderMealModalData();
-            mealModal.classList.add('active');
-            mealBackdrop.classList.add('active');
+            requestAnimationFrame(() => {
+                mealModal.classList.add('active');
+                mealBackdrop.classList.add('active');
+            });
         }
     }
 
@@ -1421,9 +1425,11 @@ function initApp() {
 
     function openTimetableModal() {
         if (timetableModal && timetableBackdrop) {
-            timetableModal.classList.add('active');
-            timetableBackdrop.classList.add('active');
             loadYangYoungTimetable();
+            requestAnimationFrame(() => {
+                timetableModal.classList.add('active');
+                timetableBackdrop.classList.add('active');
+            });
         }
     }
     function closeTimetableModal() {
@@ -1459,11 +1465,13 @@ function initApp() {
     function openNoticeModal(targetIdx = null) {
         const validIdx = (typeof targetIdx === 'number' && !isNaN(targetIdx)) ? targetIdx : null;
         if (noticeModal && noticeBackdrop) {
-            noticeModal.classList.add('active');
-            noticeBackdrop.classList.add('active');
             if (typeof renderNoticesUI === 'function') {
                 renderNoticesUI(validIdx);
             }
+            requestAnimationFrame(() => {
+                noticeModal.classList.add('active');
+                noticeBackdrop.classList.add('active');
+            });
         }
     }
     function closeNoticeModal() {
@@ -1485,8 +1493,10 @@ function initApp() {
 
     function openSupplyModal() {
         if (supplyModal && supplyBackdrop) {
-            supplyModal.classList.add('active');
-            supplyBackdrop.classList.add('active');
+            requestAnimationFrame(() => {
+                supplyModal.classList.add('active');
+                supplyBackdrop.classList.add('active');
+            });
         }
     }
     function closeSupplyModal() {
@@ -1508,11 +1518,13 @@ function initApp() {
     function openExamModal(targetIdx = null) {
         const validIdx = (typeof targetIdx === 'number' && !isNaN(targetIdx)) ? targetIdx : null;
         if (examModal && examBackdrop) {
-            examModal.classList.add('active');
-            examBackdrop.classList.add('active');
             if (typeof renderExamUI === 'function') {
                 renderExamUI(validIdx);
             }
+            requestAnimationFrame(() => {
+                examModal.classList.add('active');
+                examBackdrop.classList.add('active');
+            });
         }
     }
     window.openExamModal = openExamModal;
@@ -1535,8 +1547,10 @@ function initApp() {
     function openGalleryModal() {
         if (galleryModal && galleryBackdrop) {
             renderGalleryModalContent();
-            galleryModal.classList.add('active');
-            galleryBackdrop.classList.add('active');
+            requestAnimationFrame(() => {
+                galleryModal.classList.add('active');
+                galleryBackdrop.classList.add('active');
+            });
         }
     }
     function renderGalleryModalContent() {
@@ -1585,8 +1599,10 @@ function initApp() {
         if (imageLightboxModal && lightboxTargetImg) {
             lightboxTargetImg.src = imgSrc;
             if (lightboxCaptionText) lightboxCaptionText.textContent = caption || '1학년 6반 추억 사진';
-            imageLightboxModal.classList.add('active');
-            if (imageLightboxBackdrop) imageLightboxBackdrop.classList.add('active');
+            requestAnimationFrame(() => {
+                imageLightboxModal.classList.add('active');
+                if (imageLightboxBackdrop) imageLightboxBackdrop.classList.add('active');
+            });
         }
     }
     window.openLightbox = openImageLightbox;
