@@ -281,7 +281,10 @@
                             <input type="file" id="adminExamImgFile" accept="image/*" class="admin-input-field" style="padding: 6px;">
                             <input type="text" id="adminExamImgUrl" class="admin-input-field" placeholder="또는 이미지 URL 입력 (https://...)" style="margin-top: 6px;">
                             <div id="adminExamImgPreview" class="admin-img-preview-card" style="display:none; margin-top:8px;">
-                                <img id="examPreviewImgTag" src="" alt="시험시간표 미리보기" style="max-height: 120px; border-radius: 8px;">
+                                <img id="examPreviewImgTag" src="" alt="시험시간표 미리보기" style="max-height: 120px; border-radius: 8px; display:block; margin-bottom:8px;">
+                                <button type="button" id="btnDeleteExamImg" class="btn-delete-exam-img" style="background:#ef4444; color:#ffffff; border:none; padding:6px 12px; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition: background 0.2s ease;">
+                                    <i class="fa-solid fa-trash"></i> 첨부 이미지 삭제
+                                </button>
                             </div>
                         </div>
 

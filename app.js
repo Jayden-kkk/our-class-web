@@ -2014,7 +2014,8 @@ function initApp() {
     // --- Firebase Firestore & LocalStorage 이중 통합 저장 헬퍼 ---
     async function saveToRemoteAndLocal(key, data) {
         try {
-            localStorage.setItem(key, JSON.stringify(data));
+            const valToStore = typeof data === 'string' ? data : JSON.stringify(data);
+            localStorage.setItem(key, valToStore);
         } catch (e) {
             console.warn(`LocalStorage save warning for ${key}:`, e);
         }
@@ -2041,7 +2042,8 @@ function initApp() {
                             const remoteData = snapshot.data()?.data;
                             if (remoteData !== undefined && remoteData !== null) {
                                 try {
-                                    localStorage.setItem(key, JSON.stringify(remoteData));
+                                    const valToStore = typeof remoteData === 'string' ? remoteData : JSON.stringify(remoteData);
+                                    localStorage.setItem(key, valToStore);
                                 } catch (e) {}
                                 onDataReceived(remoteData);
                             }
@@ -2470,6 +2472,32 @@ function initApp() {
         });
     }
 
+    const btnDeleteExamImg = document.getElementById('btnDeleteExamImg');
+    if (btnDeleteExamImg) {
+        btnDeleteExamImg.addEventListener('click', async () => {
+            if (!confirm('🗑️ 선택한 시험일정의 첨부 이미지를 삭제하시겠습니까?')) return;
+            const currentIdx = parseInt(document.getElementById('currentAdminExamIdx')?.value || '0', 10);
+            uploadedExamImgSrc = '';
+            const adminExamImgFile = document.getElementById('adminExamImgFile');
+            const adminExamImgUrl = document.getElementById('adminExamImgUrl');
+            const examPreviewImgTag = document.getElementById('examPreviewImgTag');
+            const adminExamImgPreview = document.getElementById('adminExamImgPreview');
+
+            if (adminExamImgFile) adminExamImgFile.value = '';
+            if (adminExamImgUrl) adminExamImgUrl.value = '';
+            if (examPreviewImgTag) examPreviewImgTag.src = '';
+            if (adminExamImgPreview) adminExamImgPreview.style.display = 'none';
+
+            const examList = getExamListFromStorage();
+            if (examList[currentIdx]) {
+                examList[currentIdx].imgSrc = '';
+                await saveToRemoteAndLocal('app_exam_list', examList);
+                renderExamUI(currentIdx);
+                alert(`✅ [시험 ${currentIdx + 1}] 첨부 이미지가 성공적으로 삭제되었습니다!`);
+            }
+        });
+    }
+
     if (adminExamForm) {
         adminExamForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -2533,20 +2561,38 @@ function initApp() {
     function renderSupplyUI() {
         const supplyContent = document.querySelector('.supply-card-content');
         const adminSupplyText = document.getElementById('adminSupplyText');
-        const savedSupplyText = localStorage.getItem('app_supply_text');
+        let savedSupplyText = localStorage.getItem('app_supply_text');
 
-        const displayText = savedSupplyText !== null ? savedSupplyText : '아직 방학이라 준비물이 없습니다! 🏖️';
+        // 기존에 JSON.stringify로 인해 이스케이프 쌍따옴표/슬래시가 들어간 데이터 자동 정화 및 복원
+        if (typeof savedSupplyText === 'string') {
+            try {
+                if (savedSupplyText.startsWith('"') && savedSupplyText.endsWith('"')) {
+                    savedSupplyText = JSON.parse(savedSupplyText);
+                }
+            } catch (e) {}
+            if (typeof savedSupplyText === 'string') {
+                savedSupplyText = savedSupplyText
+                    .replace(/^"(.*)"$/, '$1')
+                    .replace(/\\"/g, '"')
+                    .replace(/\\\\/g, '\\');
+            }
+        }
+
+        const displayText = (savedSupplyText !== null && savedSupplyText !== undefined && savedSupplyText !== '')
+            ? savedSupplyText
+            : '아직 방학이라 준비물이 없습니다! 🏖️';
 
         if (adminSupplyText && adminSupplyText.value !== displayText) {
             adminSupplyText.value = displayText;
         }
 
         if (supplyContent) {
+            const safeText = displayText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             supplyContent.innerHTML = `
                 <div class="vacation-notice-box" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3);">
                     <i class="fa-solid fa-clipboard-check" style="color: #34d399; font-size: 28px; margin-bottom: 8px;"></i>
                     <h4 style="color: #f8fafc; font-size: 14px; font-weight: 700; margin-bottom: 6px;">오늘의 준비물 안내</h4>
-                    <p style="white-space: pre-wrap; font-size: 12px; color: #e2e8f0; line-height: 1.5; margin: 0;">${displayText}</p>
+                    <p style="white-space: pre-wrap; font-size: 12px; color: #e2e8f0; line-height: 1.5; margin: 0;">${safeText}</p>
                 </div>
             `;
         }
@@ -2558,10 +2604,12 @@ function initApp() {
         adminSupplyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                const supplyText = document.getElementById('adminSupplyText')?.value || '';
+                let supplyText = document.getElementById('adminSupplyText')?.value || '';
+                // 이스케이프 기호가 중복 삽입되는 현상 방지 정화
+                supplyText = supplyText.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
                 await saveToRemoteAndLocal('app_supply_text', supplyText);
                 renderSupplyUI();
-                alert('✅ 준비물 안내가 저장되었습니다!');
+                alert('✅ 준비물 안내가 성공적으로 저장되었습니다!');
             } catch (err) {
                 console.error('Supply Form Error:', err);
                 alert(`⚠️ 준비물 저장 중 오류가 발생했습니다: ${err.message}`);
