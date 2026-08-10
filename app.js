@@ -514,7 +514,6 @@ function initApp() {
     startHeroTimer();
 
     // 5-1. 손가락 좌우 스와이프 & 마우스 드래그 포인터 이벤트 통합 지원
-    const heroCarousel = document.getElementById('heroCarousel');
     let heroPointerStartX = 0;
     let heroPointerEndX = 0;
     let isHeroDragging = false;
