@@ -2610,53 +2610,55 @@ body.theme-dark .meal-menu-list li {
     transform: scale(1.03);
 }
 
-/* 이미지 확대 라이트박스 팝업 스타일 */
+/* 이미지 확대 라이트박스 팝업 스타일 (가운데 정렬 보장) */
 .lightbox-backdrop {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
-    z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(10px);
+    z-index: 14999 !important; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
 }
 .lightbox-backdrop.active { opacity: 1; pointer-events: auto; }
 
 .lightbox-modal {
     position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%) scale(0.9);
-    width: 94%; max-width: 600px;
-    z-index: 10001; opacity: 0; pointer-events: none;
+    max-width: 92vw; max-height: 90vh; width: fit-content;
+    z-index: 15000 !important; opacity: 0; pointer-events: none;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto;
 }
 .lightbox-modal.active {
     opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1);
 }
 .lightbox-close-btn {
-    position: absolute; top: -40px; right: 0;
-    background: rgba(255, 255, 255, 0.2); border: none; color: #ffffff;
-    font-size: 28px; width: 36px; height: 36px; border-radius: 50%;
+    position: absolute; top: -42px; right: 0;
+    background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff;
+    font-size: 24px; width: 36px; height: 36px; border-radius: 50%;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    line-height: 1; transition: all 0.2s ease;
+    line-height: 1; transition: all 0.2s ease; z-index: 15001;
 }
-.lightbox-close-btn:hover { background: rgba(255, 255, 255, 0.4); }
+.lightbox-close-btn:hover { background: rgba(239, 68, 68, 0.85); transform: scale(1.05); }
 .lightbox-img-wrapper {
-    width: 100%; text-align: center;
+    position: relative; max-width: 90vw; max-height: 80vh;
+    border-radius: 14px; overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto; width: fit-content; background: #090d16;
 }
 .lightbox-img-wrapper img {
-    max-width: 100%; max-height: 75vh; border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8); border: 2px solid rgba(255, 255, 255, 0.2);
-    object-fit: contain; cursor: zoom-out;
+    max-width: 90vw; max-height: 75vh;
+    object-fit: contain; display: block; margin: 0 auto;
 }
 .lightbox-caption {
-    font-size: 13px; font-weight: 600; color: #f8fafc;
-    background: rgba(15, 23, 42, 0.8); padding: 6px 14px; border-radius: 20px;
+    font-size: 12.5px; font-weight: 700; color: #f8fafc;
+    background: rgba(30, 41, 59, 0.8); padding: 4px 12px; border-radius: 20px;
     display: inline-block; border: 1px solid rgba(255, 255, 255, 0.15);
 }
 .lightbox-caption-box {
-    margin-top: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    width: 100%; padding: 8px 16px; background: rgba(15, 23, 42, 0.95);
+    text-align: center; color: #f8fafc; font-size: 12.5px; font-weight: 700;
+    box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+    gap: 8px; flex-wrap: wrap;
 }
 .btn-edit-caption-mini {
     background: rgba(255, 255, 255, 0.15);
@@ -3658,14 +3660,30 @@ body.theme-dark .meal-menu-list li {
     align-items: center;
     gap: 8px;
 }
-.exam-dday-badge {
+.exam-header-badge .exam-dday-badge {
+    margin-top: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    padding: 0 7px;
     background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #ffffff;
     font-size: 11px;
     font-weight: 800;
-    padding: 3px 8px;
     border-radius: 6px;
     box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+    flex-shrink: 0;
+    line-height: 1;
+}
+.exam-header-badge h4 {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
 }
 
 /* 메인 UI 포토갤러리 5장 슬라이더 슬라이드 & 화살표 & Dot 페이지네이션 */
@@ -3894,84 +3912,4 @@ body.theme-dark .meal-menu-list li {
     gap: 8px !important;
 }
 
-/* 포토갤러리 모달 내 이미지 클릭 확대 전용 라이트박스 팝업 (High z-index: 15000) */
-.lightbox-backdrop {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.88);
-    backdrop-filter: blur(10px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 14999 !important;
-}
-.lightbox-backdrop.active {
-    opacity: 1;
-    pointer-events: auto;
-}
 
-.lightbox-modal {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    max-width: 94vw;
-    max-height: 90vh;
-    z-index: 15000 !important;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-.lightbox-modal.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
-}
-
-.lightbox-img-wrapper {
-    position: relative;
-    max-width: 100%;
-    max-height: 80vh;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.lightbox-img-wrapper img {
-    max-width: 100%;
-    max-height: 75vh;
-    object-fit: contain;
-    display: block;
-}
-
-.lightbox-caption-box {
-    padding: 10px 14px;
-    background: rgba(15, 23, 42, 0.9);
-    text-align: center;
-    color: #f8fafc;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.lightbox-close-btn {
-    position: absolute;
-    top: -42px; right: 0;
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    font-size: 22px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-.lightbox-close-btn:hover {
-    background: rgba(239, 68, 68, 0.8);
-}

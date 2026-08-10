@@ -1351,6 +1351,8 @@ function initApp() {
 
     function openMealModal() {
         if (mealModal && mealBackdrop) {
+            mealPairMode = 0; // 모달을 닫고 다시 열면 항상 가장 최신(오늘 급식) 탭으로 자동 초기화
+            renderMealModalData();
             mealModal.classList.add('active');
             mealBackdrop.classList.add('active');
         }
@@ -2181,10 +2183,10 @@ function initApp() {
 
         if (examSlot) {
             if (exam.imgSrc) {
-                examSlot.innerHTML = `<img src="${exam.imgSrc}" alt="시험시간표 이미지 표" style="width:100%; border-radius:10px; display:block; max-height: 380px; object-fit: contain; margin-top:8px;">`;
+                examSlot.innerHTML = `<img src="${exam.imgSrc}" alt="${exam.title}" style="width:100%; height:140px; border-radius:10px; display:block; object-fit: cover; object-position: top; cursor:pointer;" onclick="if(window.openLightbox) window.openLightbox('${exam.imgSrc}', '${exam.title}')">`;
             } else {
                 examSlot.innerHTML = `
-                    <div class="slot-placeholder">
+                    <div class="slot-placeholder" style="height:140px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
                         <i class="fa-solid fa-image"></i>
                         <span>시험일정 표 / 시간표 이미지 등록 칸</span>
                         <small>(나중에 올라오는 시험일정 이미지 표가 여기에 표시됩니다)</small>
@@ -2263,7 +2265,7 @@ function initApp() {
                     if (e.active === false) return '';
                     return `
                         <button type="button" class="exam-tab-btn ${i === initialIdx ? 'active' : ''}" data-exam-tab="${i}">
-                            📌 시험 ${i + 1} (${calculateDdayStr(e.targetDate)})
+                            시험 ${i + 1} (${calculateDdayStr(e.targetDate)})
                         </button>
                     `;
                 }).join('');
