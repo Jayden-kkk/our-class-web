@@ -42,28 +42,30 @@
             justify-content: space-between;
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 12px;
             margin-bottom: 12px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
             gap: 12px;
+            overflow: hidden;
         }
         .admin-page-title-group {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex: 0 0 auto;
+            gap: 8px;
+            min-width: 0;
+            flex: 1;
         }
         .admin-page-title-group .icon-box {
             background: linear-gradient(135deg, #10b981, #059669);
             color: #ffffff;
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
+            font-size: 14px;
             box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
             flex-shrink: 0;
         }
@@ -73,12 +75,10 @@
             color: #f8fafc;
             margin: 0;
             line-height: 1.2;
-        }
-        .admin-page-title-group p {
-            font-size: 11px;
-            color: #94a3b8;
-            margin: 2px 0 0;
-            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
         }
         .btn-live-site {
             display: inline-flex;
@@ -95,7 +95,6 @@
             transition: all 0.2s ease;
             white-space: nowrap;
             flex-shrink: 0;
-            margin-left: auto;
         }
         .btn-live-site:hover {
             background: #38bdf8;
@@ -120,13 +119,10 @@
                 <div class="icon-box">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <div>
-                    <h1>양영중 1학년 6반 통합 관리자 센터</h1>
-                    <p>학급 웹 포털 실시간 데이터 등록, 갤러리 관리 및 화면 커스터마이징</p>
-                </div>
+                <h1>1학년 6반 알리미 관리</h1>
             </div>
             <a href="index.html" target="_blank" class="btn-live-site">
-                <i class="fa-solid fa-external-link"></i> 1학년 6반 알리미 새창 보기
+                <i class="fa-solid fa-external-link"></i> 알리미 새창 보기
             </a>
         </header>
 
