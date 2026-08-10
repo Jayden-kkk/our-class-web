@@ -1705,6 +1705,99 @@ function initApp() {
     const adminGalleryForm = document.getElementById('adminGalleryForm');
     const btnSyncComtime = document.getElementById('btnSyncComtime');
 
+    // --- 이미지 파일 경량화 압축 헬퍼 (LocalStorage 및 Firestore 5MB/1MB 제한 방지) ---
+    function compressImageFile(file, maxWidth = 1000, maxHeight = 1000, quality = 0.75) {
+        return new Promise((resolve, reject) => {
+            if (!file || !file.type.startsWith('image/')) {
+                reject(new Error('올바른 이미지 파일이 아닙니다.'));
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth || height > maxHeight) {
+                        if (width / height > maxWidth / maxHeight) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        } else {
+                            width = Math.round((width * maxHeight) / height);
+                            height = maxHeight;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressedDataUrl);
+                };
+                img.onerror = () => resolve(e.target.result);
+                img.src = e.target.result;
+            };
+            reader.onerror = (err) => reject(err);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // --- Firebase Firestore & LocalStorage 이중 통합 저장 헬퍼 ---
+    async function saveToRemoteAndLocal(key, data) {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (e) {
+            console.warn(`LocalStorage save warning for ${key}:`, e);
+        }
+
+        try {
+            if (window.db && window.setDoc && window.doc) {
+                const docRef = window.doc(window.db, "class_portal", key);
+                await window.setDoc(docRef, { data: data, updatedAt: new Date().toISOString() });
+                console.log(`🔥 Firestore synced successfully for ${key}`);
+            }
+        } catch (e) {
+            console.warn(`Firestore sync error for ${key}:`, e);
+        }
+    }
+
+    // --- Firestore 실시간 클라우드 동기화 구독 헬퍼 ---
+    function setupRemoteSync(key, onDataReceived) {
+        function trySubscribe() {
+            if (window.db && window.doc && window.onSnapshot) {
+                try {
+                    const docRef = window.doc(window.db, "class_portal", key);
+                    window.onSnapshot(docRef, (snapshot) => {
+                        if (snapshot.exists()) {
+                            const remoteData = snapshot.data()?.data;
+                            if (remoteData !== undefined && remoteData !== null) {
+                                try {
+                                    localStorage.setItem(key, JSON.stringify(remoteData));
+                                } catch (e) {}
+                                onDataReceived(remoteData);
+                            }
+                        }
+                    }, (err) => {
+                        console.warn(`Firestore snapshot listener error for ${key}:`, err);
+                    });
+                } catch (e) {
+                    console.warn(`Firestore subscribe error for ${key}:`, e);
+                }
+            }
+        }
+
+        if (window.db && window.onSnapshot) {
+            trySubscribe();
+        } else {
+            setTimeout(trySubscribe, 600);
+            setTimeout(trySubscribe, 1800);
+        }
+    }
+
     // --- 1. 공지사항 최대 3개 등록 및 메인/모달 UI 관리 ---
     const defaultNotices = [
         { active: true, tag: 'red', tagText: '[중요 공지]', date: '2026. 08. 05', title: '안전하게 여름방학 즐기기! 🍉🏖️', body: '1학년 6반 학생 여러분, 즐겁고 보람찬 여름방학 기간 동안 건강과 안전을 최우선으로 지켜주시기 바랍니다!' },
@@ -1817,33 +1910,44 @@ function initApp() {
     });
 
     if (adminNoticeForm) {
-        adminNoticeForm.addEventListener('submit', (e) => {
+        adminNoticeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const isActive = document.getElementById('adminNoticeActive')?.checked;
-            const tagVal = document.getElementById('adminNoticeTag')?.value || 'red';
-            const dateVal = document.getElementById('adminNoticeDate')?.value || '';
-            const titleVal = document.getElementById('adminNoticeTitle')?.value || '';
-            const bodyVal = document.getElementById('adminNoticeBody')?.value || '';
+            try {
+                const isActive = document.getElementById('adminNoticeActive')?.checked;
+                const tagVal = document.getElementById('adminNoticeTag')?.value || 'red';
+                const dateVal = document.getElementById('adminNoticeDate')?.value || '';
+                const titleVal = document.getElementById('adminNoticeTitle')?.value || '';
+                const bodyVal = document.getElementById('adminNoticeBody')?.value || '';
 
-            let tagText = '[중요 공지]';
-            if (tagVal === 'blue') tagText = '[학급 안내]';
-            else if (tagVal === 'green') tagText = '[방학 안내]';
+                let tagText = '[중요 공지]';
+                if (tagVal === 'blue') tagText = '[학급 안내]';
+                else if (tagVal === 'green') tagText = '[방학 안내]';
 
-            noticesList[currentAdminNoticeIdx] = {
-                active: isActive,
-                tag: tagVal,
-                tagText: tagText,
-                date: dateVal,
-                title: titleVal,
-                body: bodyVal
-            };
+                noticesList[currentAdminNoticeIdx] = {
+                    active: isActive,
+                    tag: tagVal,
+                    tagText: tagText,
+                    date: dateVal,
+                    title: titleVal,
+                    body: bodyVal
+                };
 
-            localStorage.setItem('app_notices_list', JSON.stringify(noticesList));
-            renderNoticesUI();
-            alert(`✅ 공지사항 ${currentAdminNoticeIdx + 1}번 항목이 저장되었습니다!`);
+                await saveToRemoteAndLocal('app_notices_list', noticesList);
+                renderNoticesUI();
+                alert(`✅ 공지사항 ${currentAdminNoticeIdx + 1}번 항목이 저장되었습니다!`);
+            } catch (err) {
+                console.error('Notice Form Error:', err);
+                alert(`⚠️ 공지사항 저장 중 오류가 발생했습니다: ${err.message}`);
+            }
         });
     }
     renderNoticesUI();
+    setupRemoteSync('app_notices_list', (remoteData) => {
+        if (Array.isArray(remoteData)) {
+            noticesList = remoteData;
+            renderNoticesUI();
+        }
+    });
 
     // --- 2. 다중 시험일정 (최대 10개) 텍스트 & 시간표 이미지 파일 첨부 및 실시간 동기화 ---
     const adminExamImgFile = document.getElementById('adminExamImgFile');
@@ -2082,61 +2186,72 @@ function initApp() {
     }
 
     if (adminExamImgFile) {
-        adminExamImgFile.addEventListener('change', (e) => {
+        adminExamImgFile.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('⚠️ 시험일정 이미지 용량이 5MB를 초과합니다! 5MB 이하의 파일을 선택해주세요.');
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('⚠️ 시험일정 이미지 용량이 10MB를 초과합니다! 10MB 이하의 파일을 선택해주세요.');
                     adminExamImgFile.value = '';
                     return;
                 }
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    uploadedExamImgSrc = evt.target.result;
+                try {
+                    uploadedExamImgSrc = await compressImageFile(file, 1000, 1000, 0.75);
                     if (examPreviewImgTag) examPreviewImgTag.src = uploadedExamImgSrc;
                     if (adminExamImgPreview) adminExamImgPreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error('Exam Image Compression Error:', err);
+                    alert('⚠️ 이미지 파일 처리 중 오류가 발생했습니다.');
+                }
             }
         });
     }
 
     if (adminExamForm) {
-        adminExamForm.addEventListener('submit', (e) => {
+        adminExamForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const currentIdx = parseInt(document.getElementById('currentAdminExamIdx')?.value || '0', 10);
-            const isActive = document.getElementById('adminExamActive')?.checked !== false;
-            const examTitle = document.getElementById('adminExamTitle')?.value || '';
-            const targetDate = document.getElementById('adminExamDate')?.value || '2026-11-10';
-            const periodVal = document.getElementById('adminExamPeriod')?.value || '';
-            const customUrl = document.getElementById('adminExamImgUrl')?.value.trim() || '';
+            try {
+                const currentIdx = parseInt(document.getElementById('currentAdminExamIdx')?.value || '0', 10);
+                const isActive = document.getElementById('adminExamActive')?.checked !== false;
+                const examTitle = document.getElementById('adminExamTitle')?.value || '';
+                const targetDate = document.getElementById('adminExamDate')?.value || '2026-11-10';
+                const periodVal = document.getElementById('adminExamPeriod')?.value || '';
+                const customUrl = document.getElementById('adminExamImgUrl')?.value.trim() || '';
 
-            const examList = getExamListFromStorage();
-            const prevExam = examList[currentIdx] || {};
+                const examList = getExamListFromStorage();
+                const prevExam = examList[currentIdx] || {};
 
-            let finalImgSrc = prevExam.imgSrc || '';
-            if (uploadedExamImgSrc) {
-                finalImgSrc = uploadedExamImgSrc;
-            } else if (customUrl) {
-                finalImgSrc = customUrl;
+                let finalImgSrc = prevExam.imgSrc || '';
+                if (uploadedExamImgSrc) {
+                    finalImgSrc = uploadedExamImgSrc;
+                } else if (customUrl) {
+                    finalImgSrc = customUrl;
+                }
+
+                examList[currentIdx] = {
+                    active: isActive,
+                    title: examTitle,
+                    targetDate: targetDate,
+                    period: periodVal,
+                    imgSrc: finalImgSrc
+                };
+
+                await saveToRemoteAndLocal('app_exam_list', examList);
+                uploadedExamImgSrc = ''; // 저장 완료 후 리셋
+                renderExamUI();
+
+                alert(`✅ [시험 ${currentIdx + 1}] 시험일정 텍스트 및 시간표 이미지가 성공적으로 저장되어 모달, 배너, 달력에 완벽하게 반영되었습니다!`);
+            } catch (err) {
+                console.error('Exam Submit Error:', err);
+                alert(`⚠️ 시험일정 저장 중 오류가 발생했습니다: ${err.message}`);
             }
-
-            examList[currentIdx] = {
-                active: isActive,
-                title: examTitle,
-                targetDate: targetDate,
-                period: periodVal,
-                imgSrc: finalImgSrc
-            };
-
-            localStorage.setItem('app_exam_list', JSON.stringify(examList));
-            uploadedExamImgSrc = ''; // 저장 완료 후 리셋
-            renderExamUI();
-
-            alert(`✅ [시험 ${currentIdx + 1}] 시험일정 텍스트 및 시간표 이미지가 성공적으로 저장되어 모달, 배너, 달력에 완벽하게 반영되었습니다!`);
         });
     }
     renderExamUI();
+    setupRemoteSync('app_exam_list', (remoteData) => {
+        if (Array.isArray(remoteData)) {
+            renderExamUI();
+        }
+    });
 
     // --- 3. 시간표 동기화 ---
     if (btnSyncComtime) {
@@ -2176,14 +2291,22 @@ function initApp() {
     renderSupplyUI();
 
     if (adminSupplyForm) {
-        adminSupplyForm.addEventListener('submit', (e) => {
+        adminSupplyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const supplyText = document.getElementById('adminSupplyText')?.value || '';
-            localStorage.setItem('app_supply_text', supplyText);
-            renderSupplyUI();
-            alert('✅ 준비물 안내가 저장되었습니다!');
+            try {
+                const supplyText = document.getElementById('adminSupplyText')?.value || '';
+                await saveToRemoteAndLocal('app_supply_text', supplyText);
+                renderSupplyUI();
+                alert('✅ 준비물 안내가 저장되었습니다!');
+            } catch (err) {
+                console.error('Supply Form Error:', err);
+                alert(`⚠️ 준비물 저장 중 오류가 발생했습니다: ${err.message}`);
+            }
         });
     }
+    setupRemoteSync('app_supply_text', (remoteData) => {
+        renderSupplyUI();
+    });
 
     // --- 5. 포토갤러리 (최대 5장 저장 / FIFO 6번째 시 1번 자동 해제 / 좌우 화살표 + Dot 슬라이더) ---
     const adminGalleryFileInput = document.getElementById('adminGalleryFileInput');
@@ -2383,74 +2506,91 @@ function initApp() {
         });
     }
 
-    window.deleteGalleryItem = function (idx) {
-        galleryItems.splice(idx, 1);
-        localStorage.setItem('app_gallery_items', JSON.stringify(galleryItems));
-        renderGallerySlider();
+    window.deleteGalleryItem = async function (idx) {
+        try {
+            galleryItems.splice(idx, 1);
+            await saveToRemoteAndLocal('app_gallery_items', galleryItems);
+            renderGallerySlider();
+        } catch (err) {
+            console.error('Delete Gallery Item Error:', err);
+        }
     };
 
     if (adminGalleryFileInput) {
-        adminGalleryFileInput.addEventListener('change', (e) => {
+        adminGalleryFileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
-                // 5MB 용량 제한 검증 (5 * 1024 * 1024 bytes)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('⚠️ 파일 용량이 5MB를 초과합니다!\n5MB 이하의 이미지 파일만 업로드할 수 있습니다.');
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('⚠️ 파일 용량이 10MB를 초과합니다!\n10MB 이하의 이미지 파일만 업로드할 수 있습니다.');
                     adminGalleryFileInput.value = '';
                     if (adminGalleryImgPreview) adminGalleryImgPreview.style.display = 'none';
                     return;
                 }
 
                 uploadedGalleryFileName = `img/${file.name}`;
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    uploadedGalleryImgSrc = evt.target.result;
+                try {
+                    uploadedGalleryImgSrc = await compressImageFile(file, 1000, 1000, 0.75);
                     if (galleryPreviewImgTag) galleryPreviewImgTag.src = uploadedGalleryImgSrc;
-                    if (galleryFileInfoText) galleryFileInfoText.textContent = `✅ 저장 경로: ${uploadedGalleryFileName} (${(file.size / (1024 * 1024)).toFixed(2)}MB)`;
+                    if (galleryFileInfoText) galleryFileInfoText.textContent = `✅ 저장 준비 완료: ${uploadedGalleryFileName} (웹 최적화 완료)`;
                     if (adminGalleryImgPreview) adminGalleryImgPreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error('Gallery Image Compression Error:', err);
+                    alert('⚠️ 이미지 파일 처리 중 오류가 발생했습니다.');
+                }
             }
         });
     }
 
     if (adminGalleryForm) {
-        adminGalleryForm.addEventListener('submit', (e) => {
+        adminGalleryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const caption = document.getElementById('adminGalleryCaption')?.value || '1학년 6반 추억 사진';
-            const customUrl = adminGalleryImgUrl?.value.trim();
+            try {
+                const caption = document.getElementById('adminGalleryCaption')?.value || '1학년 6반 추억 사진';
+                const customUrl = adminGalleryImgUrl?.value.trim();
 
-            const finalSrc = uploadedGalleryImgSrc || customUrl;
-            const finalPath = uploadedGalleryFileName || customUrl;
+                const finalSrc = uploadedGalleryImgSrc || customUrl;
+                const finalPath = uploadedGalleryFileName || customUrl;
 
-            if (!finalSrc) {
-                alert('⚠️ 이미지 파일 첨부 또는 이미지 URL을 입력해주세요.');
-                return;
+                if (!finalSrc) {
+                    alert('⚠️ 이미지 파일 첨부 또는 이미지 URL을 입력해주세요.');
+                    return;
+                }
+
+                // 최신 등록 순서 (Newest First): 새 사진을 맨 앞(unshift)에 추가!
+                galleryItems.unshift({ src: finalSrc, path: finalPath, caption: caption, date: new Date().toISOString() });
+
+                // 최대 5장 유지 / 6번째 시 가장 오래된 사진(맨 끝 항목 pop) 자동 삭제
+                if (galleryItems.length > 5) {
+                    const removedItem = galleryItems.pop();
+                    console.log('최대 5장 제한으로 가장 오래된 사진 자동 해제됨:', removedItem);
+                }
+
+                await saveToRemoteAndLocal('app_gallery_items', galleryItems);
+
+                galleryCurrentIndex = 0; // 최신 등록 사진 (첫 번째 슬라이드)으로 이동
+                renderGallerySlider();
+
+                alert('✅ 갤러리에 새 사진이 최신 등록 순서로 성공적으로 등록되었습니다! (최대 5장 유지)');
+
+                uploadedGalleryImgSrc = '';
+                uploadedGalleryFileName = '';
+                if (adminGalleryFileInput) adminGalleryFileInput.value = '';
+                if (adminGalleryImgUrl) adminGalleryImgUrl.value = '';
+                if (adminGalleryCaption) adminGalleryCaption.value = '';
+                if (adminGalleryImgPreview) adminGalleryImgPreview.style.display = 'none';
+            } catch (err) {
+                console.error('Gallery Submit Error:', err);
+                alert(`⚠️ 사진 등록 중 오류가 발생했습니다: ${err.message}`);
             }
-
-            // FIFO (First-In, First-Out): 5장 초과 시 1번 사진 자동 해제 (삭제)
-            if (galleryItems.length >= 5) {
-                const removedItem = galleryItems.shift();
-                console.log('FIFO 5장 제한으로 1번 사진 자동 해제됨:', removedItem);
-            }
-
-            galleryItems.push({ src: finalSrc, path: finalPath, caption: caption });
-            localStorage.setItem('app_gallery_items', JSON.stringify(galleryItems));
-
-            galleryCurrentIndex = galleryItems.length - 1; // 새 사진으로 슬라이드 이동
-            renderGallerySlider();
-
-            alert('✅ 갤러리에 사진이 등록되었습니다! (최대 5장 유지 / 6번째 시 1번 자동 해제)');
-
-            uploadedGalleryImgSrc = '';
-            uploadedGalleryFileName = '';
-            if (adminGalleryFileInput) adminGalleryFileInput.value = '';
-            if (adminGalleryImgUrl) adminGalleryImgUrl.value = '';
-            if (adminGalleryCaption) adminGalleryCaption.value = '';
-            if (adminGalleryImgPreview) adminGalleryImgPreview.style.display = 'none';
         });
     }
     renderGallerySlider();
+    setupRemoteSync('app_gallery_items', (remoteData) => {
+        if (Array.isArray(remoteData)) {
+            galleryItems = remoteData;
+            renderGallerySlider();
+        }
+    });
 
     // 6. 사용자 접속 및 조회 트래커 (Local Analytics)
     function trackAnalytics() {
