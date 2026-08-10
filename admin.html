@@ -34,7 +34,7 @@
         .admin-page-container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 20px 16px 40px;
+            padding: 12px 16px 24px;
         }
         .admin-page-header {
             display: flex;
@@ -42,52 +42,60 @@
             justify-content: space-between;
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 16px 20px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            padding: 8px 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            gap: 12px;
         }
         .admin-page-title-group {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            flex: 0 0 auto;
         }
         .admin-page-title-group .icon-box {
             background: linear-gradient(135deg, #10b981, #059669);
             color: #ffffff;
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+            flex-shrink: 0;
         }
         .admin-page-title-group h1 {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 700;
             color: #f8fafc;
             margin: 0;
+            line-height: 1.2;
         }
         .admin-page-title-group p {
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
             margin: 2px 0 0;
+            line-height: 1.2;
         }
         .btn-live-site {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid rgba(56, 189, 248, 0.35);
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
             color: #38bdf8;
-            font-size: 12.5px;
+            font-size: 11px;
             font-weight: 700;
-            padding: 8px 14px;
-            border-radius: 10px;
+            padding: 5px 10px;
+            border-radius: 8px;
             text-decoration: none;
             transition: all 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-left: auto;
         }
         .btn-live-site:hover {
             background: #38bdf8;
@@ -97,9 +105,9 @@
         .admin-main-card {
             background: #1e293b;
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 18px;
-            padding: 24px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
     </style>
 </head>
@@ -406,101 +414,107 @@
                 <div class="admin-tab-panel" id="tabCustomizer">
                     <h4 class="admin-panel-title"><i class="fa-solid fa-wand-magic-sparkles"></i> 화면 구성 및 초안 커스터마이저</h4>
                     
-                    <div class="panel-body" style="padding: 0;">
-                        <div class="config-group" style="margin-bottom: 16px;">
-                            <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
-                                <i class="fa-solid fa-mobile-screen" style="color:#38bdf8;"></i> 미리보기 형태 (전체 화면 기본 / 모바일 프레임 선택)
-                            </label>
-                            <div class="button-group" style="display:flex; gap:8px;">
-                                <button class="btn-option active" data-view="full">전체 화면 (기본)</button>
-                                <button class="btn-option" data-view="frame">모바일 프레임 (옵션)</button>
+                    <form id="adminCustomizerForm">
+                        <div class="panel-body" style="padding: 0;">
+                            <div class="config-group" style="margin-bottom: 16px;">
+                                <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
+                                    <i class="fa-solid fa-mobile-screen" style="color:#38bdf8;"></i> 미리보기 형태 (전체 화면 기본 / 모바일 프레임 선택)
+                                </label>
+                                <div class="button-group" style="display:flex; gap:8px;">
+                                    <button type="button" class="btn-option active" data-view="full">전체 화면 (기본)</button>
+                                    <button type="button" class="btn-option" data-view="frame">모바일 프레임 (옵션)</button>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="config-group" style="margin-bottom: 16px;">
-                            <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
-                                <i class="fa-solid fa-palette" style="color:#38bdf8;"></i> 테마 컬러 선택
-                            </label>
-                            <div class="color-options" style="display:flex; gap:10px;">
-                                <button class="color-btn active" data-theme="theme-green" style="background: #10b981; width:28px; height:28px; border-radius:50%; border:2px solid #fff; cursor:pointer;" title="에메랄드 그린"></button>
-                                <button class="color-btn" data-theme="theme-blue" style="background: #2563eb; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="스마트 오션 블루"></button>
-                                <button class="color-btn" data-theme="theme-amber" style="background: #f59e0b; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="따뜻한 선셋 앰버"></button>
-                                <button class="color-btn" data-theme="theme-purple" style="background: #8b5cf6; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="모던 바이올렛"></button>
-                                <button class="color-btn" data-theme="theme-dark" style="background: #1e293b; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="다크 엘레강스"></button>
+                            <div class="config-group" style="margin-bottom: 16px;">
+                                <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
+                                    <i class="fa-solid fa-palette" style="color:#38bdf8;"></i> 테마 컬러 선택
+                                </label>
+                                <div class="color-options" style="display:flex; gap:10px;">
+                                    <button type="button" class="color-btn active" data-theme="theme-green" style="background: #10b981; width:28px; height:28px; border-radius:50%; border:2px solid #fff; cursor:pointer;" title="에메랄드 그린"></button>
+                                    <button type="button" class="color-btn" data-theme="theme-blue" style="background: #2563eb; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="스마트 오션 블루"></button>
+                                    <button type="button" class="color-btn" data-theme="theme-amber" style="background: #f59e0b; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="따뜻한 선셋 앰버"></button>
+                                    <button type="button" class="color-btn" data-theme="theme-purple" style="background: #8b5cf6; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="모던 바이올렛"></button>
+                                    <button type="button" class="color-btn" data-theme="theme-dark" style="background: #1e293b; width:28px; height:28px; border-radius:50%; border:2px solid transparent; cursor:pointer;" title="다크 엘레강스"></button>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="config-group" style="margin-bottom: 16px;">
-                            <label class="group-title" for="inputSchoolName" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
-                                <i class="fa-solid fa-pen" style="color:#38bdf8;"></i> 기관 / 타이틀 명칭 변경
-                            </label>
-                            <input type="text" id="inputSchoolName" class="admin-input-field" value="1학년 6반 알리미">
-                        </div>
-
-                        <div class="config-group" style="margin-bottom: 16px;">
-                            <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:8px;">
-                                <i class="fa-solid fa-layer-group" style="color:#38bdf8;"></i> 메인 UI 섹션 표시 / 숨기기 (ON/OFF 스위치 토글)
-                            </label>
-                            <div class="toggle-list" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
-                                <label class="custom-switch-item">
-                                    <span>🖼️ 메인 배너</span>
-                                    <div class="custom-toggle-switch">
-                                        <input type="checkbox" class="section-toggle" data-target="sec-hero" checked>
-                                        <span class="toggle-slider"></span>
-                                    </div>
+                            <div class="config-group" style="margin-bottom: 16px;">
+                                <label class="group-title" for="inputSchoolName" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:6px;">
+                                    <i class="fa-solid fa-pen" style="color:#38bdf8;"></i> 기관 / 타이틀 명칭 변경
                                 </label>
-                                <label class="custom-switch-item">
-                                    <span>⚡ 퀵 메뉴</span>
-                                    <div class="custom-toggle-switch">
-                                        <input type="checkbox" class="section-toggle" data-target="sec-quick" checked>
-                                        <span class="toggle-slider"></span>
-                                    </div>
-                                </label>
-                                <label class="custom-switch-item">
-                                    <span>📢 공지사항</span>
-                                    <div class="custom-toggle-switch">
-                                        <input type="checkbox" class="section-toggle" data-target="sec-notices" checked>
-                                        <span class="toggle-slider"></span>
-                                    </div>
-                                </label>
-                                <label class="custom-switch-item">
-                                    <span>📅 학사일정</span>
-                                    <div class="custom-toggle-switch">
-                                        <input type="checkbox" class="section-toggle" data-target="sec-calendar" checked>
-                                        <span class="toggle-slider"></span>
-                                    </div>
-                                </label>
-                                <label class="custom-switch-item">
-                                    <span>🍱 오늘의 식단</span>
-                                    <div class="custom-toggle-switch">
-                                        <input type="checkbox" class="section-toggle" data-target="sec-meal" checked>
-                                        <span class="toggle-slider"></span>
-                                    </div>
-                                </label>
-                                <label class="custom-switch-item">
-                                    <span>📸 포토갤러리</span>
-                                    <div class="custom-toggle-switch">
-                                        <input type="checkbox" class="section-toggle" data-target="sec-gallery" checked>
-                                        <span class="toggle-slider"></span>
-                                    </div>
-                                </label>
-                                <label class="custom-switch-item">
-                                    <span>🔔 팝업존 배너</span>
-                                    <div class="custom-toggle-switch">
-                                        <input type="checkbox" class="section-toggle" data-target="sec-popup" checked>
-                                        <span class="toggle-slider"></span>
-                                    </div>
-                                </label>
-                                <label class="custom-switch-item">
-                                    <span>🏛️ 기관 링크 배너</span>
-                                    <div class="custom-toggle-switch">
-                                        <input type="checkbox" class="section-toggle" data-target="sec-bannerstrip" checked>
-                                        <span class="toggle-slider"></span>
-                                    </div>
-                                </label>
+                                <input type="text" id="inputSchoolName" class="admin-input-field" value="1학년 6반 알리미">
                             </div>
+
+                            <div class="config-group" style="margin-bottom: 16px;">
+                                <label class="group-title" style="font-size:12px; color:#cbd5e1; font-weight:700; display:block; margin-bottom:8px;">
+                                    <i class="fa-solid fa-layer-group" style="color:#38bdf8;"></i> 메인 UI 섹션 표시 / 숨기기 (ON/OFF 스위치 토글)
+                                </label>
+                                <div class="toggle-list" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
+                                    <label class="custom-switch-item">
+                                        <span>🖼️ 메인 배너</span>
+                                        <div class="custom-toggle-switch">
+                                            <input type="checkbox" class="section-toggle" data-target="sec-hero" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </label>
+                                    <label class="custom-switch-item">
+                                        <span>⚡ 퀵 메뉴</span>
+                                        <div class="custom-toggle-switch">
+                                            <input type="checkbox" class="section-toggle" data-target="sec-quick" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </label>
+                                    <label class="custom-switch-item">
+                                        <span>📢 공지사항</span>
+                                        <div class="custom-toggle-switch">
+                                            <input type="checkbox" class="section-toggle" data-target="sec-notices" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </label>
+                                    <label class="custom-switch-item">
+                                        <span>📅 학사일정</span>
+                                        <div class="custom-toggle-switch">
+                                            <input type="checkbox" class="section-toggle" data-target="sec-calendar" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </label>
+                                    <label class="custom-switch-item">
+                                        <span>🍱 오늘의 식단</span>
+                                        <div class="custom-toggle-switch">
+                                            <input type="checkbox" class="section-toggle" data-target="sec-meal" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </label>
+                                    <label class="custom-switch-item">
+                                        <span>📸 포토갤러리</span>
+                                        <div class="custom-toggle-switch">
+                                            <input type="checkbox" class="section-toggle" data-target="sec-gallery" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </label>
+                                    <label class="custom-switch-item">
+                                        <span>🔔 팝업존 배너</span>
+                                        <div class="custom-toggle-switch">
+                                            <input type="checkbox" class="section-toggle" data-target="sec-popup" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </label>
+                                    <label class="custom-switch-item">
+                                        <span>🏛️ 기관 링크 배너</span>
+                                        <div class="custom-toggle-switch">
+                                            <input type="checkbox" class="section-toggle" data-target="sec-bannerstrip" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-admin-submit" id="btnSaveCustomizer" style="margin-top: 10px;">
+                                <i class="fa-solid fa-check"></i> 화면 커스텀 설정 저장 및 실시간 반영
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </main>
@@ -512,7 +526,7 @@
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
       import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
       import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCJJwNEthqInCknzzFqRLPmzH3VO4zJLXE",
@@ -530,6 +544,9 @@
       const db = getFirestore(app);
       const storage = getStorage(app);
       const auth = getAuth(app);
+
+      // 보안을 위해 브라우저 닫을 때 자동 로그아웃되는 세션 지속성 설정
+      setPersistence(auth, browserSessionPersistence).catch(err => console.warn("Auth persistence error:", err));
       
       // 외부 파일 및 전역에서 접근할 수 있도록 window 객체에 저장
       window.firebaseApp = app;
@@ -550,6 +567,8 @@
       window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
       window.signOut = signOut;
       window.onAuthStateChanged = onAuthStateChanged;
+      window.setPersistence = setPersistence;
+      window.browserSessionPersistence = browserSessionPersistence;
       
       console.log("🔥 Firebase & Firebase Auth initialized successfully on admin.html!");
     </script>

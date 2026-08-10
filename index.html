@@ -738,7 +738,7 @@
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
       import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
       import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCJJwNEthqInCknzzFqRLPmzH3VO4zJLXE",
@@ -757,6 +757,9 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
         const auth = getAuth(app);
+
+        // 보안을 위해 브라우저 닫을 때 자동 로그아웃되는 세션 지속성 설정
+        setPersistence(auth, browserSessionPersistence).catch(err => console.warn("Auth persistence error:", err));
         
         window.firebaseApp = app;
         window.firebaseAnalytics = analytics;
@@ -776,6 +779,8 @@
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.signOut = signOut;
         window.onAuthStateChanged = onAuthStateChanged;
+        window.setPersistence = setPersistence;
+        window.browserSessionPersistence = browserSessionPersistence;
         
         console.log("🔥 Firebase & Firebase Auth initialized successfully!");
       } catch (fe) {

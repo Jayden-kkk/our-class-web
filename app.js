@@ -159,7 +159,7 @@ function initApp() {
                     eventsHtml += `
                         <div class="event-item">
                             <span class="event-date ${evt.color}">${evt.date}</span>
-                            <span class="event-name">${evt.name}</span>
+                            <span class="event-name" title="${evt.name.replace(/"/g, '&quot;')}">${evt.name}</span>
                         </div>
                     `;
                 });
@@ -209,7 +209,71 @@ function initApp() {
         });
     }
 
-    // 2-1. 미리보기 형태 스위치 (프레임 뷰 vs 전체화면)
+    // 2-1. 커스터마이저 설정 적용 헬퍼
+    function applyCustomizerConfig(config) {
+        if (!config) return;
+
+        if (config.viewMode) {
+            const viewButtons = document.querySelectorAll('.btn-option[data-view]');
+            viewButtons.forEach(b => {
+                if (b.getAttribute('data-view') === config.viewMode) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+            if (config.viewMode === 'full') {
+                document.body.classList.remove('mode-frame');
+                document.body.classList.add('mode-full');
+            } else {
+                document.body.classList.remove('mode-full');
+                document.body.classList.add('mode-frame');
+            }
+        }
+
+        if (config.theme) {
+            const colorButtons = document.querySelectorAll('.color-btn[data-theme]');
+            colorButtons.forEach(b => {
+                if (b.getAttribute('data-theme') === config.theme) {
+                    b.classList.add('active');
+                    b.style.border = '2px solid #fff';
+                } else {
+                    b.classList.remove('active');
+                    b.style.border = '2px solid transparent';
+                }
+            });
+            document.body.className = document.body.className.replace(/\btheme-\S+/g, '');
+            document.body.classList.add(config.theme);
+        }
+
+        if (config.schoolName) {
+            const inputSchoolName = document.getElementById('inputSchoolName');
+            const displaySchoolName = document.getElementById('displaySchoolName');
+            const drawerSchoolTitle = document.getElementById('drawerSchoolTitle');
+
+            if (inputSchoolName) inputSchoolName.value = config.schoolName;
+            if (displaySchoolName) displaySchoolName.textContent = config.schoolName;
+            if (drawerSchoolTitle) drawerSchoolTitle.textContent = config.schoolName;
+            document.title = `${config.schoolName} - 양영중 1-6 알리미`;
+        }
+
+        if (Array.isArray(config.hiddenSections)) {
+            const sectionToggles = document.querySelectorAll('.section-toggle');
+            sectionToggles.forEach(toggle => {
+                const targetId = toggle.getAttribute('data-target');
+                const isHidden = config.hiddenSections.includes(targetId);
+                toggle.checked = !isHidden;
+
+                const sec = document.getElementById(targetId);
+                if (sec) {
+                    if (isHidden) sec.classList.add('hidden');
+                    else sec.classList.remove('hidden');
+                }
+            });
+        }
+    }
+
+    // 2-2. 미리보기 형태 스위치 (프레임 뷰 vs 전체화면)
     const viewButtons = document.querySelectorAll('.btn-option[data-view]');
     viewButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -226,19 +290,23 @@ function initApp() {
         });
     });
 
-    // 2-2. 테마 컬러 스위치
+    // 2-3. 테마 컬러 스위치
     const colorButtons = document.querySelectorAll('.color-btn[data-theme]');
     colorButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            colorButtons.forEach(b => b.classList.remove('active'));
+            colorButtons.forEach(b => {
+                b.classList.remove('active');
+                b.style.border = '2px solid transparent';
+            });
             btn.classList.add('active');
+            btn.style.border = '2px solid #fff';
             const themeClass = btn.getAttribute('data-theme');
             document.body.className = document.body.className.replace(/\btheme-\S+/g, '');
             document.body.classList.add(themeClass);
         });
     });
 
-    // 2-3. 학교 / 기관 명칭 실시간 동기화
+    // 2-4. 학교 / 기관 명칭 실시간 동기화
     const inputSchoolName = document.getElementById('inputSchoolName');
     const displaySchoolName = document.getElementById('displaySchoolName');
     const drawerSchoolTitle = document.getElementById('drawerSchoolTitle');
@@ -248,11 +316,11 @@ function initApp() {
             const val = e.target.value || '학교명칭';
             if (displaySchoolName) displaySchoolName.textContent = val;
             if (drawerSchoolTitle) drawerSchoolTitle.textContent = val;
-            document.title = `${val} - 모바일 웹 포털 초안`;
+            document.title = `${val} - 양영중 1-6 알리미`;
         });
     }
 
-    // 2-4. 섹션 표시 / 숨기기 (ON/OFF) 토글
+    // 2-5. 섹션 표시 / 숨기기 (ON/OFF) 토글
     const sectionToggles = document.querySelectorAll('.section-toggle');
     sectionToggles.forEach(toggle => {
         toggle.addEventListener('change', (e) => {
@@ -268,10 +336,59 @@ function initApp() {
         });
     });
 
-    // 2-5. 초기화 버튼
+    // 2-6. 화면 커스텀 설정 폼 저장 및 클라우드 DB 연동
+    const adminCustomizerForm = document.getElementById('adminCustomizerForm');
+    if (adminCustomizerForm) {
+        adminCustomizerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const activeViewBtn = document.querySelector('.btn-option[data-view].active');
+                const activeColorBtn = document.querySelector('.color-btn[data-theme].active');
+                const inputSchoolName = document.getElementById('inputSchoolName');
+
+                const viewMode = activeViewBtn ? activeViewBtn.getAttribute('data-view') : 'full';
+                const theme = activeColorBtn ? activeColorBtn.getAttribute('data-theme') : 'theme-green';
+                const schoolName = inputSchoolName?.value.trim() || '1학년 6반 알리미';
+
+                const hiddenSections = [];
+                document.querySelectorAll('.section-toggle').forEach(toggle => {
+                    if (!toggle.checked) {
+                        const targetId = toggle.getAttribute('data-target');
+                        if (targetId) hiddenSections.push(targetId);
+                    }
+                });
+
+                const config = { viewMode, theme, schoolName, hiddenSections };
+
+                await saveToRemoteAndLocal('app_customizer_config', config);
+                applyCustomizerConfig(config);
+
+                alert('✅ 화면 커스텀 설정이 성공적으로 저장되어 메인 포털과 모든 화면에 완벽하게 반영되었습니다!');
+            } catch (err) {
+                console.error('Customizer Form Error:', err);
+                alert(`⚠️ 화면 커스텀 저장 중 오류가 발생했습니다: ${err.message}`);
+            }
+        });
+    }
+
+    // 초기 설정 적용 및 실시간 클라우드 DB 구독
+    try {
+        const savedConfig = JSON.parse(localStorage.getItem('app_customizer_config') || 'null');
+        if (savedConfig) {
+            applyCustomizerConfig(savedConfig);
+        }
+    } catch (e) {}
+
+    setupRemoteSync('app_customizer_config', (remoteData) => {
+        if (remoteData) {
+            applyCustomizerConfig(remoteData);
+        }
+    });
+
+    // 2-7. 초기화 버튼
     const btnResetConfig = document.getElementById('btnResetConfig');
     if (btnResetConfig) {
-        btnResetConfig.addEventListener('click', () => {
+        btnResetConfig.addEventListener('click', async () => {
             if (inputSchoolName) {
                 inputSchoolName.value = '1학년 6반 알리미';
                 inputSchoolName.dispatchEvent(new Event('input'));
@@ -282,6 +399,15 @@ function initApp() {
                 t.checked = true;
                 t.dispatchEvent(new Event('change'));
             });
+
+            const defaultConfig = {
+                viewMode: 'full',
+                theme: 'theme-green',
+                schoolName: '1학년 6반 알리미',
+                hiddenSections: []
+            };
+            await saveToRemoteAndLocal('app_customizer_config', defaultConfig);
+            applyCustomizerConfig(defaultConfig);
         });
     }
 
@@ -1589,7 +1715,7 @@ function initApp() {
         if (adminAuthMsg) adminAuthMsg.className = 'admin-auth-msg';
     }
 
-    // Firebase Auth 및 로컬 세션 로그인 상태 유지 체크
+    // Firebase Auth 및 세션 전용 로그인 상태 체크 (브라우저 종료 시 자동 로그아웃)
     function checkAdminLoginSession() {
         const savedUser = sessionStorage.getItem('app_admin_logged_in');
         if (savedUser) {
@@ -1602,19 +1728,28 @@ function initApp() {
     }
 
     function initFirebaseAuthListener() {
-        if (checkAdminLoginSession()) return;
+        const loggedInUser = sessionStorage.getItem('app_admin_logged_in');
+
+        // 보안 강화: 브라우저 종료 후 새 창으로 재접속 시 자동 로그아웃 수행
+        if (!loggedInUser) {
+            if (window.signOut && window.auth) {
+                window.signOut(window.auth).catch(() => {});
+            }
+            if (adminLoginBox) adminLoginBox.style.display = 'block';
+            if (adminDashboardBox) adminDashboardBox.style.display = 'none';
+            return;
+        }
 
         if (window.onAuthStateChanged && window.auth) {
             window.onAuthStateChanged(window.auth, (user) => {
-                if (user) {
+                if (user && sessionStorage.getItem('app_admin_logged_in')) {
                     if (adminLoginBox) adminLoginBox.style.display = 'none';
                     if (adminDashboardBox) adminDashboardBox.style.display = 'block';
-                    if (adminUserEmailTag) adminUserEmailTag.textContent = user.email || '관리자 계정';
+                    if (adminUserEmailTag) adminUserEmailTag.textContent = user.email || loggedInUser;
                 } else {
-                    if (!sessionStorage.getItem('app_admin_logged_in')) {
-                        if (adminLoginBox) adminLoginBox.style.display = 'block';
-                        if (adminDashboardBox) adminDashboardBox.style.display = 'none';
-                    }
+                    sessionStorage.removeItem('app_admin_logged_in');
+                    if (adminLoginBox) adminLoginBox.style.display = 'block';
+                    if (adminDashboardBox) adminDashboardBox.style.display = 'none';
                 }
             });
         } else {
@@ -1623,7 +1758,7 @@ function initApp() {
     }
     setTimeout(initFirebaseAuthListener, 300);
 
-    // 100% 순수 Firebase Authentication 전용 로그인 처리 (더미/하드코딩 이메일 제거)
+    // Firebase Authentication 세션 전용 로그인 처리
     if (adminLoginForm) {
         adminLoginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1642,6 +1777,13 @@ function initApp() {
 
             try {
                 if (window.signInWithEmailAndPassword && window.auth) {
+                    // 세션 지속성 설정 (브라우저 종료 시 토큰 자동 만료)
+                    if (window.setPersistence && window.browserSessionPersistence) {
+                        try {
+                            await window.setPersistence(window.auth, window.browserSessionPersistence);
+                        } catch (pe) { }
+                    }
+
                     const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
                     const user = userCredential.user;
 
@@ -2326,21 +2468,43 @@ function initApp() {
         { src: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?q=80&w=600&auto=format&fit=crop', path: 'img/gallery_5.jpg', caption: '🚌 즐거웠던 현장체험학습 단체 사진' }
     ];
 
+    // 갤러리 최신 등록 순서 (Newest First) 정렬 보장 헬퍼
+    function ensureNewestFirstGallery(items) {
+        if (!Array.isArray(items) || items.length <= 1) return items;
+
+        const hasDates = items.every(it => it && it.date);
+        if (hasDates) {
+            items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            return items;
+        }
+
+        // 기존 등록 데이터 중 오름차순(오래된 순)으로 남아있는 경우 최신순(내림차순)으로 반전
+        const firstPath = items[0]?.path || items[0]?.src || '';
+        const lastPath = items[items.length - 1]?.path || items[items.length - 1]?.src || '';
+        if (firstPath.includes('gallery_1') || firstPath < lastPath) {
+            items.reverse();
+        }
+        return items;
+    }
+
     let galleryItems = JSON.parse(localStorage.getItem('app_gallery_items') || 'null');
     if (!galleryItems || galleryItems.length === 0) {
         galleryItems = defaultGalleryItems;
-        localStorage.setItem('app_gallery_items', JSON.stringify(galleryItems));
     }
+    galleryItems = ensureNewestFirstGallery(galleryItems);
+    localStorage.setItem('app_gallery_items', JSON.stringify(galleryItems));
 
     let galleryCurrentIndex = 0;
 
     function renderGallerySlider() {
+        galleryItems = ensureNewestFirstGallery(galleryItems);
+
         const countTag = document.getElementById('adminGalleryCountTag');
         const mainCountBadge = document.getElementById('mainGalleryCountBadge');
         if (countTag) countTag.textContent = `(${galleryItems.length}/5장)`;
         if (mainCountBadge) mainCountBadge.textContent = `${galleryItems.length}/5장`;
 
-        // 1. 관리자 그리드 렌더링
+        // 1. 관리자 그리드 렌더링 (최신 등록 사진이 1번으로 배치)
         const grid = document.getElementById('adminGalleryGrid');
         if (grid) {
             grid.innerHTML = galleryItems.map((item, i) => `
@@ -2348,7 +2512,7 @@ function initApp() {
                     <img src="${item.src}" alt="${item.caption}">
                     <button type="button" class="btn-delete-gallery-item" onclick="window.deleteGalleryItem(${i})">&times;</button>
                     <div class="admin-gallery-item-info">
-                        <div class="admin-gallery-item-title">${i + 1}. ${item.caption}</div>
+                        <div class="admin-gallery-item-title">${i + 1}. ${item.caption} ${i === 0 ? '<span style="color:#10b981; font-size:10px; font-weight:700; margin-left:4px;">(최신)</span>' : ''}</div>
                         <div class="admin-gallery-item-path">${item.path || 'img/'}</div>
                     </div>
                 </div>
@@ -2382,7 +2546,6 @@ function initApp() {
                             <img src="${item.src}" alt="${item.caption}">
                             <div class="gallery-slide-caption">
                                 <strong>${idx + 1}. ${item.caption}</strong>
-                                <span class="gallery-slide-path-badge">${item.path || 'img/'}</span>
                             </div>
                         </div>
                     `).join('')}
@@ -2587,7 +2750,7 @@ function initApp() {
     renderGallerySlider();
     setupRemoteSync('app_gallery_items', (remoteData) => {
         if (Array.isArray(remoteData)) {
-            galleryItems = remoteData;
+            galleryItems = ensureNewestFirstGallery(remoteData);
             renderGallerySlider();
         }
     });
