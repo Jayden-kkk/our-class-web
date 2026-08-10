@@ -2381,18 +2381,17 @@ function initApp() {
         }
         showExamDetailInModal(initialIdx, examList);
 
-        // 3. 메인 배너 슬라이드 2 (D-Day 배너) - 가장 임박한 활성 시험 표출
+        // 3. 메인 배너 슬라이드 2 (D-Day 배너) - 가장 임박한 활성 시험 표출 (내용이 변경되었을 때만 DOM 업데이트)
         const mainBannerExam = examList[defaultIdx] || defaultExamList[0];
         const mainDdayStr = calculateDdayStr(mainBannerExam.targetDate);
 
-        const slide2DdayTag = document.getElementById('slide2DdayTag');
-        if (slide2DdayTag) slide2DdayTag.textContent = mainDdayStr;
-
         const slide2H2 = document.querySelector('.carousel-slide:nth-child(2) h2');
-        if (slide2H2) slide2H2.innerHTML = `${mainBannerExam.title} <span class="dday-large-tag" id="slide2DdayTag">${mainDdayStr}</span>`;
+        const newH2Html = `${mainBannerExam.title} <span class="dday-large-tag" id="slide2DdayTag">${mainDdayStr}</span>`;
+        if (slide2H2 && slide2H2.innerHTML !== newH2Html) slide2H2.innerHTML = newH2Html;
 
         const slide2P = document.querySelector('.carousel-slide:nth-child(2) p');
-        if (slide2P) slide2P.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> 평가기간: ${mainBannerExam.period}`;
+        const newPHtml = `<i class="fa-solid fa-pen-to-square"></i> 평가기간: ${mainBannerExam.period}`;
+        if (slide2P && slide2P.innerHTML !== newPHtml) slide2P.innerHTML = newPHtml;
 
         // 4. 관리자 페이지(admin.html) 셀렉터 바 (#adminExamSelectorBar) 렌더링
         const adminSelectorBar = document.getElementById('adminExamSelectorBar');

@@ -1974,29 +1974,6 @@ body.theme-dark .meal-menu-list li {
     pointer-events: auto;
 }
 
-.meal-modal {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -45%) scale(0.95);
-    width: calc(100% - 36px);
-    max-width: 350px;
-    background: linear-gradient(145deg, #1e293b, #0f172a);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 18px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    color: #ffffff;
-    overflow: hidden;
-}
-.meal-modal.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
-}
-
 .meal-modal-inner {
     padding: 13px 15px;
 }
@@ -2177,42 +2154,9 @@ body.theme-dark .meal-menu-list li {
 }
 
 /* 시험일정 전용 모달 & 사진 업로드 스타일 */
-.exam-backdrop {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    z-index: 9998;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
 .exam-backdrop.active {
     opacity: 1;
     pointer-events: auto;
-}
-
-.exam-modal {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -45%) scale(0.95);
-    width: calc(100% - 36px);
-    max-width: 350px;
-    background: linear-gradient(145deg, #1e293b, #0f172a);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 18px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    color: #ffffff;
-    overflow: hidden;
-}
-.exam-modal.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
 }
 
 .exam-modal-inner {
@@ -2419,26 +2363,6 @@ body.theme-dark .meal-menu-list li {
     transition: opacity 0.3s ease;
 }
 .notice-backdrop.active { opacity: 1; pointer-events: auto; }
-
-.notice-modal {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    width: 90%; max-width: 360px;
-    background: #0f172a;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    opacity: 0; pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow: hidden;
-    color: #f8fafc;
-}
-.notice-modal.active {
-    opacity: 1; pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
-}
 .notice-modal-inner { padding: 18px; }
 .notice-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -2754,32 +2678,7 @@ body.modal-open .popup-carousel-track {
     font-weight: 700;
 }
 
-/* 스마트폰 화면에 깔끔하게 한눈에 들어오는 프리미엄 모달 팝업 */
-.notice-modal, .timetable-modal, .supply-modal, .exam-modal, .gallery-modal, .weather-modal, .meal-modal {
-    position: fixed;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) scale(0.96) !important;
-    width: 92% !important;
-    max-width: 360px !important;
-    max-height: 85vh !important;
-    background: #0f172a !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 18px !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.75) !important;
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    overflow-y: auto !important;
-    color: #f8fafc;
-}
 
-.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active {
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    transform: translate(-50%, -50%) scale(1) !important;
-}
 
 /* 푸터 하단 네비게이션 바로 밑 인라인 펼침 박스 */
 .footer-inline-box {
