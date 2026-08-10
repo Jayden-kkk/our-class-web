@@ -1652,36 +1652,9 @@ body.theme-dark .meal-menu-list li {
     margin-top: 2px;
 }
 
-.weather-backdrop {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-    z-index: 300;
-}
 .weather-backdrop.active {
     opacity: 1;
     pointer-events: auto;
-}
-
-.weather-modal {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    width: 90%;
-    max-width: 340px;
-    z-index: 301;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.weather-modal.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
 }
 
 .weather-card-inner {
@@ -2601,16 +2574,16 @@ body.theme-dark .meal-menu-list li {
 /* 준비물, 시험, 갤러리 백드롭 및 모달 (GPU 하드웨어 가속 & 깜빡임 100% 방지) */
 .supply-backdrop, .exam-backdrop, .gallery-backdrop, .notice-backdrop, .timetable-backdrop, .weather-backdrop, .meal-backdrop, .drawer-backdrop, .lightbox-backdrop, .admin-backdrop {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
     z-index: 9998; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
     will-change: opacity;
     transform: translateZ(0);
     backface-visibility: hidden;
 }
-.supply-backdrop.active, .exam-backdrop.active, .gallery-backdrop.active { opacity: 1; pointer-events: auto; }
+.supply-backdrop.active, .exam-backdrop.active, .gallery-backdrop.active, .weather-backdrop.active { opacity: 1; pointer-events: auto; }
 
 /* 스마트폰 한 화면에 깔끔하게 딱 맞춘 모달 팝업 스타일 (한눈에 감상) */
-.notice-modal, .timetable-modal, .supply-modal, .exam-modal, .gallery-modal, .weather-modal, .meal-modal {
+.notice-modal, .timetable-modal, .supply-modal, .exam-modal, .gallery-modal, .meal-modal {
     position: fixed;
     top: 50% !important;
     left: 50% !important;
@@ -2631,6 +2604,27 @@ body.theme-dark .meal-menu-list li {
     will-change: transform, opacity;
     backface-visibility: hidden;
     transform-style: preserve-3d;
+}
+
+/* 날씨 모달 팝업 전용 스타일 (자체 블루 카드가 돋보이도록 투명 배경 & 테두리 제거) */
+.weather-modal {
+    position: fixed;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) scale(0.95) !important;
+    width: 92% !important;
+    max-width: 350px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+    overflow: visible !important;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
 }
 
 .notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active {
