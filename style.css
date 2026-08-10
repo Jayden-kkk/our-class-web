@@ -310,15 +310,18 @@ body.mode-full .url-bar {
 }
 
 .drawer-backdrop {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(5px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-    z-index: 500;
+    z-index: 9990;
+    will-change: opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 .drawer-backdrop.active {
     opacity: 1;
@@ -326,21 +329,23 @@ body.mode-full .url-bar {
 }
 
 .drawer-menu {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0;
     width: 82%;
     max-width: 310px;
     height: 100%;
-    background: var(--bg-surface);
-    z-index: 501;
+    background: #0f172a;
+    z-index: 9995;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
-    box-shadow: none;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 .drawer-menu.active {
     transform: translateX(0);
@@ -2496,7 +2501,7 @@ body.theme-dark .meal-menu-list li {
 }
 
 /* 준비물, 시험, 갤러리 백드롭 및 모달 (GPU 하드웨어 가속 & 깜빡임 100% 방지) */
-.supply-backdrop, .exam-backdrop, .gallery-backdrop, .notice-backdrop, .timetable-backdrop, .weather-backdrop, .meal-backdrop, .drawer-backdrop, .lightbox-backdrop, .admin-backdrop {
+.supply-backdrop, .exam-backdrop, .gallery-backdrop, .notice-backdrop, .timetable-backdrop, .weather-backdrop, .meal-backdrop, .lightbox-backdrop, .admin-backdrop {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
     z-index: 9998; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
