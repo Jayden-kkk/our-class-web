@@ -345,9 +345,16 @@
                             <div class="exam-title">
                                 <i class="fa-solid fa-pen-to-square"></i>
                                 <span>시험일정 안내</span>
+                                <span class="notice-count-badge" id="modalExamCountBadge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); margin-left: 6px;">등록 1개</span>
                             </div>
                             <button class="exam-close-btn" id="examCloseBtn">&times;</button>
                         </div>
+
+                        <!-- 다중 시험일정 탭 선택 바 (최대 10개) -->
+                        <div class="exam-modal-tab-bar" id="examModalTabBar">
+                            <button type="button" class="exam-tab-btn active" data-exam-tab="0">📌 시험 1</button>
+                        </div>
+
                         <div class="exam-card-content" id="examModalCardContent">
                             <div class="exam-info-card">
                                 <div class="exam-header-badge">
@@ -418,7 +425,7 @@
                                 </div>
                             </div>
                             <!-- Slide 2: 중요한 시험일정 (두 번째 배너에는 디데이 표시) -->
-                            <div class="carousel-slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1000&auto=format&fit=crop');">
+                            <div class="carousel-slide" onclick="if(window.openExamModal) window.openExamModal();" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1000&auto=format&fit=crop'); cursor: pointer;">
                                 <div class="slide-caption">
                                     <span class="badge-tag red-badge"><i class="fa-solid fa-triangle-exclamation"></i> 중요한 시험일정</span>
                                     <h2>2026학년도 1학년<br>지필고사 <span class="dday-large-tag" id="slide2DdayTag">D-98</span></h2>
@@ -743,29 +750,32 @@
         measurementId: "G-FKTB139GVJ"
       };
 
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-      const db = getFirestore(app);
-      const storage = getStorage(app);
-      const auth = getAuth(app);
-      
-      // 외부 파일 및 전역에서 접근할 수 있도록 window 객체에 저장
-      window.firebaseApp = app;
-      window.firebaseAnalytics = analytics;
-      window.firebaseDb = db;
-      window.firebaseStorage = storage;
-      window.firebaseAuth = auth;
-      window.auth = auth;
-      window.db = db;
-      window.storage = storage;
+      try {
+        const app = initializeApp(firebaseConfig);
+        let analytics = null;
+        try { analytics = getAnalytics(app); } catch (ae) {}
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+        
+        window.firebaseApp = app;
+        window.firebaseAnalytics = analytics;
+        window.firebaseDb = db;
+        window.firebaseStorage = storage;
+        window.firebaseAuth = auth;
+        window.auth = auth;
+        window.db = db;
+        window.storage = storage;
 
-      window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-      window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-      window.signOut = signOut;
-      window.onAuthStateChanged = onAuthStateChanged;
-      
-      console.log("🔥 Firebase & Firebase Auth initialized successfully!");
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        
+        console.log("🔥 Firebase & Firebase Auth initialized successfully!");
+      } catch (fe) {
+        console.warn("Firebase initialization skipped or failed:", fe);
+      }
     </script>
     <script src="app.js"></script>
 </body>

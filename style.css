@@ -638,6 +638,7 @@ body.mode-full .url-bar {
     text-align: center;
 }
 .cal-day-cell {
+    position: relative;
     font-size: 10px;
     height: 20px;
     line-height: 20px;
@@ -662,12 +663,15 @@ body.mode-full .url-bar {
 }
 .cal-day-cell.has-event::after {
     content: '';
-    display: block;
+    position: absolute;
+    top: 1px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 3px;
     height: 3px;
     background: #f59e0b;
     border-radius: 50%;
-    margin: 1px auto 0;
+    pointer-events: none;
 }
 
 /* 달력 및 학사일정 분할 레이아웃 & 상세 박스 */
@@ -906,17 +910,21 @@ body.mode-full .url-bar {
     border-bottom: none;
 }
 .notice-badge {
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-weight: 600;
-    margin-right: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 6px;
     flex-shrink: 0;
+    line-height: 1.2;
 }
-.notice-badge.red { background: #fee2e2; color: #dc2626; }
-.notice-badge.blue { background: #dbeafe; color: #2563eb; }
-.notice-badge.green { background: #d1fae5; color: #059669; }
-.notice-badge.orange { background: #ffedd5; color: #ea580c; }
+.notice-badge.red { background: rgba(244, 63, 94, 0.18); border: 1px solid rgba(244, 63, 94, 0.4); color: #f43f5e; }
+.notice-badge.blue { background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; }
+.notice-badge.green { background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; }
+.notice-badge.orange { background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; }
 
 .notice-text {
     flex: 1;
@@ -2387,11 +2395,11 @@ body.theme-dark .meal-menu-list li {
     opacity: 1; pointer-events: auto;
     transform: translate(-50%, -50%) scale(1);
 }
-.notice-modal-inner { padding: 16px; }
+.notice-modal-inner { padding: 18px; }
 .notice-header {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    padding-bottom: 8px;
+    margin-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding-bottom: 12px;
 }
 .notice-title {
     font-size: 14px; font-weight: 700; color: #38bdf8;
@@ -2407,12 +2415,9 @@ body.theme-dark .meal-menu-list li {
 }
 .notice-meta-bar {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 8px; font-size: 10.5px;
+    margin-top: 0; margin-bottom: 12px; font-size: 11.5px;
 }
-.notice-badge.red {
-    background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.4);
-    color: #f43f5e; padding: 2px 8px; border-radius: 8px; font-weight: 700;
-}
+
 .notice-date { color: #94a3b8; }
 .notice-main-heading {
     font-size: 15px; font-weight: 700; color: #fbbf24;
@@ -3411,33 +3416,44 @@ body.theme-dark .meal-menu-list li {
 
 .notice-modal-tab-bar {
     display: flex;
-    gap: 6px;
-    background: rgba(15, 23, 42, 0.6);
-    padding: 6px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 8px;
+    margin-bottom: 18px;
+    padding: 0;
+    background: transparent;
+    border-bottom: none;
 }
 .notice-tab-btn {
     flex: 1;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    color: #e2e8f0;
-    padding: 7px 4px;
-    border-radius: 8px;
-    font-size: 11.5px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #94a3b8;
+    padding: 9px 6px;
+    border-radius: 10px;
+    font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
 }
-.notice-tab-btn:hover:not([disabled]) {
+.notice-tab-btn:hover:not([disabled]):not(.active) {
     background: rgba(56, 189, 248, 0.15);
-    border-color: #38bdf8;
-    color: #ffffff;
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #e2e8f0;
 }
-.notice-tab-btn.active {
-    background: linear-gradient(135deg, #38bdf8, #0284c7);
-    color: #ffffff;
-    border-color: #38bdf8;
-    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4);
+.notice-tab-btn.active,
+.notice-tab-btn:active.active,
+.notice-tab-btn:focus.active {
+    background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+    color: #ffffff !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.45) !important;
+    font-weight: 800 !important;
 }
 .notice-tab-btn[disabled],
 .notice-tab-btn.disabled {
@@ -3448,6 +3464,90 @@ body.theme-dark .meal-menu-list li {
     cursor: not-allowed !important;
     pointer-events: none !important;
     box-shadow: none !important;
+}
+
+/* 시험일정 모달 탭 바 & 셀렉터 (최대 10개) */
+.exam-modal-tab-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.exam-modal-tab-bar::-webkit-scrollbar {
+    display: none;
+}
+.exam-tab-btn {
+    flex: 0 0 auto;
+    min-width: 80px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #94a3b8;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.exam-tab-btn:hover:not([disabled]):not(.active) {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #fde047;
+}
+.exam-tab-btn.active,
+.exam-tab-btn:active.active,
+.exam-tab-btn:focus.active {
+    background: linear-gradient(135deg, #d97706, #b45309) !important;
+    color: #ffffff !important;
+    border-color: #fbbf24 !important;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45) !important;
+    font-weight: 800 !important;
+}
+.exam-tab-btn[disabled],
+.exam-tab-btn.disabled {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    color: #64748b !important;
+    opacity: 0.25 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+}
+
+/* 관리자 시험일정 선택 버튼 */
+.admin-exam-btn {
+    flex: 0 0 auto;
+    padding: 7px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+.admin-exam-btn:hover:not(.active) {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fde047;
+}
+.admin-exam-btn.active {
+    background: #d97706 !important;
+    border-color: #fbbf24 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.5) !important;
 }
 
 /* 대시보드 공지사항 1, 2, 3 선택 버튼 */
@@ -3578,6 +3678,7 @@ body.theme-dark .meal-menu-list li {
     position: relative;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.12);
+    touch-action: pan-y;
 }
 
 .gallery-carousel-track {

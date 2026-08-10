@@ -2,7 +2,7 @@
    준우(junwoo) 바탕화면 모바일 웹 포털 JS 로직 및 실시간 커스터마이저
    ========================================================================== */
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
 
     // 1. 실시간 시계 (모바일 프레임 상태바 & 메인 배너 슬라이드 1)
     function updateClock() {
@@ -95,7 +95,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const isCurrentMonthNow = (now.getFullYear() === calCurrentYear && now.getMonth() === calCurrentMonth);
         const todayDate = isCurrentMonthNow ? now.getDate() : -1;
 
-        const monthEvents = schoolEventsData[calCurrentMonth] || [];
+        const monthEvents = [...(schoolEventsData[calCurrentMonth] || [])];
+
+        // 어드민에 등록된 활성 시험일정 날짜를 학사일정 및 달력 점(Dot)으로 자동 연동
+        try {
+            const savedExamList = JSON.parse(localStorage.getItem('app_exam_list') || 'null');
+            const examList = (savedExamList && Array.isArray(savedExamList)) ? savedExamList : null;
+            if (examList) {
+                examList.forEach(ex => {
+                    if (ex.active !== false && ex.targetDate) {
+                        const parts = ex.targetDate.split('-');
+                        if (parts.length === 3) {
+                            const exYear = parseInt(parts[0], 10);
+                            const exMonth = parseInt(parts[1], 10) - 1;
+                            const exDay = parseInt(parts[2], 10);
+                            if (exYear === calCurrentYear && exMonth === calCurrentMonth) {
+                                monthEvents.push({
+                                    day: exDay,
+                                    date: `${exMonth + 1}.${exDay}`,
+                                    name: `📝 [시험] ${ex.title}`,
+                                    color: 'orange'
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+
         const eventDays = monthEvents.map(e => e.day);
 
         let gridHtml = '';
@@ -142,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 전역 바인딩 (HTML inline onclick 대응 & 슬라이드 자동 넘김 일시정지)
-    window.changeHeroCalMonth = function(dir) {
+    window.changeHeroCalMonth = function (dir) {
         if (dir === -1) {
             if (calCurrentMonth > 7) {
                 calCurrentMonth--;
@@ -573,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // 2차: Nominatim OpenStreetMap Reverse Geocoding API
         try {
@@ -590,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         cachedLocText = '현재 위치';
         if (weatherLocationText) weatherLocationText.textContent = cachedLocText;
@@ -651,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const times = data.hourly.time;
                         const temps = data.hourly.temperature_2m;
                         const codes = data.hourly.weathercode;
-                        
+
                         let slotsHtml = '';
                         for (let i = 0; i < Math.min(times.length, 24); i++) {
                             const tStr = times[i];
@@ -791,7 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
 
         weatherDustLevel.className = 'dust-pill dust-good';
         weatherDustLevel.innerHTML = `<i class="fa-solid fa-face-laugh-beam"></i> 좋음`;
@@ -813,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     return true;
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
         return false;
     }
 
@@ -1077,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const row = data.mealServiceDietInfo[1].row[0];
                 const rawMenu = row.DDISH_NM.split('<br/>').map(str => str.trim());
                 return {
-                    dateStr: `${ymdStr.substring(0,4)}년 ${ymdStr.substring(5,7)}월 ${ymdStr.substring(8,10)}일`,
+                    dateStr: `${ymdStr.substring(0, 4)}년 ${ymdStr.substring(5, 7)}월 ${ymdStr.substring(8, 10)}일`,
                     type: `${row.MMEAL_SC_NM || '중식'} (나이스 API)`,
                     calories: row.CAL_INFO || '- kcal',
                     menu: rawMenu
@@ -1247,7 +1276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(proxyUrl);
             if (!response.ok) throw new Error('컴시간 프록시 수신 오류');
             const resJson = await response.json();
-            
+
             if (resJson && resJson.contents) {
                 let timetableData;
                 try {
@@ -1299,10 +1328,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const noticeBackdrop = document.getElementById('noticeBackdrop');
     const noticeCloseBtn = document.getElementById('noticeCloseBtn');
 
-    function openNoticeModal() {
+    function openNoticeModal(targetIdx = null) {
+        const validIdx = (typeof targetIdx === 'number' && !isNaN(targetIdx)) ? targetIdx : null;
         if (noticeModal && noticeBackdrop) {
             noticeModal.classList.add('active');
             noticeBackdrop.classList.add('active');
+            if (typeof renderNoticesUI === 'function') {
+                renderNoticesUI(validIdx);
+            }
         }
     }
     function closeNoticeModal() {
@@ -1344,12 +1377,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const examBackdrop = document.getElementById('examBackdrop');
     const examCloseBtn = document.getElementById('examCloseBtn');
 
-    function openExamModal() {
+    function openExamModal(targetIdx = null) {
+        const validIdx = (typeof targetIdx === 'number' && !isNaN(targetIdx)) ? targetIdx : null;
         if (examModal && examBackdrop) {
             examModal.classList.add('active');
             examBackdrop.classList.add('active');
+            if (typeof renderExamUI === 'function') {
+                renderExamUI(validIdx);
+            }
         }
     }
+    window.openExamModal = openExamModal;
     function closeExamModal() {
         if (examModal && examBackdrop) {
             examModal.classList.remove('active');
@@ -1507,6 +1545,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderExamUI();
         } else if (e.key === 'app_gallery_items' && typeof renderGallerySlider === 'function') {
             renderGallerySlider();
+        } else if (e.key === 'app_supply_text' && typeof renderSupplyUI === 'function') {
+            renderSupplyUI();
         } else if (e.key === 'app_school_name') {
             const name = localStorage.getItem('app_school_name');
             if (name) {
@@ -1604,10 +1644,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.signInWithEmailAndPassword && window.auth) {
                     const userCredential = await window.signInWithEmailAndPassword(window.auth, email, password);
                     const user = userCredential.user;
-                    
+
                     showAuthMsg('✅ 관리자 로그인 성공!', false);
                     sessionStorage.setItem('app_admin_logged_in', user.email || email);
-                    
+
                     setTimeout(() => {
                         if (adminLoginBox) adminLoginBox.style.display = 'none';
                         if (adminDashboardBox) adminDashboardBox.style.display = 'block';
@@ -1618,7 +1658,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('Auth Login Error:', error);
-                
+
                 let errStr = '❌ 로그인 실패: 등록된 관리자 이메일 또는 비밀번호가 올바르지 않습니다.';
                 if (error.code === 'auth/invalid-email') {
                     errStr = '❌ 로그인 실패: 올바른 이메일 형식이 아닙니다.';
@@ -1642,15 +1682,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.signOut && window.auth) {
                     await window.signOut(window.auth);
                 }
-            } catch (e) {}
+            } catch (e) { }
 
             sessionStorage.removeItem('app_admin_logged_in');
-            
+
             if (adminLoginBox) adminLoginBox.style.display = 'block';
             if (adminDashboardBox) adminDashboardBox.style.display = 'none';
             if (adminEmailInput) adminEmailInput.value = '';
             if (adminPasswordInput) adminPasswordInput.value = '';
-            
+
             hideAuthMsg();
             showAuthMsg('🔒 성공적으로 로그아웃되었습니다.', false);
         });
@@ -1701,14 +1741,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderNoticesUI() {
+    function renderNoticesUI(selectedIdx = null) {
         const activeNotices = noticesList.filter(n => n.active !== false);
         const countBadge = document.getElementById('modalNoticeCountBadge');
         if (countBadge) countBadge.textContent = `등록 ${activeNotices.length}개`;
 
         // 첫 번째 활성화된 공지사항 인덱스 찾기
         const firstActiveIdx = noticesList.findIndex(n => n.active !== false);
-        const initialIdx = (firstActiveIdx !== -1) ? firstActiveIdx : 0;
+        const defaultIdx = (firstActiveIdx !== -1) ? firstActiveIdx : 0;
+
+        const validIdx = (typeof selectedIdx === 'number' && !isNaN(selectedIdx)) ? selectedIdx : null;
+        const initialIdx = (validIdx !== null && noticesList[validIdx] && noticesList[validIdx].active !== false)
+            ? validIdx
+            : defaultIdx;
 
         const modalTabBar = document.getElementById('noticeModalTabBar');
         if (modalTabBar) {
@@ -1719,10 +1764,16 @@ document.addEventListener('DOMContentLoaded', () => {
             `).join('');
 
             modalTabBar.querySelectorAll('.notice-tab-btn:not([disabled])').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const tabIdx = parseInt(btn.getAttribute('data-notice-tab'), 10);
-                    modalTabBar.querySelectorAll('.notice-tab-btn').forEach(b => b.classList.remove('active'));
+                    modalTabBar.querySelectorAll('.notice-tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-selected', 'false');
+                    });
                     btn.classList.add('active');
+                    btn.setAttribute('aria-selected', 'true');
                     showNoticeDetailInModal(tabIdx);
                 });
             });
@@ -1748,9 +1799,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (heading) heading.textContent = notice.title;
         if (bodyText) {
             bodyText.innerHTML = `
-                <p>${notice.body}</p>
-                <div class="notice-rule-box" style="margin-top: 10px;">
-                    <div class="rule-item"><i class="fa-solid fa-circle-check"></i><div><strong>1. 공지 사항 내용 숙지</strong><p>1학년 6반 공지사항을 꼭 확인하세요.</p></div></div>
+                <p style="margin-bottom: 12px; line-height: 1.5; color: #cbd5e1; font-size: 12.5px;">${notice.body}</p>
+                <div class="notice-rule-box" style="margin-top: 12px; padding: 10px 12px;">
+                    <div class="rule-item" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-circle-exclamation" style="color: #38bdf8; font-size: 16px; flex-shrink: 0;"></i>
+                        <span style="color: #f8fafc; font-size: 12px; font-weight: 600;">1학년 6반 공지사항을 꼭 확인하세요.</span>
+                    </div>
                 </div>
             `;
         }
@@ -1791,54 +1845,97 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderNoticesUI();
 
-    // D-Day 자동 계산기
-    if (adminExamDate && adminExamDdayDisplay) {
-        adminExamDate.addEventListener('change', () => {
-            const targetDate = new Date(adminExamDate.value);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            targetDate.setHours(0, 0, 0, 0);
-            const diffTime = targetDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays > 0) {
-                adminExamDdayDisplay.value = `D-${diffDays}`;
-            } else if (diffDays === 0) {
-                adminExamDdayDisplay.value = `D-DAY`;
-            } else {
-                adminExamDdayDisplay.value = `종료`;
-            }
-        });
-    }
-
-    // --- 2. 시험일정 텍스트 & 시간표 이미지 파일 첨부 및 실시간 동기화 ---
+    // --- 2. 다중 시험일정 (최대 10개) 텍스트 & 시간표 이미지 파일 첨부 및 실시간 동기화 ---
     const adminExamImgFile = document.getElementById('adminExamImgFile');
     const adminExamImgUrl = document.getElementById('adminExamImgUrl');
     const adminExamImgPreview = document.getElementById('adminExamImgPreview');
     const examPreviewImgTag = document.getElementById('examPreviewImgTag');
+    const adminExamDateInput = document.getElementById('adminExamDate');
     let uploadedExamImgSrc = '';
 
-    function renderExamUI() {
-        const examData = JSON.parse(localStorage.getItem('app_exam_data') || 'null') || {
-            title: '2026학년도 1학년 지필고사',
-            targetDate: '2026-11-10',
-            dday: 'D-98',
-            period: '11월 10일(화) ~ 11월 12일(목)',
-            imgSrc: ''
-        };
+    const defaultExamList = [
+        { active: true, title: '2026학년도 1차 지필고사', targetDate: '2026-11-10', period: '11월 10일(화) ~ 11월 12일(목)', imgSrc: '' },
+        { active: true, title: '2026학년도 영어듣기평가', targetDate: '2026-09-20', period: '9월 20일(목)', imgSrc: '' },
+        { active: true, title: '2학기 수행평가 안내', targetDate: '2026-10-15', period: '10월 15일(목) ~ 10월 18일(일)', imgSrc: '' },
+        { active: false, title: '2차 지필고사 (예정)', targetDate: '2026-12-15', period: '12월 15일(화) ~ 12월 18일(금)', imgSrc: '' },
+        { active: false, title: '시험 5', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
+        { active: false, title: '시험 6', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
+        { active: false, title: '시험 7', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
+        { active: false, title: '시험 8', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
+        { active: false, title: '시험 9', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
+        { active: false, title: '시험 10', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' }
+    ];
 
-        // 1. examModal 팝업 카드 업데이트 (제목, D-Day, 평가 기간, 이미지 표)
+    function getExamListFromStorage() {
+        const savedList = JSON.parse(localStorage.getItem('app_exam_list') || 'null');
+        if (Array.isArray(savedList) && savedList.length > 0) {
+            while (savedList.length < 10) {
+                savedList.push({ active: false, title: `시험 ${savedList.length + 1}`, targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' });
+            }
+            return savedList;
+        }
+
+        // 하위 호환성 마이그레이션
+        const oldData = JSON.parse(localStorage.getItem('app_exam_data') || 'null');
+        if (oldData && oldData.title) {
+            const newList = [...defaultExamList];
+            newList[0] = { active: true, title: oldData.title, targetDate: oldData.targetDate, period: oldData.period, imgSrc: oldData.imgSrc || '' };
+            localStorage.setItem('app_exam_list', JSON.stringify(newList));
+            return newList;
+        }
+
+        localStorage.setItem('app_exam_list', JSON.stringify(defaultExamList));
+        return defaultExamList;
+    }
+
+    function calculateDdayStr(targetDateStr) {
+        if (!targetDateStr) return 'D-Day';
+        const parts = targetDateStr.split('-');
+        if (parts.length !== 3) return 'D-Day';
+        const target = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const today = new Date();
+        const todayZero = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const diffDays = Math.ceil((target - todayZero) / (1000 * 60 * 60 * 24));
+        return diffDays > 0 ? `D-${diffDays}` : (diffDays === 0 ? 'D-Day' : `D+${Math.abs(diffDays)}`);
+    }
+
+    function calculateDdayNumber(targetDateStr) {
+        if (!targetDateStr) return 99999;
+        const parts = targetDateStr.split('-');
+        if (parts.length !== 3) return 99999;
+        const target = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        const today = new Date();
+        const todayZero = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return Math.ceil((target - todayZero) / (1000 * 60 * 60 * 24));
+    }
+
+    if (adminExamDateInput) {
+        adminExamDateInput.addEventListener('change', (e) => {
+            const ddayDisplay = document.getElementById('adminExamDdayDisplay');
+            if (ddayDisplay) {
+                ddayDisplay.value = calculateDdayStr(e.target.value);
+            }
+        });
+    }
+
+    function showExamDetailInModal(examIdx, examList) {
+        const exam = examList[examIdx];
+        if (!exam) return;
+
         const ddayBadge = document.getElementById('examModalDdayBadge');
         const titleText = document.getElementById('examModalTitleText');
         const periodText = document.getElementById('examModalPeriodText');
         const examSlot = document.getElementById('examImageSlot');
 
-        if (ddayBadge) ddayBadge.textContent = examData.dday;
-        if (titleText) titleText.textContent = examData.title;
-        if (periodText) periodText.textContent = examData.period;
+        const ddayStr = calculateDdayStr(exam.targetDate);
+
+        if (ddayBadge) ddayBadge.textContent = ddayStr;
+        if (titleText) titleText.textContent = exam.title;
+        if (periodText) periodText.textContent = exam.period;
 
         if (examSlot) {
-            if (examData.imgSrc) {
-                examSlot.innerHTML = `<img src="${examData.imgSrc}" alt="시험시간표 이미지 표" style="width:100%; border-radius:10px; display:block; max-height: 280px; object-fit: contain; margin-top:8px;">`;
+            if (exam.imgSrc) {
+                examSlot.innerHTML = `<img src="${exam.imgSrc}" alt="시험시간표 이미지 표" style="width:100%; border-radius:10px; display:block; max-height: 380px; object-fit: contain; margin-top:8px;">`;
             } else {
                 examSlot.innerHTML = `
                     <div class="slot-placeholder">
@@ -1848,16 +1945,140 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
             }
         }
+    }
 
-        // 2. 메인 배너 슬라이드 2 (D-Day 배너) 업데이트
+    function populateAdminExamForm(idx, examList) {
+        const currentIdxInput = document.getElementById('currentAdminExamIdx');
+        if (currentIdxInput) currentIdxInput.value = idx;
+
+        const exam = examList[idx] || { active: false, title: `시험 ${idx + 1}`, targetDate: '2026-11-10', period: '기간 미정', imgSrc: '' };
+
+        const activeCheckbox = document.getElementById('adminExamActive');
+        const titleInput = document.getElementById('adminExamTitle');
+        const dateInput = document.getElementById('adminExamDate');
+        const ddayDisplay = document.getElementById('adminExamDdayDisplay');
+        const periodInput = document.getElementById('adminExamPeriod');
+        const imgUrlInput = document.getElementById('adminExamImgUrl');
+        const imgPreviewDiv = document.getElementById('adminExamImgPreview');
+        const previewTag = document.getElementById('examPreviewImgTag');
+
+        if (activeCheckbox) activeCheckbox.checked = (exam.active !== false);
+        if (titleInput) titleInput.value = exam.title || '';
+        if (dateInput) dateInput.value = exam.targetDate || '2026-11-10';
+        if (ddayDisplay) ddayDisplay.value = calculateDdayStr(exam.targetDate);
+        if (periodInput) periodInput.value = exam.period || '';
+        if (imgUrlInput) imgUrlInput.value = (!uploadedExamImgSrc && exam.imgSrc && !exam.imgSrc.startsWith('data:')) ? exam.imgSrc : '';
+
+        if (uploadedExamImgSrc || exam.imgSrc) {
+            if (previewTag) previewTag.src = uploadedExamImgSrc || exam.imgSrc;
+            if (imgPreviewDiv) imgPreviewDiv.style.display = 'block';
+        } else {
+            if (previewTag) previewTag.src = '';
+            if (imgPreviewDiv) imgPreviewDiv.style.display = 'none';
+        }
+    }
+
+    function renderExamUI(selectedIdx = null) {
+        const examList = getExamListFromStorage();
+        const activeExams = examList.filter(e => e.active !== false);
+
+        // 1. 모달 헤더 [등록 N개] 배지 업데이트
+        const countBadge = document.getElementById('modalExamCountBadge');
+        if (countBadge) countBadge.textContent = `등록 ${activeExams.length}개`;
+
+        // D-Day가 가장 임박한 활성 시험 인덱스 찾기
+        let closestActiveIdx = -1;
+        let minDiff = 99999;
+
+        examList.forEach((e, i) => {
+            if (e.active !== false) {
+                const diff = calculateDdayNumber(e.targetDate);
+                const score = (diff >= 0) ? diff : 50000 + Math.abs(diff);
+                if (score < minDiff) {
+                    minDiff = score;
+                    closestActiveIdx = i;
+                }
+            }
+        });
+
+        const defaultIdx = (closestActiveIdx !== -1) ? closestActiveIdx : 0;
+        const validIdx = (typeof selectedIdx === 'number' && !isNaN(selectedIdx)) ? selectedIdx : null;
+        const initialIdx = (validIdx !== null && examList[validIdx] && examList[validIdx].active !== false)
+            ? validIdx
+            : defaultIdx;
+
+        // 2. index.html 모달 탭 바 (#examModalTabBar) 렌더링
+        const modalTabBar = document.getElementById('examModalTabBar');
+        if (modalTabBar) {
+            if (activeExams.length === 0) {
+                modalTabBar.innerHTML = `<span style="font-size:12px; color:#94a3b8;">등록된 시험일정이 없습니다.</span>`;
+            } else {
+                modalTabBar.innerHTML = examList.map((e, i) => {
+                    if (e.active === false) return '';
+                    return `
+                        <button type="button" class="exam-tab-btn ${i === initialIdx ? 'active' : ''}" data-exam-tab="${i}">
+                            📌 시험 ${i + 1} (${calculateDdayStr(e.targetDate)})
+                        </button>
+                    `;
+                }).join('');
+
+                modalTabBar.querySelectorAll('.exam-tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (ev) => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        const tabIdx = parseInt(btn.getAttribute('data-exam-tab'), 10);
+                        modalTabBar.querySelectorAll('.exam-tab-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        showExamDetailInModal(tabIdx, examList);
+                    });
+                });
+            }
+        }
+        showExamDetailInModal(initialIdx, examList);
+
+        // 3. 메인 배너 슬라이드 2 (D-Day 배너) - 가장 임박한 활성 시험 표출
+        const mainBannerExam = examList[defaultIdx] || defaultExamList[0];
+        const mainDdayStr = calculateDdayStr(mainBannerExam.targetDate);
+
         const slide2DdayTag = document.getElementById('slide2DdayTag');
-        if (slide2DdayTag) slide2DdayTag.textContent = examData.dday;
+        if (slide2DdayTag) slide2DdayTag.textContent = mainDdayStr;
 
         const slide2H2 = document.querySelector('.carousel-slide:nth-child(2) h2');
-        if (slide2H2) slide2H2.innerHTML = `${examData.title} <span class="dday-large-tag" id="slide2DdayTag">${examData.dday}</span>`;
+        if (slide2H2) slide2H2.innerHTML = `${mainBannerExam.title} <span class="dday-large-tag" id="slide2DdayTag">${mainDdayStr}</span>`;
 
         const slide2P = document.querySelector('.carousel-slide:nth-child(2) p');
-        if (slide2P) slide2P.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> 평가기간: ${examData.period}`;
+        if (slide2P) slide2P.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> 평가기간: ${mainBannerExam.period}`;
+
+        // 4. 관리자 페이지(admin.html) 셀렉터 바 (#adminExamSelectorBar) 렌더링
+        const adminSelectorBar = document.getElementById('adminExamSelectorBar');
+        if (adminSelectorBar) {
+            const currentAdminIdxInput = document.getElementById('currentAdminExamIdx');
+            const currentAdminIdx = parseInt(currentAdminIdxInput?.value || '0', 10);
+
+            adminSelectorBar.innerHTML = examList.map((e, i) => `
+                <button type="button" class="admin-exam-btn ${i === currentAdminIdx ? 'active' : ''}" data-admin-exam="${i}">
+                    ${i + 1}. ${e.title ? (e.title.length > 7 ? e.title.substring(0, 7) + '..' : e.title) : '시험 ' + (i + 1)} ${e.active !== false ? '✅' : '⚪'}
+                </button>
+            `).join('');
+
+            adminSelectorBar.querySelectorAll('.admin-exam-btn').forEach(btn => {
+                btn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    const idx = parseInt(btn.getAttribute('data-admin-exam'), 10);
+                    uploadedExamImgSrc = ''; // 리셋
+                    adminSelectorBar.querySelectorAll('.admin-exam-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    populateAdminExamForm(idx, examList);
+                });
+            });
+
+            populateAdminExamForm(currentAdminIdx, examList);
+        }
+
+        // 5. 메인 화면 3번 배너 (히어로 달력) 연동 자동 업데이트
+        if (typeof renderHeroMiniCalendar === 'function') {
+            renderHeroMiniCalendar();
+        }
     }
 
     if (adminExamImgFile) {
@@ -1883,27 +2104,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminExamForm) {
         adminExamForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const currentIdx = parseInt(document.getElementById('currentAdminExamIdx')?.value || '0', 10);
+            const isActive = document.getElementById('adminExamActive')?.checked !== false;
             const examTitle = document.getElementById('adminExamTitle')?.value || '';
-            const targetDate = adminExamDate?.value || '2026-11-10';
-            const ddayVal = adminExamDdayDisplay?.value || 'D-98';
+            const targetDate = document.getElementById('adminExamDate')?.value || '2026-11-10';
             const periodVal = document.getElementById('adminExamPeriod')?.value || '';
-            const customUrl = adminExamImgUrl?.value.trim();
+            const customUrl = document.getElementById('adminExamImgUrl')?.value.trim() || '';
 
-            const savedExamData = JSON.parse(localStorage.getItem('app_exam_data') || '{}');
-            const finalImgSrc = uploadedExamImgSrc || customUrl || savedExamData.imgSrc || '';
+            const examList = getExamListFromStorage();
+            const prevExam = examList[currentIdx] || {};
 
-            const examData = {
+            let finalImgSrc = prevExam.imgSrc || '';
+            if (uploadedExamImgSrc) {
+                finalImgSrc = uploadedExamImgSrc;
+            } else if (customUrl) {
+                finalImgSrc = customUrl;
+            }
+
+            examList[currentIdx] = {
+                active: isActive,
                 title: examTitle,
                 targetDate: targetDate,
-                dday: ddayVal,
                 period: periodVal,
                 imgSrc: finalImgSrc
             };
 
-            localStorage.setItem('app_exam_data', JSON.stringify(examData));
+            localStorage.setItem('app_exam_list', JSON.stringify(examList));
+            uploadedExamImgSrc = ''; // 저장 완료 후 리셋
             renderExamUI();
 
-            alert('✅ 시험일정 텍스트 및 시간표 이미지가 성공적으로 저장되어 시험일정 팝업과 메인 배너에 완벽하게 반영되었습니다!');
+            alert(`✅ [시험 ${currentIdx + 1}] 시험일정 텍스트 및 시간표 이미지가 성공적으로 저장되어 모달, 배너, 달력에 완벽하게 반영되었습니다!`);
         });
     }
     renderExamUI();
@@ -1920,21 +2150,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 4. 준비물 저장 ---
+    // --- 4. 준비물 저장 및 실시간 동기화 렌더링 ---
+    function renderSupplyUI() {
+        const supplyContent = document.querySelector('.supply-card-content');
+        const adminSupplyText = document.getElementById('adminSupplyText');
+        const savedSupplyText = localStorage.getItem('app_supply_text');
+
+        const displayText = savedSupplyText !== null ? savedSupplyText : '아직 방학이라 준비물이 없습니다! 🏖️';
+
+        if (adminSupplyText && adminSupplyText.value !== displayText) {
+            adminSupplyText.value = displayText;
+        }
+
+        if (supplyContent) {
+            supplyContent.innerHTML = `
+                <div class="vacation-notice-box" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3);">
+                    <i class="fa-solid fa-clipboard-check" style="color: #34d399; font-size: 28px; margin-bottom: 8px;"></i>
+                    <h4 style="color: #f8fafc; font-size: 14px; font-weight: 700; margin-bottom: 6px;">오늘의 준비물 안내</h4>
+                    <p style="white-space: pre-wrap; font-size: 12px; color: #e2e8f0; line-height: 1.5; margin: 0;">${displayText}</p>
+                </div>
+            `;
+        }
+    }
+
+    renderSupplyUI();
+
     if (adminSupplyForm) {
         adminSupplyForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const supplyText = document.getElementById('adminSupplyText')?.value || '';
-            const supplyContent = document.querySelector('.supply-card-content');
-            if (supplyContent) {
-                supplyContent.innerHTML = `
-                    <div class="vacation-notice-box" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3);">
-                        <i class="fa-solid fa-clipboard-check" style="color: #34d399; font-size: 28px; margin-bottom: 8px;"></i>
-                        <h4 style="color: #f8fafc; font-size: 14px; font-weight: 700; margin-bottom: 6px;">오늘의 준비물 안내</h4>
-                        <p style="white-space: pre-wrap; font-size: 12px; color: #e2e8f0; line-height: 1.5;">${supplyText}</p>
-                    </div>
-                `;
-            }
+            localStorage.setItem('app_supply_text', supplyText);
+            renderSupplyUI();
             alert('✅ 준비물 안내가 저장되었습니다!');
         });
     }
@@ -2002,14 +2248,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (galleryCurrentIndex >= galleryItems.length) galleryCurrentIndex = 0;
 
         sliderBox.innerHTML = `
-            <div class="gallery-carousel-viewport">
+            <div class="gallery-carousel-viewport" id="galleryCarouselViewport">
                 <button type="button" class="gallery-carousel-nav-btn prev" id="galleryPrevBtn" aria-label="이전 사진">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
 
                 <div class="gallery-carousel-track" id="galleryCarouselTrack" style="transform: translateX(-${galleryCurrentIndex * 100}%);">
                     ${galleryItems.map((item, idx) => `
-                        <div class="gallery-carousel-slide" onclick="if(window.openLightbox) window.openLightbox('${item.src}', '${item.caption}')">
+                        <div class="gallery-carousel-slide" data-src="${item.src}" data-caption="${item.caption}">
                             <img src="${item.src}" alt="${item.caption}">
                             <div class="gallery-slide-caption">
                                 <strong>${idx + 1}. ${item.caption}</strong>
@@ -2032,7 +2278,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        // 슬라이더 이벤트 연결
+        // 슬라이더 버튼 & Dot 이벤트 연결
         const prevBtn = document.getElementById('galleryPrevBtn');
         const nextBtn = document.getElementById('galleryNextBtn');
         const dots = sliderBox.querySelectorAll('.gallery-dot');
@@ -2059,6 +2305,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateGallerySliderPosition();
             });
         });
+
+        // 스마트폰/모바일 디바이스 좌우 터치 스와이프 (Touch Swipe) 제스처 처리
+        const viewport = document.getElementById('galleryCarouselViewport');
+        if (viewport) {
+            let startX = 0;
+            let startY = 0;
+            let endX = 0;
+            let endY = 0;
+            let isSwiping = false;
+
+            viewport.addEventListener('touchstart', (e) => {
+                if (!e.touches || e.touches.length === 0) return;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                endX = startX;
+                endY = startY;
+                isSwiping = false;
+            }, { passive: true });
+
+            viewport.addEventListener('touchmove', (e) => {
+                if (!e.touches || e.touches.length === 0) return;
+                endX = e.touches[0].clientX;
+                endY = e.touches[0].clientY;
+                const diffX = Math.abs(endX - startX);
+                const diffY = Math.abs(endY - startY);
+                if (diffX > 10 || diffY > 10) {
+                    isSwiping = true;
+                }
+            }, { passive: true });
+
+            viewport.addEventListener('touchend', () => {
+                const diffX = endX - startX;
+                const diffY = endY - startY;
+
+                // 좌우 드래그 거리가 35px 이상이고 가로 스와이프 의도가 명확할 때 작동
+                if (Math.abs(diffX) > 35 && Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX < 0) {
+                        // 왼쪽으로 슬라이드 터치 -> 다음 사진
+                        galleryCurrentIndex = (galleryCurrentIndex + 1) % galleryItems.length;
+                    } else {
+                        // 오른쪽으로 슬라이드 터치 -> 이전 사진
+                        galleryCurrentIndex = (galleryCurrentIndex - 1 + galleryItems.length) % galleryItems.length;
+                    }
+                    updateGallerySliderPosition();
+                }
+            });
+
+            // 사진 탭 터치 라이트박스 팝업 연동 (스와이프 이동 중이 아닐 때만 확대 팝업 실행)
+            const slides = viewport.querySelectorAll('.gallery-carousel-slide');
+            slides.forEach(slide => {
+                slide.addEventListener('click', (e) => {
+                    if (isSwiping) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        return;
+                    }
+                    const src = slide.getAttribute('data-src');
+                    const caption = slide.getAttribute('data-caption');
+                    if (typeof window.openLightbox === 'function' && src) {
+                        window.openLightbox(src, caption);
+                    }
+                });
+            });
+        }
     }
 
     function updateGallerySliderPosition() {
@@ -2073,7 +2383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    window.deleteGalleryItem = function(idx) {
+    window.deleteGalleryItem = function (idx) {
         galleryItems.splice(idx, 1);
         localStorage.setItem('app_gallery_items', JSON.stringify(galleryItems));
         renderGallerySlider();
@@ -2157,4 +2467,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statToday) statToday.innerHTML = `${todayVisits}<small>명</small>`;
     }
     trackAnalytics();
-});
+
+    // 멀티탭 및 어드민 실시간 데이터 동기화 리스너
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'app_exam_list' && typeof renderExamUI === 'function') {
+            renderExamUI();
+        }
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}

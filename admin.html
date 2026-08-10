@@ -234,13 +234,28 @@
                     <button type="button" class="btn-admin-submit style-blue" id="btnSyncComtime"><i class="fa-solid fa-rotate-right"></i> 컴시간 최신 시간표 즉시 동기화</button>
                 </div>
 
-                <!-- 3. 시험일정 관리 패널 -->
+                <!-- 3. 시험일정 관리 패널 (최대 10개 확장) -->
                 <div class="admin-tab-panel" id="tabExam">
-                    <h4 class="admin-panel-title"><i class="fa-solid fa-graduation-cap"></i> 시험일정 (텍스트 & 이미지 시간표 등록)</h4>
+                    <h4 class="admin-panel-title"><i class="fa-solid fa-graduation-cap"></i> 시험일정 관리 (최대 10개 등록 가능)</h4>
+                    
+                    <!-- 시험 1~10 선택 셀렉터 바 -->
+                    <div class="admin-exam-selector-bar" id="adminExamSelectorBar" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px;">
+                        <!-- JS로 버튼 1~10 생성 -->
+                    </div>
+
                     <form id="adminExamForm">
+                        <input type="hidden" id="currentAdminExamIdx" value="0">
+                        
+                        <div class="admin-form-group" style="background: rgba(255, 255, 255, 0.05); padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 14px;">
+                            <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin: 0; color: #f8fafc; font-weight: 700;">
+                                <span><i class="fa-solid fa-power-off" style="color: #10b981; margin-right: 6px;"></i> 이 시험일정 게시 (ON / OFF)</span>
+                                <input type="checkbox" id="adminExamActive" checked style="width: 18px; height: 18px; accent-color: #10b981; cursor: pointer;">
+                            </label>
+                        </div>
+
                         <div class="admin-form-group">
                             <label>시험 명칭</label>
-                            <input type="text" id="adminExamTitle" class="admin-input-field" value="2026학년도 1학년 지필고사">
+                            <input type="text" id="adminExamTitle" class="admin-input-field" value="2026학년도 1학년 지필고사" placeholder="예: 2026학년도 1차 지필고사">
                         </div>
                         <div class="admin-form-row">
                             <div class="admin-form-group flex-1">
@@ -254,7 +269,7 @@
                         </div>
                         <div class="admin-form-group">
                             <label>시험 평가 기간 안내 텍스트</label>
-                            <input type="text" id="adminExamPeriod" class="admin-input-field" value="11월 10일(화) ~ 11월 12일(목)">
+                            <input type="text" id="adminExamPeriod" class="admin-input-field" value="11월 10일(화) ~ 11월 12일(목)" placeholder="예: 11월 10일(화) ~ 11월 12일(목)">
                         </div>
 
                         <div class="admin-form-group">
@@ -266,7 +281,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-admin-submit"><i class="fa-solid fa-check"></i> 시험일정 텍스트 & 이미지 반영</button>
+                        <button type="submit" class="btn-admin-submit"><i class="fa-solid fa-check"></i> 선택한 시험일정 저장 및 실시간 반영</button>
                     </form>
                 </div>
 
