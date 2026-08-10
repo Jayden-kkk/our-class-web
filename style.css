@@ -2498,7 +2498,7 @@ body.theme-dark .meal-menu-list li {
 /* 준비물, 시험, 갤러리 백드롭 및 모달 (GPU 하드웨어 가속 & 깜빡임 100% 방지) */
 .supply-backdrop, .exam-backdrop, .gallery-backdrop, .notice-backdrop, .timetable-backdrop, .weather-backdrop, .meal-backdrop, .lightbox-backdrop, .admin-backdrop {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+    background: rgba(2, 6, 14, 0.82) !important;
     z-index: 9998; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
     will-change: opacity;
     transform: translateZ(0);
@@ -2506,7 +2506,7 @@ body.theme-dark .meal-menu-list li {
 }
 .supply-backdrop.active, .exam-backdrop.active, .gallery-backdrop.active, .weather-backdrop.active { opacity: 1; pointer-events: auto; }
 
-/* 스마트폰 한 화면에 깔끔하게 딱 맞춘 모달 팝업 스타일 (한눈에 감상) */
+/* 스마트폰 한 화면에 깔끔하게 딱 맞춘 모달 팝업 스타일 (시각적 선명도 및 경계선 강화) */
 .notice-modal, .timetable-modal, .supply-modal, .exam-modal, .gallery-modal, .meal-modal {
     position: fixed;
     top: 50% !important;
@@ -2516,9 +2516,9 @@ body.theme-dark .meal-menu-list li {
     max-width: 360px !important;
     max-height: 85vh !important;
     background: #0f172a !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
     border-radius: 18px !important;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.75) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(56, 189, 248, 0.3) !important;
     z-index: 9999;
     opacity: 0;
     pointer-events: none;
@@ -2572,12 +2572,12 @@ body.modal-open .popup-carousel-track {
     animation: none !important;
 }
 
-/* 📱 모바일 브라우저 전용 백드롭 렌더링 최적화 (모바일 GPU 비트맵 블러 연산 부하 및 깜빡임 100% 원천 제거) */
+/* 📱 모바일 브라우저 전용 백드롭 렌더링 최적화 */
 @media (max-width: 768px) {
     .supply-backdrop, .exam-backdrop, .gallery-backdrop, .notice-backdrop, .timetable-backdrop, .weather-backdrop, .meal-backdrop, .drawer-backdrop, .lightbox-backdrop, .admin-backdrop {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
-        background: rgba(10, 15, 28, 0.85) !important;
+        background: rgba(2, 6, 14, 0.82) !important;
     }
 }
 
