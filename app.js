@@ -435,11 +435,24 @@ function initApp() {
     if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
 
     // 5. 메인 비주얼 배너 (Hero Carousel Slider)
+    const heroCarousel = document.getElementById('heroCarousel');
     const heroSlides = document.querySelectorAll('.carousel-slide');
     const heroDots = document.querySelectorAll('.hero-dots .dot');
     const heroCurrentSlide = document.getElementById('heroCurrentSlide');
+    const heroPlayPauseBtn = document.getElementById('heroPlayPauseBtn');
     let heroIndex = 0;
     let heroTimer = null;
+    let heroAutoPlay = true; // 사용자 지정 플레이/일시정지 토글 상태
+
+    function restartHeroProgress() {
+        if (!heroCarousel) return;
+        const activeProgress = heroCarousel.querySelector('.hero-dots .dot.active .dot-progress');
+        if (activeProgress) {
+            activeProgress.style.animation = 'none';
+            void activeProgress.offsetHeight; // Reflow 트리거로 프로그레스 리셋
+            activeProgress.style.animation = '';
+        }
+    }
 
     function gotoHeroSlide(idx) {
         heroSlides.forEach(s => s.classList.remove('active'));
@@ -449,22 +462,52 @@ function initApp() {
         heroSlides[heroIndex].classList.add('active');
         if (heroDots[heroIndex]) heroDots[heroIndex].classList.add('active');
         if (heroCurrentSlide) heroCurrentSlide.textContent = heroIndex + 1;
+
+        restartHeroProgress();
     }
 
     function startHeroTimer() {
         stopHeroTimer();
+        if (!heroAutoPlay) return;
+        if (heroCarousel) {
+            heroCarousel.classList.add('is-playing');
+            heroCarousel.classList.remove('is-paused');
+        }
         heroTimer = setInterval(() => {
             gotoHeroSlide(heroIndex + 1);
         }, 4000);
     }
+
     function stopHeroTimer() {
         if (heroTimer) clearInterval(heroTimer);
+        if (heroCarousel) {
+            heroCarousel.classList.remove('is-playing');
+            heroCarousel.classList.add('is-paused');
+        }
+    }
+
+    if (heroPlayPauseBtn) {
+        heroPlayPauseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            heroAutoPlay = !heroAutoPlay;
+            const icon = heroPlayPauseBtn.querySelector('i');
+            if (heroAutoPlay) {
+                if (icon) icon.className = 'fa-solid fa-pause';
+                startHeroTimer();
+            } else {
+                if (icon) icon.className = 'fa-solid fa-play';
+                stopHeroTimer();
+            }
+        });
     }
 
     heroDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
+        dot.addEventListener('click', (e) => {
+            e.stopPropagation();
             gotoHeroSlide(index);
-            startHeroTimer();
+            if (heroAutoPlay) {
+                startHeroTimer();
+            }
         });
     });
 

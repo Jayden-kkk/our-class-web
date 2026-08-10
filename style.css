@@ -755,33 +755,90 @@ body.mode-full .url-bar {
 
 .hero-controls {
     position: absolute;
-    bottom: 10px;
-    right: 16px;
+    bottom: 12px;
+    right: 14px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
-    padding: 4px 10px;
-    border-radius: 14px;
-    color: #fff;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 3px 10px;
+    border-radius: 20px;
+    color: #ffffff;
     font-size: 11px;
+    font-weight: 700;
+    z-index: 10;
+}
+.hero-play-pause-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 10px;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+.hero-play-pause-btn:hover {
+    color: #ffffff;
+    transform: scale(1.15);
+}
+.slide-counter {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: rgba(255, 255, 255, 0.95);
 }
 .hero-dots {
     display: flex;
-    gap: 4px;
+    align-items: center;
+    gap: 5px;
 }
 .hero-dots .dot {
-    width: 6px;
-    height: 6px;
+    position: relative;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.35);
     cursor: pointer;
+    overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-radius 0.3s ease, background 0.3s ease;
 }
 .hero-dots .dot.active {
-    width: 14px;
+    width: 22px;
+    height: 7px;
     border-radius: 10px;
+    background: rgba(255, 255, 255, 0.3);
+}
+.hero-dots .dot .dot-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
     background: #ffffff;
+    border-radius: 10px;
+}
+
+/* 롤링 재생 중일 때 active 닷에 4초 동안 서서히 채워지는 프로그레스 애니메이션 */
+.hero-carousel.is-playing .hero-dots .dot.active .dot-progress {
+    animation: heroDotFill 4s linear forwards;
+}
+
+@keyframes heroDotFill {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+/* 모달이 열리거나 일시정지 상태일 때 프로그레스 애니메이션 멈춤 */
+body.modal-open .hero-carousel .hero-dots .dot.active .dot-progress,
+.hero-carousel.is-paused .hero-dots .dot.active .dot-progress {
+    animation-play-state: paused !important;
 }
 
 /* 9. 퀵 메뉴 (Quick Menu Grid 2x3) */
