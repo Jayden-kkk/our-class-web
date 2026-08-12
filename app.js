@@ -1491,30 +1491,177 @@ function initApp() {
     const timetableBackdrop = document.getElementById('timetableBackdrop');
     const timetableCloseBtn = document.getElementById('timetableCloseBtn');
 
-    // 컴시간알리미 양영중학교 1학년 6반 실시간 연동 및 번역 모듈
-    async function loadYangYoungTimetable() {
-        const schoolCode = "74291"; // 양영중학교 컴시간 고유 코드
-        const targetUrl = `http://comci.net:3082/${schoolCode}`;
-        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+    // 새로고침 버튼(#refresh-timetable-btn) 이벤트 바인딩
+    const refreshTimetableBtn = document.getElementById('refresh-timetable-btn');
+    if (refreshTimetableBtn) {
+        refreshTimetableBtn.addEventListener('click', () => {
+            loadYangYoungTimetable();
+        });
+    }
 
-        try {
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error('컴시간 프록시 수신 오류');
-            const resJson = await response.json();
+    // API에서 수신한 주간 시간표 데이터를 표(Table)에 동적 렌더링하는 함수
+    function renderTimetableData(schedule) {
+        if (!schedule) return;
 
-            if (resJson && resJson.contents) {
-                let timetableData;
-                try {
-                    timetableData = JSON.parse(resJson.contents);
-                } catch (e) {
-                    timetableData = resJson.contents;
+        // schedule[dayIndex]: 요일 0(월)~4(금)
+        for (let dayIndex = 0; dayIndex < 5; dayIndex++) {
+            const dayNum = dayIndex + 1; // 1(월)~5(금)
+            const daySchedule = Array.isArray(schedule) ? schedule[dayIndex] : (schedule[dayNum] || schedule[String(dayNum)]);
+
+            // 요일 전체 수업 유무 판별 (공휴일/국경일/재량휴업일 등 시간표가 없는 요일)
+            let isDayOff = true;
+            if (daySchedule) {
+                for (let p = 1; p <= 7; p++) {
+                    let info = null;
+                    if (Array.isArray(daySchedule)) {
+                        info = daySchedule.find(item => item && (item.classTime == p || item.period == p));
+                        if (!info) {
+                            info = daySchedule[p - 1] !== undefined ? daySchedule[p - 1] : daySchedule[p];
+                        }
+                    } else if (typeof daySchedule === 'object') {
+                        info = daySchedule[p] || daySchedule[String(p)] || daySchedule[p - 1];
+                    }
+
+                    let subName = "";
+                    if (info) {
+                        if (typeof info === 'object') {
+                            subName = info.subject || info.subjectName || info.name || "";
+                        } else if (typeof info === 'string') {
+                            subName = info.trim();
+                        }
+                    }
+                    if (subName && subName !== '-') {
+                        isDayOff = false;
+                        break;
+                    }
                 }
-                console.log("양영중 1학년 6반 컴시간 데이터 수신 성공:", timetableData);
             }
-        } catch (error) {
-            console.log("컴시간알리미 수신 대기 상태:", error);
+
+
+
+            for (let period = 1; period <= 7; period++) {
+                // 1) data-day와 data-period 속성을 이용해 셀 탐색
+                let cell = document.querySelector(`.comtime-table td[data-day="${dayNum}"][data-period="${period}"]`);
+
+                // 2) 점심시간 행(.lunch-row)을 스킵하는 예비 DOM 탐색 로직 (1~4교시 -> 점심시간 행 -> 5~7교시)
+                if (!cell) {
+                    const periodRows = document.querySelectorAll('.comtime-table tbody tr:not(.lunch-row)');
+                    if (periodRows[period - 1]) {
+                        const cells = periodRows[period - 1].querySelectorAll('td');
+                        cell = cells[dayNum]; // index 0은 교시 레이블 column
+                    }
+                }
+
+                if (!cell) continue;
+
+                // 요일 내부 0~7교시 (classTime 1~8) 데이터 파싱
+                let classInfo = null;
+                if (Array.isArray(daySchedule)) {
+                    classInfo = daySchedule.find(item => item && (item.classTime == period || item.period == period));
+                    if (!classInfo) {
+                        if (daySchedule[period - 1] !== undefined && daySchedule[period - 1] !== null) {
+                            classInfo = daySchedule[period - 1];
+                        } else if (daySchedule[period] !== undefined && daySchedule[period] !== null) {
+                            classInfo = daySchedule[period];
+                        }
+                    }
+                } else if (daySchedule && typeof daySchedule === 'object') {
+                    classInfo = daySchedule[period] || daySchedule[String(period)] || daySchedule[period - 1];
+                }
+
+                let subject = "";
+                let teacher = "";
+
+                if (classInfo) {
+                    if (typeof classInfo === 'object') {
+                        subject = classInfo.subject || classInfo.subjectName || classInfo.name || "";
+                        teacher = classInfo.teacher || classInfo.teacherName || classInfo.teacher_name || "";
+                    } else if (typeof classInfo === 'string') {
+                        subject = classInfo.trim();
+                    }
+                }
+
+                // 셀 스타일 및 내용 업데이트
+                cell.className = '';
+
+                if (isDayOff) {
+                    // 시간표가 아예 없는 요일 (공휴일/국경일 등): 요일 헤더 배경(#1e293b)과 동일하게 설정
+                    cell.classList.add('sub-bg-dayoff');
+                    cell.textContent = '-';
+                } else if (subject && subject !== '-') {
+                    // 과목 색상 제거: 깔끔한 단일 텍스트 모던 레이아웃
+                    cell.classList.add('sub-bg-normal');
+                    if (teacher && teacher.trim() !== '') {
+                        cell.innerHTML = `<b>${subject}</b><br><small style="font-size: 9px; opacity: 0.8; font-weight: 400;">${teacher}</small>`;
+                    } else {
+                        cell.innerHTML = `<b>${subject}</b>`;
+                    }
+                } else {
+                    // 수업이 없는 일반 빈 셀
+                    cell.classList.add('sub-bg-empty');
+                    cell.textContent = '-';
+                }
+            }
         }
     }
+
+    // Firebase Cloud Functions API에서 양영중학교 1학년 6반 주간 시간표 불러오기
+    async function loadYangYoungTimetable() {
+        const tableWrapper = document.querySelector('.timetable-table-wrapper');
+        const refreshBtn = document.getElementById('refresh-timetable-btn');
+        const weekRangeTextEl = document.getElementById('week-range-text');
+
+        // 로딩 시각 효과 (표 opacity 감소 & 새로고침 아이콘 회전)
+        if (tableWrapper) {
+            tableWrapper.style.transition = 'opacity 0.2s ease';
+            tableWrapper.style.opacity = '0.35';
+        }
+        if (refreshBtn) {
+            refreshBtn.classList.add('spinning');
+            const icon = refreshBtn.querySelector('i');
+            if (icon) icon.classList.add('fa-spin');
+        }
+
+        const apiUrl = "https://us-central1-our-class-web.cloudfunctions.net/getTimetable";
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const resJson = await response.json();
+
+            if (resJson && resJson.success && resJson.schedule) {
+                if (resJson.currentWeekRange && weekRangeTextEl) {
+                    weekRangeTextEl.textContent = `일자: ${resJson.currentWeekRange}`;
+                }
+                renderTimetableData(resJson.schedule);
+                console.log("🔥 양영중 1학년 6반 주간 시간표 수신 및 렌더링 성공:", resJson);
+            } else {
+                console.warn("시간표 API 응답 실패 또는 형식 오류:", resJson);
+                if (weekRangeTextEl) {
+                    weekRangeTextEl.textContent = "일자: 수신 실패";
+                }
+                alert("시간표 데이터를 불러오는 데 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("시간표 데이터를 불러오는 중 오류 발생:", error);
+            if (weekRangeTextEl) {
+                weekRangeTextEl.textContent = "일자: 수신 실패";
+            }
+            alert("시간표 데이터를 불러오는 데 실패했습니다.");
+        } finally {
+            // 로딩 시각 효과 해제 (opacity 복원 & 회전 중지)
+            if (tableWrapper) {
+                tableWrapper.style.opacity = '1';
+            }
+            if (refreshBtn) {
+                refreshBtn.classList.remove('spinning');
+                const icon = refreshBtn.querySelector('i');
+                if (icon) icon.classList.remove('fa-spin');
+            }
+        }
+    }
+
+    // 페이지 로드 시 initial timetable load 실행
+    loadYangYoungTimetable();
 
     function openTimetableModal() {
         if (timetableModal && timetableBackdrop) {
@@ -2545,15 +2692,21 @@ function initApp() {
         }
     });
 
-    // --- 3. 시간표 동기화 ---
+    // --- 3. 시간표 수동 동기화 ---
     if (btnSyncComtime) {
         btnSyncComtime.addEventListener('click', async () => {
             btnSyncComtime.disabled = true;
-            btnSyncComtime.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 수신 중...`;
-            await loadYangYoungTimetable();
-            btnSyncComtime.disabled = false;
-            btnSyncComtime.innerHTML = `<i class="fa-solid fa-rotate-right"></i> 컴시간 최신 시간표 즉시 동기화`;
-            alert('✅ 양영중 1학년 6반 컴시간알리미 실시간 수신 완료!');
+            btnSyncComtime.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 최신 데이터 동기화 중...`;
+            try {
+                await loadYangYoungTimetable();
+                alert('✅ 양영중학교 1학년 6반 시간표 최신 데이터가 성공적으로 동기화되었습니다!');
+            } catch (err) {
+                console.error("시간표 동기화 오류:", err);
+                alert('⚠️ 시간표 데이터를 동기화하는 중 오류가 발생했습니다.');
+            } finally {
+                btnSyncComtime.disabled = false;
+                btnSyncComtime.innerHTML = `<i class="fa-solid fa-rotate-right"></i> 시간표 최신 데이터 즉시 동기화`;
+            }
         });
     }
 

@@ -2308,38 +2308,59 @@ body.theme-dark .meal-menu-list li {
 }
 .timetable-sub-info {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 10px; font-size: 10px;
+    margin-bottom: 10px; font-size: 11px;
 }
-.comtime-badge {
-    background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4);
-    color: #38bdf8; padding: 2px 8px; border-radius: 8px; font-weight: 700;
+.week-range-info {
+    display: inline-flex; align-items: center; gap: 6px; line-height: 1;
 }
-.class-tag { color: #fcd34d; font-weight: 700; }
+.week-range-info .week-icon {
+    color: #fcd34d; font-size: 0.85rem; display: inline-flex; align-items: center;
+}
+#week-range-text {
+    color: #cbd5e1; font-size: 0.85rem; font-weight: 600; line-height: 1; display: inline-flex; align-items: center;
+}
+.refresh-timetable-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #38bdf8; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+    cursor: pointer; line-height: 1; transition: all 0.2s ease;
+}
+.refresh-timetable-btn:hover {
+    background: rgba(56, 189, 248, 0.28); border-color: #38bdf8; color: #ffffff;
+    box-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+}
+.refresh-timetable-btn:active { transform: scale(0.96); }
+.refresh-timetable-btn i { font-size: 11px; display: inline-flex; align-items: center; }
+.refresh-timetable-btn.spinning i, .refresh-timetable-btn i.fa-spin { animation: fa-spin 1s infinite linear; }
 
 .timetable-table-wrapper { width: 100%; overflow-x: auto; margin-bottom: 10px; }
-.comtime-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 11px; }
+.comtime-table {
+    width: 100%; table-layout: fixed; border-collapse: collapse; text-align: center; font-size: 11px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
 .comtime-table th {
     background: #1e293b; color: #94a3b8; font-weight: 700;
-    padding: 6px 4px; border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 7px 3px; border: 1px solid rgba(255, 255, 255, 0.15);
 }
-.comtime-table td {
-    padding: 6px 3px; border: 1px solid rgba(255, 255, 255, 0.1); font-weight: 600;
-}
-.comtime-table td.period { background: #1e293b; color: #cbd5e1; font-size: 10px; font-weight: 700; }
-.comtime-table .time-lbl { font-size: 8px; color: #64748b; font-weight: 400; }
+.comtime-table th:first-child { width: 22%; }
+.comtime-table th:not(:first-child) { width: 15.6%; }
 
-.sub-bg-kr { background: rgba(239, 68, 68, 0.25); color: #fca5a5; }
-.sub-bg-en { background: rgba(59, 130, 246, 0.25); color: #93c5fd; }
-.sub-bg-math { background: rgba(16, 185, 129, 0.25); color: #6ee7b7; }
-.sub-bg-sci { background: rgba(168, 85, 247, 0.25); color: #d8b4fe; }
-.sub-bg-soc { background: rgba(245, 158, 11, 0.25); color: #fde047; }
-.sub-bg-art { background: rgba(236, 72, 153, 0.25); color: #fbcfe8; }
-.sub-bg-pe { background: rgba(20, 184, 166, 0.25); color: #99f6e4; }
-.sub-bg-moral { background: rgba(99, 102, 241, 0.25); color: #c7d2fe; }
-.sub-bg-tech { background: rgba(14, 165, 233, 0.25); color: #bae6fd; }
-.sub-bg-career { background: rgba(234, 179, 8, 0.25); color: #fef08a; }
-.sub-bg-club { background: rgba(100, 116, 139, 0.25); color: #cbd5e1; }
-.sub-bg-empty { color: #475569; }
+.comtime-table td {
+    padding: 6px 3px; border: 1px solid rgba(255, 255, 255, 0.15); font-weight: 600;
+}
+.comtime-table td.period {
+    background: #1e293b; color: #cbd5e1; font-size: 10.5px; font-weight: 700; width: 22%;
+}
+.comtime-table .time-lbl { font-size: 9.5px; color: #94a3b8; font-weight: 500; display: block; margin-top: 1px; }
+
+/* 과목 색상 전면 제거: 모든 수업 셀을 깔끔한 단일 텍스트 스타일로 수렴 */
+.sub-bg-normal { background: transparent; color: #f8fafc; }
+
+/* 공휴일/국경일/재량휴업일 등 시간표가 없는 요일 열: 통일된 배경 및 텍스트 렌더링 */
+.sub-bg-dayoff { background: transparent; color: #334155; }
+
+/* 수업이 없는 일반 빈 셀 */
+.sub-bg-empty { background: transparent; color: #475569; }
 
 .comtime-table tr.lunch-row td {
     background: rgba(245, 158, 11, 0.15); color: #fde047; font-size: 10px; padding: 4px;

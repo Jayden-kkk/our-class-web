@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,11 +28,14 @@
     <!-- 구글 폰트: Noto Sans KR, Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="theme-green mode-full">
 
     <!-- 모바일 앱 래퍼 컨테이너 -->
@@ -66,7 +70,8 @@
 
                     <a href="#" class="brand-logo">
                         <div class="school-logo-wrapper">
-                            <img src="yyschool.png" onerror="this.onerror=null; this.src='yangyoung_logo.jpg';" alt="양영중 로고" class="school-logo-left-img">
+                            <img src="yyschool.png" onerror="this.onerror=null; this.src='yangyoung_logo.jpg';"
+                                alt="양영중 로고" class="school-logo-left-img">
                         </div>
                         <h1 class="school-title" id="displaySchoolName">1학년 6반 알리미</h1>
                     </a>
@@ -104,7 +109,8 @@
                                 <span>풍속: <strong id="weatherWindSpeed">1.8 m/s</strong></span>
                                 <span class="dust-divider">|</span>
                                 <span style="font-weight:700;">미세먼지:</span>
-                                <strong id="weatherDustLevel" class="dust-pill dust-good"><i class="fa-solid fa-face-laugh-beam"></i> 좋음</strong>
+                                <strong id="weatherDustLevel" class="dust-pill dust-good"><i
+                                        class="fa-solid fa-face-laugh-beam"></i> 좋음</strong>
                             </div>
 
                             <!-- 08:00 ~ 24:00 시간별 날씨 예보 -->
@@ -179,8 +185,14 @@
                             <button class="timetable-close-btn" id="timetableCloseBtn">&times;</button>
                         </div>
                         <div class="timetable-sub-info">
-                            <span class="comtime-badge"><i class="fa-solid fa-clock"></i> 45분 수업 / 10분 쉬는시간</span>
-                            <span class="class-tag">1학년 6반</span>
+                            <div class="week-range-info">
+                                <i class="fa-solid fa-calendar-week week-icon"></i>
+                                <span id="week-range-text">일자: 확인 중...</span>
+                            </div>
+                            <button type="button" id="refresh-timetable-btn" class="refresh-timetable-btn" title="시간표 새로고침" aria-label="시간표 새로고침">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <span>새로고침</span>
+                            </button>
                         </div>
                         <div class="timetable-table-wrapper">
                             <table class="comtime-table">
@@ -197,62 +209,62 @@
                                 <tbody>
                                     <tr>
                                         <td class="period">1교시<br><span class="time-lbl">09:00~09:45</span></td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty" data-day="1" data-period="1">-</td>
+                                        <td class="sub-bg-empty" data-day="2" data-period="1">-</td>
+                                        <td class="sub-bg-empty" data-day="3" data-period="1">-</td>
+                                        <td class="sub-bg-empty" data-day="4" data-period="1">-</td>
+                                        <td class="sub-bg-empty" data-day="5" data-period="1">-</td>
                                     </tr>
                                     <tr>
                                         <td class="period">2교시<br><span class="time-lbl">09:55~10:40</span></td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty" data-day="1" data-period="2">-</td>
+                                        <td class="sub-bg-empty" data-day="2" data-period="2">-</td>
+                                        <td class="sub-bg-empty" data-day="3" data-period="2">-</td>
+                                        <td class="sub-bg-empty" data-day="4" data-period="2">-</td>
+                                        <td class="sub-bg-empty" data-day="5" data-period="2">-</td>
                                     </tr>
                                     <tr>
                                         <td class="period">3교시<br><span class="time-lbl">10:50~11:35</span></td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty" data-day="1" data-period="3">-</td>
+                                        <td class="sub-bg-empty" data-day="2" data-period="3">-</td>
+                                        <td class="sub-bg-empty" data-day="3" data-period="3">-</td>
+                                        <td class="sub-bg-empty" data-day="4" data-period="3">-</td>
+                                        <td class="sub-bg-empty" data-day="5" data-period="3">-</td>
                                     </tr>
                                     <tr>
                                         <td class="period">4교시<br><span class="time-lbl">11:45~12:30</span></td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty" data-day="1" data-period="4">-</td>
+                                        <td class="sub-bg-empty" data-day="2" data-period="4">-</td>
+                                        <td class="sub-bg-empty" data-day="3" data-period="4">-</td>
+                                        <td class="sub-bg-empty" data-day="4" data-period="4">-</td>
+                                        <td class="sub-bg-empty" data-day="5" data-period="4">-</td>
                                     </tr>
                                     <tr class="lunch-row">
                                         <td colspan="6"><i class="fa-solid fa-utensils"></i> 점심시간 (12:30 ~ 13:30)</td>
                                     </tr>
                                     <tr>
                                         <td class="period">5교시<br><span class="time-lbl">13:30~14:15</span></td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty" data-day="1" data-period="5">-</td>
+                                        <td class="sub-bg-empty" data-day="2" data-period="5">-</td>
+                                        <td class="sub-bg-empty" data-day="3" data-period="5">-</td>
+                                        <td class="sub-bg-empty" data-day="4" data-period="5">-</td>
+                                        <td class="sub-bg-empty" data-day="5" data-period="5">-</td>
                                     </tr>
                                     <tr>
                                         <td class="period">6교시<br><span class="time-lbl">14:25~15:10</span></td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty" data-day="1" data-period="6">-</td>
+                                        <td class="sub-bg-empty" data-day="2" data-period="6">-</td>
+                                        <td class="sub-bg-empty" data-day="3" data-period="6">-</td>
+                                        <td class="sub-bg-empty" data-day="4" data-period="6">-</td>
+                                        <td class="sub-bg-empty" data-day="5" data-period="6">-</td>
                                     </tr>
                                     <tr>
                                         <td class="period">7교시<br><span class="time-lbl">15:20~16:05</span></td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
-                                        <td class="sub-bg-empty">-</td>
+                                        <td class="sub-bg-empty" data-day="1" data-period="7">-</td>
+                                        <td class="sub-bg-empty" data-day="2" data-period="7">-</td>
+                                        <td class="sub-bg-empty" data-day="3" data-period="7">-</td>
+                                        <td class="sub-bg-empty" data-day="4" data-period="7">-</td>
+                                        <td class="sub-bg-empty" data-day="5" data-period="7">-</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -345,7 +357,9 @@
                             <div class="exam-title">
                                 <i class="fa-solid fa-pen-to-square"></i>
                                 <span>시험일정 안내</span>
-                                <span class="notice-count-badge" id="modalExamCountBadge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); margin-left: 6px;">등록 1개</span>
+                                <span class="notice-count-badge" id="modalExamCountBadge"
+                                    style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); margin-left: 6px;">등록
+                                    1개</span>
                             </div>
                             <button class="exam-close-btn" id="examCloseBtn">&times;</button>
                         </div>
@@ -359,11 +373,15 @@
                             <div class="exam-info-card">
                                 <div class="exam-header-badge">
                                     <span class="exam-dday-badge" id="examModalDdayBadge">D-98</span>
-                                    <h4 id="examModalTitleText" style="color: #f8fafc; font-size: 15px; font-weight: 800; margin: 0;">2026학년도 1학년 지필고사</h4>
+                                    <h4 id="examModalTitleText"
+                                        style="color: #f8fafc; font-size: 15px; font-weight: 800; margin: 0;">2026학년도
+                                        1학년 지필고사</h4>
                                 </div>
-                                <div class="exam-period-info" style="margin-top: 8px; font-size: 12px; color: #cbd5e1; display: flex; align-items: center; gap: 6px;">
+                                <div class="exam-period-info"
+                                    style="margin-top: 8px; font-size: 12px; color: #cbd5e1; display: flex; align-items: center; gap: 6px;">
                                     <i class="fa-solid fa-calendar-check" style="color: #38bdf8;"></i>
-                                    <span>평가 기간: <strong id="examModalPeriodText" style="color: #fde047;">11월 10일(화) ~ 11월 12일(목)</strong></span>
+                                    <span>평가 기간: <strong id="examModalPeriodText" style="color: #fde047;">11월 10일(화) ~
+                                            11월 12일(목)</strong></span>
                                 </div>
                             </div>
                             <div class="exam-image-upload-slot" id="examImageSlot" style="margin-top: 12px;">
@@ -390,9 +408,12 @@
                         </div>
                         <div class="gallery-modal-content">
                             <div class="vacation-notice-box" style="margin-top: 10px;">
-                                <i class="fa-solid fa-images" style="font-size: 32px; color: #38bdf8; margin-bottom: 10px;"></i>
-                                <h4 style="font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">등록된 갤러리 사진이 없습니다 📸</h4>
-                                <p style="font-size: 11.5px; color: #94a3b8; line-height: 1.5;">나중에 관리자 기능을 통해 1학년 6반의 추억 사진(세로형 비율 권장)을 자유롭게 올려보세요!</p>
+                                <i class="fa-solid fa-images"
+                                    style="font-size: 32px; color: #38bdf8; margin-bottom: 10px;"></i>
+                                <h4 style="font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">등록된
+                                    갤러리 사진이 없습니다 📸</h4>
+                                <p style="font-size: 11.5px; color: #94a3b8; line-height: 1.5;">나중에 관리자 기능을 통해 1학년 6반의
+                                    추억 사진(세로형 비율 권장)을 자유롭게 올려보세요!</p>
                             </div>
                         </div>
                     </div>
@@ -415,41 +436,54 @@
                     <div class="hero-carousel" id="heroCarousel">
                         <div class="carousel-track">
                             <!-- Slide 1: 1학년 6반 화이팅 + 독서/학업 감성 일러스트 (첫 번째 배너) -->
-                            <div class="carousel-slide active" style="background-image: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.55)), url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1000&auto=format&fit=crop');">
+                            <div class="carousel-slide active"
+                                style="background-image: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.55)), url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1000&auto=format&fit=crop');">
                                 <div class="slide-caption">
                                     <h2 class="slide-main-title">1학년 6반 화이팅! 🔥</h2>
                                     <div class="hero-datetime-box">
-                                        <div class="h-date"><i class="fa-regular fa-calendar-days"></i> <span id="heroDateText">2026년 08월 04일 (화)</span></div>
-                                        <div class="h-time"><i class="fa-regular fa-clock"></i> <strong id="heroClockText">00:00:00</strong></div>
+                                        <div class="h-date"><i class="fa-regular fa-calendar-days"></i> <span
+                                                id="heroDateText">2026년 08월 04일 (화)</span></div>
+                                        <div class="h-time"><i class="fa-regular fa-clock"></i> <strong
+                                                id="heroClockText">00:00:00</strong></div>
                                     </div>
                                 </div>
                             </div>
                             <!-- Slide 2: 중요한 시험일정 (두 번째 배너에는 디데이 표시) -->
-                            <div class="carousel-slide" onclick="if(window.openExamModal) window.openExamModal();" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1000&auto=format&fit=crop'); cursor: pointer;">
+                            <div class="carousel-slide" onclick="if(window.openExamModal) window.openExamModal();"
+                                style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.65)), url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1000&auto=format&fit=crop'); cursor: pointer;">
                                 <div class="slide-caption">
-                                    <span class="badge-tag red-badge"><i class="fa-solid fa-triangle-exclamation"></i> 중요한 시험일정</span>
-                                    <h2>2026학년도 1학년<br>지필고사 <span class="dday-large-tag" id="slide2DdayTag">D-98</span></h2>
+                                    <span class="badge-tag red-badge"><i class="fa-solid fa-triangle-exclamation"></i>
+                                        중요한 시험일정</span>
+                                    <h2>2026학년도 1학년<br>지필고사 <span class="dday-large-tag" id="slide2DdayTag">D-98</span>
+                                    </h2>
                                     <p><i class="fa-solid fa-pen-to-square"></i> 평가기간: 11월 10일(화) ~ 11월 12일(목)</p>
                                 </div>
                             </div>
                             <!-- Slide 3: 학사일정 진짜 달력 & 주요 일정 리스트 (8월~12월 선택 가능) -->
-                            <div class="carousel-slide" style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=1000&auto=format&fit=crop');">
+                            <div class="carousel-slide"
+                                style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=1000&auto=format&fit=crop');">
                                 <div class="slide-caption slide-calendar-caption">
                                     <div class="cal-split-container">
                                         <!-- 진짜 달력 위젯 (달력 바로 위 월 선택 헤더 바 위치) -->
                                         <div class="hero-mini-calendar">
                                             <div class="mini-cal-header-bar">
-                                                <button type="button" class="mini-cal-nav-btn" id="heroCalPrevBtn" onclick="if(window.changeHeroCalMonth) window.changeHeroCalMonth(-1); event.stopPropagation();" aria-label="이전 달">
+                                                <button type="button" class="mini-cal-nav-btn" id="heroCalPrevBtn"
+                                                    onclick="if(window.changeHeroCalMonth) window.changeHeroCalMonth(-1); event.stopPropagation();"
+                                                    aria-label="이전 달">
                                                     <i class="fa-solid fa-chevron-left"></i>
                                                 </button>
                                                 <h3 class="mini-cal-title" id="heroCalMonthTitle">2026년 8월</h3>
-                                                <button type="button" class="mini-cal-nav-btn" id="heroCalNextBtn" onclick="if(window.changeHeroCalMonth) window.changeHeroCalMonth(1); event.stopPropagation();" aria-label="다음 달">
+                                                <button type="button" class="mini-cal-nav-btn" id="heroCalNextBtn"
+                                                    onclick="if(window.changeHeroCalMonth) window.changeHeroCalMonth(1); event.stopPropagation();"
+                                                    aria-label="다음 달">
                                                     <i class="fa-solid fa-chevron-right"></i>
                                                 </button>
                                             </div>
 
                                             <div class="cal-weekdays">
-                                                <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span>
+                                                <span
+                                                    class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span
+                                                    class="sat">토</span>
                                             </div>
                                             <div class="cal-days-grid" id="heroCalDaysGrid">
                                                 <!-- JS로 실시간 달력 날짜 생성 -->
@@ -458,7 +492,8 @@
 
                                         <!-- 달력 일정 상세 안내 박스 (JS 동적 렌더링) -->
                                         <div class="cal-event-list-box" id="heroCalEventListBox">
-                                            <div class="cal-event-title"><i class="fa-solid fa-bookmark"></i> 이달의 학사일정</div>
+                                            <div class="cal-event-title"><i class="fa-solid fa-bookmark"></i> 이달의 학사일정
+                                            </div>
                                             <div id="calEventItems">
                                                 <!-- JS로 월별 이벤트 생성 -->
                                             </div>
@@ -470,7 +505,8 @@
 
                         <!-- 컨트롤 및 인디케이터 (플레이/일시정지 버튼 & 프로그레스 닷 바) -->
                         <div class="hero-controls">
-                            <button type="button" class="hero-play-pause-btn" id="heroPlayPauseBtn" aria-label="메인 배너 자동재생 일시정지/재생" title="자동롤링 일시정지/재생">
+                            <button type="button" class="hero-play-pause-btn" id="heroPlayPauseBtn"
+                                aria-label="메인 배너 자동재생 일시정지/재생" title="자동롤링 일시정지/재생">
                                 <i class="fa-solid fa-pause"></i>
                             </button>
                             <span class="slide-counter"><strong id="heroCurrentSlide">1</strong> / 3</span>
@@ -535,7 +571,8 @@
                             <div class="sec-title-group">
                                 <h3><i class="fa-solid fa-utensils" style="color: #ef4444;"></i>오늘의 급식 식단</h3>
                             </div>
-                            <button class="accordion-toggle" aria-label="접기/펼치기"><i class="fa-solid fa-minus"></i></button>
+                            <button class="accordion-toggle" aria-label="접기/펼치기"><i
+                                    class="fa-solid fa-minus"></i></button>
                         </div>
                         <div class="accordion-content">
                             <div class="meal-card" id="mealCard">
@@ -553,7 +590,8 @@
                                         </div>
                                     </div>
                                     <div class="meal-illustration">
-                                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop" alt="맛있는 식단" class="meal-img">
+                                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=300&auto=format&fit=crop"
+                                            alt="맛있는 식단" class="meal-img">
                                         <span class="calories-badge">645 kcal</span>
                                     </div>
                                 </div>
@@ -571,7 +609,8 @@
                             <div class="sec-title-group" style="display:flex; align-items:center; gap:8px;">
                                 <h3><i class="fa-solid fa-camera" style="color:#fbbf24;"></i>포토갤러리</h3>
                             </div>
-                            <button class="accordion-toggle" aria-label="접기/펼치기"><i class="fa-solid fa-minus"></i></button>
+                            <button class="accordion-toggle" aria-label="접기/펼치기"><i
+                                    class="fa-solid fa-minus"></i></button>
                         </div>
                         <div class="accordion-content">
                             <div class="main-gallery-slider-box" id="mainGallerySliderBox">
@@ -586,9 +625,11 @@
                 <!-- 10. 푸터 (Footer) -->
                 <footer class="app-footer">
                     <div class="footer-nav">
-                        <a href="javascript:void(0)" id="btnOpenLocationInfo"><i class="fa-solid fa-location-dot"></i> 위치 정보 반영 방식</a>
+                        <a href="javascript:void(0)" id="btnOpenLocationInfo"><i class="fa-solid fa-location-dot"></i>
+                            위치 정보 반영 방식</a>
                         <span class="divider">|</span>
-                        <a href="javascript:void(0)" id="btnOpenUserInfo"><i class="fa-solid fa-users"></i> 1학년 6반 학급 명단</a>
+                        <a href="javascript:void(0)" id="btnOpenUserInfo"><i class="fa-solid fa-users"></i> 1학년 6반 학급
+                            명단</a>
                     </div>
 
                     <!-- 위치 정보 반영 방식 인라인 펼침 영역 (네비게이션 바로 밑) -->
@@ -596,12 +637,14 @@
                         <div class="inline-box-inner">
                             <div class="inline-box-header">
                                 <span><i class="fa-solid fa-location-crosshairs"></i> 위치 정보 반영 및 날씨 연동 방식</span>
-                                <button type="button" class="inline-close-btn" id="btnCloseLocationInline">&times;</button>
+                                <button type="button" class="inline-close-btn"
+                                    id="btnCloseLocationInline">&times;</button>
                             </div>
                             <div class="inline-box-body">
                                 <div class="inline-loc-card">
                                     <i class="fa-solid fa-cloud-sun"></i>
-                                    <p>스마트폰/PC 디바이스의 위치(GPS 및 IP)를 감지하여 <strong>현재 계신 지역(예: 경기도 광주시, 성남시 분당구 등)의 실시간 날씨</strong>를 맞춤 연동합니다.</p>
+                                    <p>스마트폰/PC 디바이스의 위치(GPS 및 IP)를 감지하여 <strong>현재 계신 지역(예: 경기도 광주시, 성남시 분당구 등)의 실시간
+                                            날씨</strong>를 맞춤 연동합니다.</p>
                                 </div>
                                 <div class="inline-step-grid">
                                     <div class="inline-step">
@@ -676,7 +719,8 @@
                     <div class="footer-info">
                         <p class="school-name-ft">1학년 6반 알리미</p>
                         <p>주소) 경기도 성남시 분당구 돌마로486번길 23 (서현동, 양영중학교)</p>
-                        <p>🏫 양영중 교무실: <a href="tel:0317014470" style="color:#38bdf8; font-weight:700;">031-701-4470</a></p>
+                        <p>🏫 양영중 교무실: <a href="tel:0317014470" style="color:#38bdf8; font-weight:700;">031-701-4470</a>
+                        </p>
                         <p class="copyright">Copyright © 1학년 6반 알리미. All Rights Reserved.</p>
                     </div>
 
@@ -693,8 +737,10 @@
             <nav class="drawer-menu" id="drawerMenu">
                 <div class="drawer-header">
                     <div class="user-welcome">
-                        <div class="drawer-logo-badge" style="background:#ffffff; border-radius:8px; padding:4px; display:inline-flex; align-items:center; justify-content:center; margin-right:6px;">
-                            <img src="yangyoung_logo.jpg" alt="양영중 로고" style="width:22px; height:22px; object-fit:contain;">
+                        <div class="drawer-logo-badge"
+                            style="background:#ffffff; border-radius:8px; padding:4px; display:inline-flex; align-items:center; justify-content:center; margin-right:6px;">
+                            <img src="yangyoung_logo.jpg" alt="양영중 로고"
+                                style="width:22px; height:22px; object-fit:contain;">
                         </div>
                         <div>
                             <strong id="drawerSchoolTitle">1학년 6반 알리미</strong>
@@ -708,26 +754,35 @@
                     <div class="nav-category">
                         <h4><i class="fa-solid fa-layer-group"></i> 퀵메뉴 서비스</h4>
                         <ul>
-                            <li><a href="javascript:void(0)" id="drawerNoticeBtn"><i class="fa-solid fa-bullhorn"></i> 공지사항</a></li>
-                            <li><a href="javascript:void(0)" id="drawerTimetableBtn"><i class="fa-solid fa-calendar-days"></i> 시간표</a></li>
-                            <li><a href="javascript:void(0)" id="drawerExamBtn"><i class="fa-solid fa-pen-to-square"></i> 시험일정</a></li>
-                            <li><a href="javascript:void(0)" id="drawerWeatherBtn"><i class="fa-solid fa-cloud-sun"></i> 날씨</a></li>
-                            <li><a href="javascript:void(0)" id="drawerMealBtn"><i class="fa-solid fa-utensils"></i> 급식</a></li>
-                            <li><a href="javascript:void(0)" id="drawerSupplyBtn"><i class="fa-solid fa-clipboard-list"></i> 준비물</a></li>
+                            <li><a href="javascript:void(0)" id="drawerNoticeBtn"><i class="fa-solid fa-bullhorn"></i>
+                                    공지사항</a></li>
+                            <li><a href="javascript:void(0)" id="drawerTimetableBtn"><i
+                                        class="fa-solid fa-calendar-days"></i> 시간표</a></li>
+                            <li><a href="javascript:void(0)" id="drawerExamBtn"><i
+                                        class="fa-solid fa-pen-to-square"></i> 시험일정</a></li>
+                            <li><a href="javascript:void(0)" id="drawerWeatherBtn"><i class="fa-solid fa-cloud-sun"></i>
+                                    날씨</a></li>
+                            <li><a href="javascript:void(0)" id="drawerMealBtn"><i class="fa-solid fa-utensils"></i>
+                                    급식</a></li>
+                            <li><a href="javascript:void(0)" id="drawerSupplyBtn"><i
+                                        class="fa-solid fa-clipboard-list"></i> 준비물</a></li>
                         </ul>
                     </div>
 
                     <div class="nav-category">
                         <h4><i class="fa-solid fa-images"></i> 갤러리</h4>
                         <ul>
-                            <li><a href="#sec-gallery" id="drawerGalleryBtn"><i class="fa-solid fa-camera"></i> 포토갤러리</a></li>
+                            <li><a href="#sec-gallery" id="drawerGalleryBtn"><i class="fa-solid fa-camera"></i>
+                                    포토갤러리</a></li>
                         </ul>
                     </div>
 
                     <div class="nav-category">
                         <h4><i class="fa-solid fa-user-shield"></i> 관리자 기능</h4>
                         <ul>
-                            <li><a href="admin.html" target="_blank" id="drawerAdminBtn" style="color: #fcd34d; font-weight: 700;"><i class="fa-solid fa-lock" style="color: #fde047;"></i> 관리자 전용 센터 (새창)</a></li>
+                            <li><a href="admin.html" target="_blank" id="drawerAdminBtn"
+                                    style="color: #fcd34d; font-weight: 700;"><i class="fa-solid fa-lock"
+                                        style="color: #fde047;"></i> 관리자 전용 센터 (새창)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -737,59 +792,60 @@
 
     <!-- Firebase SDK & Initialization -->
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-      import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-      import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyCJJwNEthqInCknzzFqRLPmzH3VO4zJLXE",
-        authDomain: "our-class-web.firebaseapp.com",
-        projectId: "our-class-web",
-        storageBucket: "our-class-web.firebasestorage.app",
-        messagingSenderId: "194538455587",
-        appId: "1:194538455587:web:5060b134ff5c9fe30a2796",
-        measurementId: "G-FKTB139GVJ"
-      };
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJJwNEthqInCknzzFqRLPmzH3VO4zJLXE",
+            authDomain: "our-class-web.firebaseapp.com",
+            projectId: "our-class-web",
+            storageBucket: "our-class-web.firebasestorage.app",
+            messagingSenderId: "194538455587",
+            appId: "1:194538455587:web:5060b134ff5c9fe30a2796",
+            measurementId: "G-FKTB139GVJ"
+        };
 
-      try {
-        const app = initializeApp(firebaseConfig);
-        let analytics = null;
-        try { analytics = getAnalytics(app); } catch (ae) {}
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-        const auth = getAuth(app);
+        try {
+            const app = initializeApp(firebaseConfig);
+            let analytics = null;
+            try { analytics = getAnalytics(app); } catch (ae) { }
+            const db = getFirestore(app);
+            const storage = getStorage(app);
+            const auth = getAuth(app);
 
-        // 보안을 위해 브라우저 닫을 때 자동 로그아웃되는 세션 지속성 설정
-        setPersistence(auth, browserSessionPersistence).catch(err => console.warn("Auth persistence error:", err));
-        
-        window.firebaseApp = app;
-        window.firebaseAnalytics = analytics;
-        window.firebaseDb = db;
-        window.firebaseStorage = storage;
-        window.firebaseAuth = auth;
-        window.auth = auth;
-        window.db = db;
-        window.storage = storage;
+            // 보안을 위해 브라우저 닫을 때 자동 로그아웃되는 세션 지속성 설정
+            setPersistence(auth, browserSessionPersistence).catch(err => console.warn("Auth persistence error:", err));
 
-        window.doc = doc;
-        window.setDoc = setDoc;
-        window.getDoc = getDoc;
-        window.onSnapshot = onSnapshot;
+            window.firebaseApp = app;
+            window.firebaseAnalytics = analytics;
+            window.firebaseDb = db;
+            window.firebaseStorage = storage;
+            window.firebaseAuth = auth;
+            window.auth = auth;
+            window.db = db;
+            window.storage = storage;
 
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.signOut = signOut;
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.setPersistence = setPersistence;
-        window.browserSessionPersistence = browserSessionPersistence;
-        
-        console.log("🔥 Firebase & Firebase Auth initialized successfully!");
-      } catch (fe) {
-        console.warn("Firebase initialization skipped or failed:", fe);
-      }
+            window.doc = doc;
+            window.setDoc = setDoc;
+            window.getDoc = getDoc;
+            window.onSnapshot = onSnapshot;
+
+            window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+            window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+            window.signOut = signOut;
+            window.onAuthStateChanged = onAuthStateChanged;
+            window.setPersistence = setPersistence;
+            window.browserSessionPersistence = browserSessionPersistence;
+
+            console.log("🔥 Firebase & Firebase Auth initialized successfully!");
+        } catch (fe) {
+            console.warn("Firebase initialization skipped or failed:", fe);
+        }
     </script>
     <script src="app.js"></script>
 </body>
+
 </html>
