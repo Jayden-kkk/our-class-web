@@ -1119,199 +1119,7 @@ function initApp() {
         setInterval(() => fetchWeatherData(cachedLat, cachedLon), 600000);
     }
 
-    // 9. 양영중학교 실시간 8월 실제 급식 식단 데이터베이스 (이미지 원본 식단 100% 매핑)
-    const mealDatabase = [
-        {
-            dateKey: '2026-08-14',
-            dateStr: '2026년 8월 14일 (금) 🎂 [중식-생일축하의 날]',
-            type: '중식 (생일축하의 날)',
-            calories: '715 kcal',
-            nutrition: '단백질 29.5g | 칼슘 210mg',
-            origin: '배추김치(국내산), 쇠고기(한우)',
-            menu: [
-                '흰쌀밥(자율)',
-                '잔치국수 (01.05.06.07.09.13.18)',
-                '도토리묵무침 (05.06.13)',
-                '치즈돈까스+소스 (01.02.05.06.10.12.13.16.18)',
-                '배추김치 (09)',
-                '축하케익 (01.02.05.06.10)'
-            ],
-            img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-18',
-            dateStr: '2026년 8월 18일 (화) [중식-희망식단의 날]',
-            type: '중식 (희망식단의 날)',
-            calories: '690 kcal',
-            nutrition: '단백질 27.2g | 칼슘 185mg',
-            origin: '열무김치(국내산), 돼지고기(국내산)',
-            menu: [
-                '햄김치볶음밥 (01.02.05.06.09.10.13.15.16)',
-                '유부된장국 (05.06)',
-                '떡볶이 (01.05.06.13)',
-                '양념어묵꼬치 (01.05.06.13)',
-                '열무김치 (09)',
-                '수박 🍉'
-            ],
-            img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-19',
-            dateStr: '2026년 8월 19일 (수) [중식-희망식단의 날]',
-            type: '중식 (희망식단의 날)',
-            calories: '725 kcal',
-            nutrition: '단백질 31.0g | 칼슘 190mg',
-            origin: '배추김치(국내산), 돼지고기(국내산)',
-            menu: [
-                '흰쌀밥(자율)',
-                '물냉면 (01.03.05.06.13.16)',
-                '돼지갈비맛구이 (05.06.10.13.15.16)',
-                '야채튀김 (01.05.06.18)',
-                '배추김치 (09)',
-                '식혜'
-            ],
-            img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-20',
-            dateStr: '2026년 8월 20일 (목) [중식]',
-            type: '중식',
-            calories: '650 kcal',
-            nutrition: '단백질 28.0g | 칼슘 195mg',
-            origin: '섞박지(국내산), 쇠고기(한우)',
-            menu: [
-                '칼슘기장밥',
-                '쇠고기감자국 (05.06.09.13.16)',
-                '숙주나물무침 (05)',
-                '순대볶음(들깨) (02.05.06.10.13.16)',
-                '섞박지 (09)',
-                '아이스망고 🥭'
-            ],
-            img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-21',
-            dateStr: '2026년 8월 21일 (금) [중식-국 없는 날]',
-            type: '중식 (국 없는 날)',
-            calories: '710 kcal',
-            nutrition: '단백질 30.5g | 칼슘 220mg',
-            origin: '배추김치(국내산), 쇠고기(한우)',
-            menu: [
-                '카레라이스(소고기) (02.05.06.13.16.18)',
-                '뮤즐리샐러드 (01.02.05.06.13)',
-                '치즈오믈렛+소시지구이 (01.02.05.06.10.15.16)',
-                '배추김치 (09)',
-                '요구르트 (02)'
-            ],
-            img: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-24',
-            dateStr: '2026년 8월 24일 (월) [중식]',
-            type: '중식',
-            calories: '670 kcal',
-            nutrition: '단백질 26.5g | 칼슘 180mg',
-            origin: '열무김치(국내산), 주꾸미(원양산)',
-            menu: [
-                '혼합잡곡밥 (05)',
-                '조랭이떡국 (01.05.06.16)',
-                '주꾸미당면볶음 (05.06.13)',
-                '군만두 (01.02.05.06.10.16.18)',
-                '열무김치 (09)',
-                '아이스홍시(40)'
-            ],
-            img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-25',
-            dateStr: '2026년 8월 25일 (화) [중식]',
-            type: '중식',
-            calories: '685 kcal',
-            nutrition: '단백질 29.0g | 칼슘 190mg',
-            origin: '배추김치(국내산), 돼지고기(국내산)',
-            menu: [
-                '흑미밥',
-                '콩나물국 (05.06.09.13)',
-                '상추+오이+쌈장 (05.06.13)',
-                '돼지고기고추장불고기 (05.06.10.13.18)',
-                '배추김치 (09)',
-                '레몬에이드 🍋'
-            ],
-            img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-26',
-            dateStr: '2026년 8월 26일 (수) [중식-희망식단의 날]',
-            type: '중식 (희망식단의 날)',
-            calories: '740 kcal',
-            nutrition: '단백질 33.0g | 칼슘 215mg',
-            origin: '깍두기(국내산), 닭고기(국내산)',
-            menu: [
-                '치킨마요덮밥 (01.05.06.13.15)',
-                '유부콩나물국 (05)',
-                '게맛살오이무침 (01.05.06.08.13)',
-                '김말이범벅 (01.05.06.12.13.16)',
-                '깍두기 (09)',
-                '샤인머스캣 🍇'
-            ],
-            img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-27',
-            dateStr: '2026년 8월 27일 (목) [중식]',
-            type: '중식',
-            calories: '665 kcal',
-            nutrition: '단백질 28.5g | 칼슘 185mg',
-            origin: '열무김치(국내산), 돼지고기(국내산)',
-            menu: [
-                '차조밥',
-                '참치김치찌개 (05.06.09.13)',
-                '돼지고기짜장볶음 (02.05.06.10.13.16)',
-                '애호박볶음 (05)',
-                '열무김치 (09)',
-                '파인애플 🍍'
-            ],
-            img: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-28',
-            dateStr: '2026년 8월 28일 (금) [중식]',
-            type: '중식',
-            calories: '655 kcal',
-            nutrition: '단백질 27.0g | 칼슘 205mg',
-            origin: '오이김치(국내산), 고등어(국내산)',
-            menu: [
-                '찰보리밥',
-                '근대된장국 (05.06)',
-                '고등어조림 (05.06.07.13)',
-                '스크램블에그 (01.02.05.10.13)',
-                '오이김치 (09)',
-                '딸기우유 (02) 🍓'
-            ],
-            img: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=400&auto=format&fit=crop'
-        },
-        {
-            dateKey: '2026-08-31',
-            dateStr: '2026년 8월 31일 (월) [중식]',
-            type: '중식',
-            calories: '680 kcal',
-            nutrition: '단백질 29.8g | 칼슘 190mg',
-            origin: '배추김치(국내산), 닭고기(국내산)',
-            menu: [
-                '현미밥',
-                '도토리묵묵사발국 (01.05.06.09.13.16)',
-                '브로콜리땅콩마요무침 (01.02.04.05.06.13)',
-                '닭갈비 (02.05.06.12.13.15.16)',
-                '배추김치 (09)',
-                '두유 (05)'
-            ],
-            img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=400&auto=format&fit=crop'
-        }
-    ];
-
-    let currentMealIdx = 0;
-
-    // 나이스 Open API 식단 캐시 및 연동 함수
+    // 9. 양영중학교 나이스(NEIS) Open API 실시간 급식 식단 연동
     const neisMealCache = {};
 
     function parseNeisNutrition(ntrStr) {
@@ -1324,7 +1132,7 @@ function initApp() {
     }
 
     function formatNeisOrigin(orplcStr) {
-        if (!orplcStr) return '배추김치(국내산), 쇠고기(한우)';
+        if (!orplcStr) return '원산지 정보 참조';
         return orplcStr.split('<br/>').map(s => s.trim()).filter(s => s && !s.startsWith('비고')).slice(0, 2).join(', ');
     }
 
@@ -1335,7 +1143,7 @@ function initApp() {
     }
 
     async function fetchNeisMealForDate(ymdStr) {
-        if (neisMealCache[ymdStr]) {
+        if (neisMealCache[ymdStr] !== undefined) {
             return neisMealCache[ymdStr];
         }
 
@@ -1361,7 +1169,7 @@ function initApp() {
 
                 const mealObj = {
                     dateKey: ymdStr,
-                    dateStr: `${year}년 ${month}월 ${day}일 (${dayOfWeek}) [${mealType}]`,
+                    dateStr: `${year}년 ${month}월 ${day}일 (${dayOfWeek})`,
                     type: `${mealType} (나이스 API)`,
                     calories: row.CAL_INFO ? row.CAL_INFO.trim() : '- kcal',
                     nutrition: parseNeisNutrition(row.NTR_INFO),
@@ -1374,25 +1182,15 @@ function initApp() {
                 return mealObj;
             }
         } catch (e) {
-            console.log('NEIS Open API 연동 수신 오류 또는 네트워크 오프라인:', ymdStr, e);
+            console.log('NEIS Open API 연동 수신 오류 또는 오프라인:', ymdStr, e);
         }
 
-        // 8월 18일 이후라도 NEIS API 응답이 없을 경우(주말/공휴일) 하드코딩 DB 폴백
-        const fallback = mealDatabase.find(m => m.dateKey === ymdStr);
-        if (fallback) return fallback;
-
+        neisMealCache[ymdStr] = null;
         return null;
     }
 
     async function getMealForDateKey(ymdStr) {
-        if (ymdStr >= '2026-08-18') {
-            const neisMeal = await fetchNeisMealForDate(ymdStr);
-            if (neisMeal) return neisMeal;
-        }
-
-        // 정확한 날짜 일치만 조회 (없는 날짜/공휴일은 null 반환)
-        const localFound = mealDatabase.find(m => m.dateKey === ymdStr);
-        return localFound || null;
+        return await fetchNeisMealForDate(ymdStr);
     }
 
     function getTodayDateStr() {
