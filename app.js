@@ -1311,112 +1311,245 @@ function initApp() {
 
     let currentMealIdx = 0;
 
-    // 9월 이후 나이스 Open API 실시간 조회
-    async function fetchNeisSeptemberMeal(ymdStr) {
-        const officeCode = 'J10';
-        const schoolCode = '7530177';
+    // 나이스 Open API 식단 캐시 및 연동 함수
+    const neisMealCache = {};
+
+    function parseNeisNutrition(ntrStr) {
+        if (!ntrStr) return '단백질 -g | 칼슘 -mg';
+        const proteinMatch = ntrStr.match(/단백질\([^\)]*\)\s*:\s*([\d.]+)/);
+        const calciumMatch = ntrStr.match(/칼슘\([^\)]*\)\s*:\s*([\d.]+)/);
+        const protein = proteinMatch ? proteinMatch[1] + 'g' : '-g';
+        const calcium = calciumMatch ? calciumMatch[1] + 'mg' : '-mg';
+        return `단백질 ${protein} | 칼슘 ${calcium}`;
+    }
+
+    function formatNeisOrigin(orplcStr) {
+        if (!orplcStr) return '배추김치(국내산), 쇠고기(한우)';
+        return orplcStr.split('<br/>').map(s => s.trim()).filter(s => s && !s.startsWith('비고')).slice(0, 2).join(', ');
+    }
+
+    function getKoreanDayOfWeek(dateStr) {
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const d = new Date(dateStr);
+        return days[d.getDay()] || '월';
+    }
+
+    async function fetchNeisMealForDate(ymdStr) {
+        if (neisMealCache[ymdStr]) {
+            return neisMealCache[ymdStr];
+        }
+
+        const apiKey = 'd15c6cf6e2784510ae1c34506efcbad5';
+        const officeCode = 'J10'; // 경기도교육청
+        const schoolCode = '7551028'; // 양영중학교
         const cleanYmd = ymdStr.replace(/-/g, '');
-        const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&pIndex=1&pSize=10&ATPT_OFCDC_SC_CODE=${officeCode}&SD_SCHUL_CODE=${schoolCode}&MLSV_YMD=${cleanYmd}`;
+        const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=${apiKey}&Type=json&pIndex=1&pSize=10&ATPT_OFCDC_SC_CODE=${officeCode}&SD_SCHUL_CODE=${schoolCode}&MLSV_YMD=${cleanYmd}`;
 
         try {
             const res = await fetch(url);
             const data = await res.json();
             if (data.mealServiceDietInfo && data.mealServiceDietInfo[1] && data.mealServiceDietInfo[1].row) {
                 const row = data.mealServiceDietInfo[1].row[0];
-                const rawMenu = row.DDISH_NM.split('<br/>').map(str => str.trim());
-                return {
-                    dateStr: `${ymdStr.substring(0, 4)}년 ${ymdStr.substring(5, 7)}월 ${ymdStr.substring(8, 10)}일`,
-                    type: `${row.MMEAL_SC_NM || '중식'} (나이스 API)`,
-                    calories: row.CAL_INFO || '- kcal',
-                    menu: rawMenu
+                const rawMenu = row.DDISH_NM.split('<br/>').map(str => str.trim()).filter(Boolean);
+                
+                const parts = ymdStr.split('-');
+                const year = parts[0];
+                const month = parseInt(parts[1], 10);
+                const day = parseInt(parts[2], 10);
+                const dayOfWeek = getKoreanDayOfWeek(ymdStr);
+                const mealType = row.MMEAL_SC_NM || '중식';
+                
+                const mealObj = {
+                    dateKey: ymdStr,
+                    dateStr: `${year}년 ${month}월 ${day}일 (${dayOfWeek}) [${mealType}]`,
+                    type: `${mealType} (나이스 API)`,
+                    calories: row.CAL_INFO ? row.CAL_INFO.trim() : '- kcal',
+                    nutrition: parseNeisNutrition(row.NTR_INFO),
+                    origin: formatNeisOrigin(row.ORPLC_INFO),
+                    menu: rawMenu,
+                    img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=400&auto=format&fit=crop'
                 };
+
+                neisMealCache[ymdStr] = mealObj;
+                return mealObj;
             }
         } catch (e) {
-            console.log('NEIS September API Sync Status: Offline / Break');
+            console.log('NEIS Open API 연동 수신 오류 또는 네트워크 오프라인:', ymdStr, e);
         }
+
+        // 8월 18일 이후라도 NEIS API 응답이 없을 경우(주말/공휴일) 하드코딩 DB 폴백
+        const fallback = mealDatabase.find(m => m.dateKey === ymdStr);
+        if (fallback) return fallback;
+
         return null;
     }
 
-    let mealPairMode = 0; // 0 = 오늘 급식, 1 = 내일 급식
+    async function getMealForDateKey(ymdStr) {
+        if (ymdStr >= '2026-08-18') {
+            const neisMeal = await fetchNeisMealForDate(ymdStr);
+            if (neisMeal) return neisMeal;
+        }
+        
+        // 정확한 날짜 일치만 조회 (없는 날짜/공휴일은 null 반환)
+        const localFound = mealDatabase.find(m => m.dateKey === ymdStr);
+        return localFound || null;
+    }
 
-    function getTodayAndTomorrowMeals() {
+    function getTodayDateStr() {
         const today = new Date();
         const YYYY = today.getFullYear();
         const MM = String(today.getMonth() + 1).padStart(2, '0');
         const DD = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${YYYY}-${MM}-${DD}`;
+        return `${YYYY}-${MM}-${DD}`;
+    }
 
-        let todayIdx = 0;
-        if (todayStr >= '2026-08-14') {
-            const found = mealDatabase.findIndex(m => m.dateKey >= todayStr);
-            if (found !== -1) todayIdx = found;
-            else todayIdx = mealDatabase.length - 1;
+    function getCurrentWeekDays() {
+        const today = new Date();
+        const dayOfWeek = today.getDay(); // 0:Sun, 1:Mon, ..., 6:Sat
+        let distanceToMon = 1 - dayOfWeek;
+        if (dayOfWeek === 0) distanceToMon = -6; // 일요일이면 지난 월요일로
+
+        const monday = new Date(today);
+        monday.setDate(today.getDate() + distanceToMon);
+
+        const weekDays = [];
+        const koreanDays = ['일', '월', '화', '수', '목', '금', '토'];
+        const todayStr = getTodayDateStr();
+
+        for (let i = 0; i < 5; i++) {
+            const d = new Date(monday);
+            d.setDate(monday.getDate() + i);
+            const YYYY = d.getFullYear();
+            const MM = String(d.getMonth() + 1).padStart(2, '0');
+            const DD = String(d.getDate()).padStart(2, '0');
+            const dateKey = `${YYYY}-${MM}-${DD}`;
+            const dayName = koreanDays[d.getDay()];
+            const dateStr = `${YYYY}년 ${parseInt(MM, 10)}월 ${parseInt(DD, 10)}일 (${dayName})`;
+            weekDays.push({
+                dateKey,
+                dateStr,
+                dayName,
+                isToday: (dateKey === todayStr)
+            });
         }
+        return weekDays;
+    }
 
-        let tomorrowIdx = todayIdx + 1;
-        if (tomorrowIdx >= mealDatabase.length) tomorrowIdx = mealDatabase.length - 1;
+    let selectedMealDayIdx = -1; // 0:월, 1:화, 2:수, 3:목, 4:금 (-1은 미초기화)
 
-        return {
-            todayMeal: mealDatabase[todayIdx],
-            tomorrowMeal: mealDatabase[tomorrowIdx]
-        };
+    function resetMealSelectedDayToToday() {
+        const weekDays = getCurrentWeekDays();
+        const todayIdx = weekDays.findIndex(w => w.isToday);
+        if (todayIdx !== -1) {
+            selectedMealDayIdx = todayIdx;
+        } else {
+            selectedMealDayIdx = 0; // 주말(토/일)인 경우 월요일 선택
+        }
     }
 
     async function renderMealModalData() {
-        const pair = getTodayAndTomorrowMeals();
-        const meal = (mealPairMode === 0) ? pair.todayMeal : pair.tomorrowMeal;
-        const modeLabel = (mealPairMode === 0) ? '[오늘 급식]' : '[내일 급식]';
+        const weekDays = getCurrentWeekDays();
+        if (selectedMealDayIdx < 0 || selectedMealDayIdx >= 5) {
+            resetMealSelectedDayToToday();
+        }
+
+        const targetDay = weekDays[selectedMealDayIdx];
+        const meal = await getMealForDateKey(targetDay.dateKey);
 
         const dateTitle = document.getElementById('mealModalDateTitle');
-        const typeTag = document.getElementById('mealModalTypeTag');
         const menuBox = document.getElementById('mealModalMenuBox');
         const calories = document.getElementById('mealModalCalories');
         const nutrition = document.getElementById('mealModalNutrition');
+        const prevBtn = document.getElementById('mealModalPrevBtn');
+        const nextBtn = document.getElementById('mealModalNextBtn');
 
-        if (!meal) return;
-
-        let fullStr = `${modeLabel} ${meal.dateStr}`;
-        // 요일 ')' 뒤에서 내려쓰기하여 깔끔하게 2줄로 분리 렌더링 (포인트 골드 옐로우 #fde047 연동)
-        const match = fullStr.match(/^(.*?\)\s*)(.*)$/);
-        if (match && match[2].trim()) {
-            if (dateTitle) {
-                dateTitle.innerHTML = `<span style="display:block; font-size:12.5px; color:#ffffff; font-weight:700;">${match[1].trim()}</span><span style="display:block; font-size:11.5px; color:#fde047; margin-top:3px; font-weight:700;">${match[2].trim()}</span>`;
+        // 이전/다음 버튼 활성/비활성화 상태 업데이트
+        if (prevBtn) {
+            if (selectedMealDayIdx <= 0) {
+                prevBtn.disabled = true;
+                prevBtn.style.opacity = '0.35';
+                prevBtn.style.cursor = 'not-allowed';
+            } else {
+                prevBtn.disabled = false;
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
             }
-        } else {
-            if (dateTitle) dateTitle.innerHTML = `<span style="display:block; font-size:12.5px; color:#ffffff; font-weight:700;">${fullStr}</span>`;
         }
-        if (typeTag) typeTag.textContent = meal.type;
-        if (calories) calories.textContent = meal.calories;
 
+        if (nextBtn) {
+            if (selectedMealDayIdx >= 4) {
+                nextBtn.disabled = true;
+                nextBtn.style.opacity = '0.35';
+                nextBtn.style.cursor = 'not-allowed';
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.style.opacity = '1';
+                nextBtn.style.cursor = 'pointer';
+            }
+        }
+
+        // 4, 5. 날짜 타이틀 렌더링 ([중식] 제거, 오늘 날짜만 [오늘의 급식] 옐로우, 타 날짜는 흰색)
+        if (dateTitle) {
+            if (targetDay.isToday) {
+                dateTitle.innerHTML = `<span style="display:block; font-size:13.5px; color:#fde047; font-weight:700;">[오늘의 급식] ${targetDay.dateStr}</span>`;
+            } else {
+                dateTitle.innerHTML = `<span style="display:block; font-size:13.5px; color:#ffffff; font-weight:700;">${targetDay.dateStr}</span>`;
+            }
+        }
+
+        // 3. 식단 목록 또는 공휴일/식단 없음 처리 ("급식 정보가 없습니다.")
         if (menuBox) {
-            menuBox.innerHTML = `
-                <ul class="meal-menu-ul">
-                    ${meal.menu.map(item => `<li><i class="fa-solid fa-check"></i> ${item}</li>`).join('')}
-                </ul>
-            `;
+            if (meal && meal.menu && meal.menu.length > 0) {
+                menuBox.innerHTML = `
+                    <ul class="meal-menu-ul">
+                        ${meal.menu.map(item => `<li><i class="fa-solid fa-check"></i> ${item}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                menuBox.innerHTML = `
+                    <div style="padding:28px 10px; text-align:center; background:rgba(15,23,42,0.4); border-radius:10px; border:1px dashed rgba(255,255,255,0.12); margin:10px 0;">
+                        <i class="fa-solid fa-utensils" style="font-size:24px; color:#f59e0b; margin-bottom:8px; display:block;"></i>
+                        <span style="font-size:13px; color:#cbd5e1; font-weight:600;">급식 정보가 없습니다.</span>
+                    </div>
+                `;
+            }
         }
 
-        // 메인 화면 식단 위젯 동시 업데이트 (오늘 급식 기준)
+        if (calories) {
+            calories.textContent = (meal && meal.calories) ? meal.calories : '- kcal';
+        }
+
+        // 메인 화면 식단 위젯 동시 업데이트 (오늘 날짜 기준)
+        const todayDayObj = weekDays.find(w => w.isToday) || weekDays[0];
+        const todayMeal = await getMealForDateKey(todayDayObj.dateKey);
         const mealDateTag = document.getElementById('mealDateTag');
         const mealItemsBox = document.getElementById('mealItemsBox');
-        if (mealDateTag) mealDateTag.textContent = `${pair.todayMeal.dateKey} (오늘 급식)`;
+
+        if (mealDateTag) mealDateTag.textContent = `${todayDayObj.dateKey} (오늘 급식)`;
         if (mealItemsBox) {
-            mealItemsBox.innerHTML = `
-                <ul class="meal-menu-list">
-                    ${pair.todayMeal.menu.slice(0, 5).map(item => `<li><i class="fa-solid fa-check"></i> ${item}</li>`).join('')}
-                </ul>
-            `;
+            if (todayMeal && todayMeal.menu && todayMeal.menu.length > 0) {
+                mealItemsBox.innerHTML = `
+                    <ul class="meal-menu-list">
+                        ${todayMeal.menu.slice(0, 5).map(item => `<li><i class="fa-solid fa-check"></i> ${item}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                mealItemsBox.innerHTML = `
+                    <div class="meal-empty-box">
+                        <i class="fa-solid fa-circle-exclamation"></i>급식 정보가 없습니다.
+                    </div>
+                `;
+            }
         }
 
-        // 하단 영양성분 / 칼로리 및 알레르기 안내 영역 재구성 (통일된 골드 앰버 포인트 컬러 적용)
+        // 7, 8, 9. 칼로리 전용 표기, 단일 디바이드 구분선, 알레르기 박스 및 출처 안내문구
         if (nutrition) {
-            const calText = meal.calories || '740 kcal';
-            const nutText = meal.nutrition || '단백질 33.0g | 칼슘 215mg';
+            const calText = (meal && meal.calories) ? meal.calories : '- kcal';
             nutrition.innerHTML = `
-                <div style="margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15);">
-                    <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:6px 10px; border-radius:8px; margin-bottom:8px;">
-                        <span style="font-size:11.5px; color:#fde047; font-weight:700;"><i class="fa-solid fa-fire-flame-curved"></i> 칼로리 & 영양:</span>
-                        <span style="font-size:11.5px; color:#f8fafc; font-weight:700;">${calText} (${nutText})</span>
+                <div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:7px 12px; border-radius:8px; margin-bottom:8px;">
+                        <span style="font-size:11.5px; color:#fde047; font-weight:700;"><i class="fa-solid fa-fire-flame-curved"></i> 총 칼로리:</span>
+                        <span style="font-size:11.5px; color:#f8fafc; font-weight:700;">${calText}</span>
                     </div>
                     <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:8px;">
                         <div style="font-size:10.5px; color:#fde047; font-weight:700; margin-bottom:3px;"><i class="fa-solid fa-circle-info"></i> 알레르기 유발 식품 번호 안내</div>
@@ -1424,13 +1557,16 @@ function initApp() {
                             1.난류 2.우유 3.메밀 4.땅콩 5.대두 6.밀 7.고등어 8.게 9.새우 10.돼지고기 11.복숭아 12.토마토 13.아황산류 14.호두 15.닭고기 16.쇠고기 17.오징어 18.조개류(굴, 전복, 홍합 포함) 19.잣
                         </p>
                     </div>
+                    <div style="margin-top:8px; text-align:center; font-size:10px; color:#94a3b8;">
+                        본 급식 정보는 나이스 Open API를 활용하였습니다.
+                    </div>
                 </div>
             `;
         }
     }
 
     function initAutoMealDate() {
-        mealPairMode = 0; // 오늘 급식 기본 선택
+        resetMealSelectedDayToToday();
         renderMealModalData();
     }
 
@@ -1444,7 +1580,7 @@ function initApp() {
 
     function openMealModal() {
         if (mealModal && mealBackdrop) {
-            mealPairMode = 0; // 모달을 닫고 다시 열면 항상 가장 최신(오늘 급식) 탭으로 자동 초기화
+            resetMealSelectedDayToToday(); // 모달을 열 때 오늘 요일로 자동 초기화
             renderMealModalData();
             pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
@@ -1472,15 +1608,19 @@ function initApp() {
 
     if (mealModalPrevBtn) {
         mealModalPrevBtn.addEventListener('click', () => {
-            mealPairMode = 0; // 오늘 급식으로 전환
-            renderMealModalData();
+            if (selectedMealDayIdx > 0) {
+                selectedMealDayIdx--;
+                renderMealModalData();
+            }
         });
     }
 
     if (mealModalNextBtn) {
         mealModalNextBtn.addEventListener('click', () => {
-            mealPairMode = 1; // 내일 급식으로 전환
-            renderMealModalData();
+            if (selectedMealDayIdx < 4) {
+                selectedMealDayIdx++;
+                renderMealModalData();
+            }
         });
     }
 

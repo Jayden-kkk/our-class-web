@@ -1186,6 +1186,29 @@ body.theme-dark .meal-menu-list li {
     color: #e11d48;
     font-size: 11px;
 }
+.meal-empty-box {
+    padding: 14px 10px;
+    text-align: center;
+    color: #b45309;
+    font-size: 13px;
+    font-weight: 700;
+    background: rgba(245, 158, 11, 0.12);
+    border-radius: 8px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.meal-empty-box i {
+    color: #d97706;
+    margin-right: 6px;
+    font-size: 14px;
+}
+body.theme-dark .meal-empty-box {
+    color: #fde047;
+    background: rgba(245, 158, 11, 0.18);
+    border-color: rgba(245, 158, 11, 0.4);
+}
+body.theme-dark .meal-empty-box i {
+    color: #f59e0b;
+}
 .meal-illustration {
     display: flex;
     flex-direction: column;
@@ -2016,7 +2039,7 @@ body.theme-dark .meal-menu-list li {
     background: rgba(255, 255, 255, 0.08);
     padding: 6px 8px;
     border-radius: 10px;
-    margin: 8px 0;
+    margin: 8px 0 16px 0;
     border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .meal-modal-date-title {
@@ -2093,6 +2116,7 @@ body.theme-dark .meal-menu-list li {
     display: flex;
     gap: 12px;
     align-items: center;
+    margin-bottom: 16px;
 }
 .meal-menu-box {
     flex: 1;
@@ -2126,8 +2150,8 @@ body.theme-dark .meal-menu-list li {
 .meal-nutrition-info {
     font-size: 10.5px;
     color: rgba(255, 255, 255, 0.7);
-    margin-top: 10px;
-    padding-top: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
     border-top: 1px dashed rgba(255, 255, 255, 0.15);
 }
 
