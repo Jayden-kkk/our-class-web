@@ -377,7 +377,7 @@ function initApp() {
         if (savedConfig) {
             applyCustomizerConfig(savedConfig);
         }
-    } catch (e) {}
+    } catch (e) { }
 
     setupRemoteSync('app_customizer_config', (remoteData) => {
         if (remoteData) {
@@ -1351,14 +1351,14 @@ function initApp() {
             if (data.mealServiceDietInfo && data.mealServiceDietInfo[1] && data.mealServiceDietInfo[1].row) {
                 const row = data.mealServiceDietInfo[1].row[0];
                 const rawMenu = row.DDISH_NM.split('<br/>').map(str => str.trim()).filter(Boolean);
-                
+
                 const parts = ymdStr.split('-');
                 const year = parts[0];
                 const month = parseInt(parts[1], 10);
                 const day = parseInt(parts[2], 10);
                 const dayOfWeek = getKoreanDayOfWeek(ymdStr);
                 const mealType = row.MMEAL_SC_NM || '중식';
-                
+
                 const mealObj = {
                     dateKey: ymdStr,
                     dateStr: `${year}년 ${month}월 ${day}일 (${dayOfWeek}) [${mealType}]`,
@@ -1389,7 +1389,7 @@ function initApp() {
             const neisMeal = await fetchNeisMealForDate(ymdStr);
             if (neisMeal) return neisMeal;
         }
-        
+
         // 정확한 날짜 일치만 조회 (없는 날짜/공휴일은 null 반환)
         const localFound = mealDatabase.find(m => m.dateKey === ymdStr);
         return localFound || null;
@@ -2143,7 +2143,7 @@ function initApp() {
         // 보안 강화: 브라우저 종료 후 새 창으로 재접속 시 자동 로그아웃 수행
         if (!loggedInUser) {
             if (window.signOut && window.auth) {
-                window.signOut(window.auth).catch(() => {});
+                window.signOut(window.auth).catch(() => { });
             }
             if (adminLoginBox) adminLoginBox.style.display = 'block';
             if (adminDashboardBox) adminDashboardBox.style.display = 'none';
@@ -2331,7 +2331,7 @@ function initApp() {
                                 try {
                                     const valToStore = typeof remoteData === 'string' ? remoteData : JSON.stringify(remoteData);
                                     localStorage.setItem(key, valToStore);
-                                } catch (e) {}
+                                } catch (e) { }
                                 onDataReceived(remoteData);
                             }
                         }
@@ -2862,7 +2862,7 @@ function initApp() {
                 if (savedSupplyText.startsWith('"') && savedSupplyText.endsWith('"')) {
                     savedSupplyText = JSON.parse(savedSupplyText);
                 }
-            } catch (e) {}
+            } catch (e) { }
             if (typeof savedSupplyText === 'string') {
                 savedSupplyText = savedSupplyText
                     .replace(/^"(.*)"$/, '$1')
