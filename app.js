@@ -1543,16 +1543,48 @@ function initApp() {
         }
     }
 
+    // 클라이언트 기준 주간 시간표 일자 범위(월~금) 계산 함수
+    function getTimetableWeekRangeStr() {
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0(일), 1(월), 2(화), 3(수), 4(목), 5(금), 6(토)
+        let distanceToMonday = 1 - dayOfWeek;
+        if (dayOfWeek === 0) distanceToMonday = 1;
+        else if (dayOfWeek === 6) distanceToMonday = 2;
+
+        const monday = new Date(now);
+        monday.setDate(now.getDate() + distanceToMonday);
+
+        const friday = new Date(monday);
+        friday.setDate(monday.getDate() + 4);
+
+        const fmt = (d) => {
+            const yy = String(d.getFullYear()).slice(-2);
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yy}-${mm}-${dd}`;
+        };
+
+        return `${fmt(monday)} ~ ${fmt(friday)}`;
+    }
+
     // Firebase Cloud Functions API에서 양영중학교 1학년 6반 주간 시간표 불러오기
     async function loadYangYoungTimetable() {
         const tableWrapper = document.querySelector('.timetable-table-wrapper');
         const refreshBtn = document.getElementById('refresh-timetable-btn');
         const weekRangeTextEl = document.getElementById('week-range-text');
+        const loadingOverlay = document.getElementById('timetableLoadingOverlay');
 
-        // 로딩 시각 효과 (표 opacity 감소 & 새로고침 아이콘 회전)
+        // 로딩 초기에도 현재 주차 일자를 미리 표시
+        if (weekRangeTextEl) {
+            weekRangeTextEl.textContent = `일자: ${getTimetableWeekRangeStr()}`;
+        }
+
+        // 로딩 시각 효과 (표 숨김, 로딩 오버레이 연출 & 새로고침 아이콘 회전)
         if (tableWrapper) {
-            tableWrapper.style.transition = 'opacity 0.2s ease';
-            tableWrapper.style.opacity = '0.35';
+            tableWrapper.classList.add('is-loading');
+        }
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('active');
         }
         if (refreshBtn) {
             refreshBtn.classList.add('spinning');
@@ -1567,28 +1599,32 @@ function initApp() {
             const resJson = await response.json();
 
             if (resJson && resJson.success && resJson.schedule) {
-                if (resJson.currentWeekRange && weekRangeTextEl) {
-                    weekRangeTextEl.textContent = `일자: ${resJson.currentWeekRange}`;
+                if (weekRangeTextEl) {
+                    const rangeStr = resJson.currentWeekRange || getTimetableWeekRangeStr();
+                    weekRangeTextEl.textContent = `일자: ${rangeStr}`;
                 }
                 renderTimetableData(resJson.schedule);
                 console.log("🔥 양영중 1학년 6반 주간 시간표 수신 및 렌더링 성공:", resJson);
             } else {
                 console.warn("시간표 API 응답 실패 또는 형식 오류:", resJson);
                 if (weekRangeTextEl) {
-                    weekRangeTextEl.textContent = "일자: 수신 실패";
+                    weekRangeTextEl.textContent = `일자: ${getTimetableWeekRangeStr()}`;
                 }
                 alert("시간표 데이터를 불러오는 데 실패했습니다.");
             }
         } catch (error) {
             console.error("시간표 데이터를 불러오는 중 오류 발생:", error);
             if (weekRangeTextEl) {
-                weekRangeTextEl.textContent = "일자: 수신 실패";
+                weekRangeTextEl.textContent = `일자: ${getTimetableWeekRangeStr()}`;
             }
             alert("시간표 데이터를 불러오는 데 실패했습니다.");
         } finally {
-            // 로딩 시각 효과 해제 (opacity 복원 & 회전 중지)
+            // 로딩 시각 효과 해제 (표 표시, 로딩 오버레이 숨김 & 회전 중지)
             if (tableWrapper) {
-                tableWrapper.style.opacity = '1';
+                tableWrapper.classList.remove('is-loading');
+            }
+            if (loadingOverlay) {
+                loadingOverlay.classList.remove('active');
             }
             if (refreshBtn) {
                 refreshBtn.classList.remove('spinning');

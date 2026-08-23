@@ -194,7 +194,14 @@
                                 <span>새로고침</span>
                             </button>
                         </div>
-                        <div class="timetable-table-wrapper">
+                        <div class="timetable-table-wrapper" id="timetableTableWrapper">
+                            <div class="timetable-loading-overlay" id="timetableLoadingOverlay">
+                                <div class="timetable-loading-spinner-box">
+                                    <div class="timetable-spinner-ring"></div>
+                                    <span class="timetable-loading-text">시간표를 불러오는 중...</span>
+                                    <span class="timetable-loading-sub">컴시간 서버와 실시간 동기화 중</span>
+                                </div>
+                            </div>
                             <table class="comtime-table">
                                 <thead>
                                     <tr>

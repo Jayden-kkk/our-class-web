@@ -10,16 +10,24 @@ function formatDate(date) {
     return `${yy}-${mm}-${dd}`;
 }
 
+// KST (Asia/Seoul) 기준 현재 시각 반환
+function getKSTDate() {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (9 * 60 * 60000));
+}
+
 // 실제 수업일(월~금) 기준으로 주차 범위 계산
 function getCurrentWeekRange() {
-    const now = new Date();
-    const dayOfWeek = now.getDay();
-    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const kstNow = getKSTDate();
+    const dayOfWeek = kstNow.getDay(); // 0(일), 1(월), 2(화), 3(수), 4(목), 5(금), 6(토)
+    let distanceToMonday = 1 - dayOfWeek;
+    if (dayOfWeek === 0) distanceToMonday = 1;
+    else if (dayOfWeek === 6) distanceToMonday = 2;
 
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + distanceToMonday);
+    const monday = new Date(kstNow);
+    monday.setDate(kstNow.getDate() + distanceToMonday);
 
-    // 기존 +5(토요일)에서 +4(금요일)로 수정
     const friday = new Date(monday);
     friday.setDate(monday.getDate() + 4);
 
