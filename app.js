@@ -1328,7 +1328,7 @@ function initApp() {
             if (todayMeal && todayMeal.menu && todayMeal.menu.length > 0) {
                 mealItemsBox.innerHTML = `
                     <ul class="meal-menu-list">
-                        ${todayMeal.menu.slice(0, 5).map(item => `<li><i class="fa-solid fa-check"></i> ${item}</li>`).join('')}
+                        ${todayMeal.menu.map(item => `<li><i class="fa-solid fa-check"></i> ${item}</li>`).join('')}
                     </ul>
                 `;
             } else {
