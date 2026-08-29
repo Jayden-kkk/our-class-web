@@ -3231,7 +3231,22 @@ function initApp() {
 
         function handleInstallTrigger() {
             localStorage.setItem('pwa_shortcut_installed', 'true');
-            openIosModal();
+
+            const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.MSStream;
+
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        hideFloatingBanner();
+                    }
+                    deferredPrompt = null;
+                });
+            } else if (isIos) {
+                openIosModal();
+            } else {
+                openIosModal();
+            }
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
