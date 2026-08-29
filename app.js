@@ -3083,7 +3083,13 @@ function initApp() {
 
     // 7. PWA (홈 화면 바로가기 설치) 이벤트 및 UI 제어
     function setupPwaInstallLogic() {
+        if (window.location.search.includes('shortcut=1')) {
+            localStorage.setItem('pwa_shortcut_installed', 'true');
+        }
+
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const isShortcutInstalled = localStorage.getItem('pwa_shortcut_installed') === 'true';
+
         const pwaFloatingBanner = document.getElementById('pwaFloatingBanner');
         const btnPwaInstall = document.getElementById('btnPwaInstall');
         const btnPwaClose = document.getElementById('btnPwaClose');
@@ -3097,7 +3103,7 @@ function initApp() {
         let deferredPrompt = null;
 
         function showFloatingBanner() {
-            if (isStandalone || !pwaFloatingBanner) return;
+            if (isStandalone || isShortcutInstalled || !pwaFloatingBanner) return;
             const dismissed = localStorage.getItem('pwa_banner_dismissed');
             if (dismissed && (Date.now() - parseInt(dismissed, 10) < 3 * 24 * 60 * 60 * 1000)) {
                 return;
@@ -3216,6 +3222,7 @@ function initApp() {
         }
 
         function handleInstallTrigger() {
+            localStorage.setItem('pwa_shortcut_installed', 'true');
             if (isStandalone) {
                 alert('이미 바탕화면 바로가기로 실행 중입니다! 🎉');
                 return;
