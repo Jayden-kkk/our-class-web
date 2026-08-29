@@ -3235,12 +3235,6 @@ function initApp() {
         }
 
         function handleInstallTrigger() {
-            const installed = isStandalone || (localStorage.getItem('pwa_shortcut_installed') === 'true');
-            if (installed) {
-                alert('이미 바탕화면에 바로가기가 추가되어 있습니다! 🎉\n스마트폰 바탕화면의 [양영중 1-6] 아이콘을 통해 편리하게 접속해 주세요.');
-                return;
-            }
-
             localStorage.setItem('pwa_shortcut_installed', 'true');
             updateDrawerInstallButtonState();
 
