@@ -3102,19 +3102,6 @@ function initApp() {
 
         let deferredPrompt = null;
 
-        function updateDrawerInstallButtonState() {
-            if (!btnDrawerPwaInstall) return;
-            const installed = isStandalone || (localStorage.getItem('pwa_shortcut_installed') === 'true');
-            if (installed) {
-                btnDrawerPwaInstall.classList.add('installed');
-                btnDrawerPwaInstall.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#34d399;"></i> <span>바탕화면 바로가기 설치됨</span>`;
-            } else {
-                btnDrawerPwaInstall.classList.remove('installed');
-                btnDrawerPwaInstall.innerHTML = `<i class="fa-solid fa-mobile-screen-button"></i> <span>바탕화면에 바로가기 설치</span>`;
-            }
-        }
-        updateDrawerInstallButtonState();
-
         function showFloatingBanner() {
             if (isStandalone || isShortcutInstalled || !pwaFloatingBanner) return;
             const dismissed = localStorage.getItem('pwa_banner_dismissed');
@@ -3236,7 +3223,6 @@ function initApp() {
 
         function handleInstallTrigger() {
             localStorage.setItem('pwa_shortcut_installed', 'true');
-            updateDrawerInstallButtonState();
 
             if (deferredPrompt) {
                 deferredPrompt.prompt();
