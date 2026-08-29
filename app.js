@@ -1214,7 +1214,7 @@ function initApp() {
         const koreanDays = ['일', '월', '화', '수', '목', '금', '토'];
         const todayStr = getTodayDateStr();
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 7; i++) {
             const d = new Date(monday);
             d.setDate(monday.getDate() + i);
             const YYYY = d.getFullYear();
@@ -1233,7 +1233,7 @@ function initApp() {
         return weekDays;
     }
 
-    let selectedMealDayIdx = -1; // 0:월, 1:화, 2:수, 3:목, 4:금 (-1은 미초기화)
+    let selectedMealDayIdx = -1; // 0:월 ~ 6:일 (-1은 미초기화)
 
     function resetMealSelectedDayToToday() {
         const weekDays = getCurrentWeekDays();
@@ -1241,13 +1241,13 @@ function initApp() {
         if (todayIdx !== -1) {
             selectedMealDayIdx = todayIdx;
         } else {
-            selectedMealDayIdx = 0; // 주말(토/일)인 경우 월요일 선택
+            selectedMealDayIdx = 0;
         }
     }
 
     async function renderMealModalData() {
         const weekDays = getCurrentWeekDays();
-        if (selectedMealDayIdx < 0 || selectedMealDayIdx >= 5) {
+        if (selectedMealDayIdx < 0 || selectedMealDayIdx >= 7) {
             resetMealSelectedDayToToday();
         }
 
@@ -1275,7 +1275,7 @@ function initApp() {
         }
 
         if (nextBtn) {
-            if (selectedMealDayIdx >= 4) {
+            if (selectedMealDayIdx >= 6) {
                 nextBtn.disabled = true;
                 nextBtn.style.opacity = '0.35';
                 nextBtn.style.cursor = 'not-allowed';
@@ -1286,7 +1286,7 @@ function initApp() {
             }
         }
 
-        // 4, 5. 날짜 타이틀 렌더링 ([중식] 제거, 오늘 날짜만 [오늘의 급식] 옐로우, 타 날짜는 흰색)
+        // 날짜 타이틀 렌더링
         if (dateTitle) {
             if (targetDay.isToday) {
                 dateTitle.innerHTML = `<span style="display:block; font-size:13.5px; color:#fde047; font-weight:700;">[오늘의 급식] ${targetDay.dateStr}</span>`;
@@ -1295,7 +1295,7 @@ function initApp() {
             }
         }
 
-        // 3. 식단 목록 또는 공휴일/식단 없음 처리 ("급식 정보가 없습니다.")
+        // 식단 목록 또는 주말/공휴일/식단 없음 처리
         if (menuBox) {
             if (meal && meal.menu && meal.menu.length > 0) {
                 menuBox.innerHTML = `
@@ -1307,7 +1307,7 @@ function initApp() {
                 menuBox.innerHTML = `
                     <div style="padding:28px 10px; text-align:center; background:rgba(15,23,42,0.4); border-radius:10px; border:1px dashed rgba(255,255,255,0.12); margin:10px 0;">
                         <i class="fa-solid fa-utensils" style="font-size:24px; color:#f59e0b; margin-bottom:8px; display:block;"></i>
-                        <span style="font-size:13px; color:#cbd5e1; font-weight:600;">급식 정보가 없습니다.</span>
+                        <span style="font-size:13px; color:#cbd5e1; font-weight:600;">주말 및 공휴일입니다.</span>
                     </div>
                 `;
             }
@@ -1334,7 +1334,7 @@ function initApp() {
             } else {
                 mealItemsBox.innerHTML = `
                     <div class="meal-empty-box">
-                        <i class="fa-solid fa-circle-exclamation"></i>급식 정보가 없습니다.
+                        <i class="fa-solid fa-utensils"></i>주말 및 공휴일입니다.
                     </div>
                 `;
             }
@@ -1415,7 +1415,7 @@ function initApp() {
 
     if (mealModalNextBtn) {
         mealModalNextBtn.addEventListener('click', () => {
-            if (selectedMealDayIdx < 4) {
+            if (selectedMealDayIdx < 6) {
                 selectedMealDayIdx++;
                 renderMealModalData();
             }
@@ -2229,7 +2229,7 @@ function initApp() {
 
         // 첫 번째 활성화된 공지사항 인덱스 찾기
         const firstActiveIdx = noticesList.findIndex(n => n.active !== false);
-        const defaultIdx = (firstActiveIdx !== -1) ? firstActiveIdx : 0;
+        const defaultIdx = (firstActiveIdx !== -1) ? firstActiveIdx : null;
 
         const validIdx = (typeof selectedIdx === 'number' && !isNaN(selectedIdx)) ? selectedIdx : null;
         const initialIdx = (validIdx !== null && noticesList[validIdx] && noticesList[validIdx].active !== false)
@@ -2239,7 +2239,7 @@ function initApp() {
         const modalTabBar = document.getElementById('noticeModalTabBar');
         if (modalTabBar) {
             modalTabBar.innerHTML = noticesList.map((n, i) => `
-                <button type="button" class="notice-tab-btn ${i === initialIdx ? 'active' : ''}" data-notice-tab="${i}" ${!n.active ? 'disabled' : ''}>
+                <button type="button" class="notice-tab-btn ${(initialIdx !== null && i === initialIdx) ? 'active' : ''}" data-notice-tab="${i}" ${!n.active ? 'disabled' : ''}>
                     📌 공지 ${i + 1}
                 </button>
             `).join('');
@@ -2263,12 +2263,25 @@ function initApp() {
     }
 
     function showNoticeDetailInModal(idx) {
-        const notice = noticesList[idx];
-        if (!notice) return;
         const metaBar = document.getElementById('noticeModalMetaBar');
         const heading = document.getElementById('noticeModalHeading');
         const bodyText = document.getElementById('noticeModalBodyText');
 
+        if (idx === null || idx === undefined || !noticesList[idx] || noticesList[idx].active === false) {
+            if (metaBar) metaBar.innerHTML = '';
+            if (heading) heading.textContent = '';
+            if (bodyText) {
+                bodyText.innerHTML = `
+                    <div style="padding: 24px 16px; text-align: center; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1); margin-top: 10px;">
+                        <i class="fa-solid fa-bullhorn" style="font-size: 32px; color: #64748b; margin-bottom: 12px; display: block; opacity: 0.6;"></i>
+                        <p style="margin-bottom: 0; line-height: 1.4; color: #e2e8f0; font-size: 14px; font-weight: 600;">등록된 공지사항이 없습니다.</p>
+                    </div>
+                `;
+            }
+            return;
+        }
+
+        const notice = noticesList[idx];
         let badgeClass = 'red';
         let badgeText = '[중요 공지]';
         if (notice.tag === 'blue') { badgeClass = 'blue'; badgeText = '[학급 안내]'; }
