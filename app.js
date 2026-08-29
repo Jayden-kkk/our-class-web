@@ -503,7 +503,7 @@ function initApp() {
         if (modalCloseTimer) clearTimeout(modalCloseTimer);
         // 모달 닫힘 CSS 애니메이션(300ms)이 완전히 끝난 후 배경 롤링 및 트랜지션 해제 (닫을 때 깜빡임 완전 차단)
         modalCloseTimer = setTimeout(() => {
-            const activeModal = document.querySelector('.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active, .lightbox-modal.active, .drawer-menu.active, .admin-modal.active');
+            const activeModal = document.querySelector('.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active, .lightbox-modal.active, .drawer-menu.active, .admin-modal.active, .pwa-ios-modal.active');
             if (!activeModal) {
                 startHeroTimer();
                 if (typeof startPopupTimer === 'function') startPopupTimer();
@@ -695,7 +695,7 @@ function initApp() {
     }
 
     function resumeAllBackgroundTimers() {
-        const activeModal = document.querySelector('.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active, .lightbox-modal.active, .drawer-menu.active, .admin-modal.active');
+        const activeModal = document.querySelector('.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active, .lightbox-modal.active, .drawer-menu.active, .admin-modal.active, .pwa-ios-modal.active');
         if (!activeModal) {
             startHeroTimer();
             startPopupTimer();
@@ -3080,6 +3080,106 @@ function initApp() {
         if (statToday) statToday.innerHTML = `${todayVisits}<small>명</small>`;
     }
     trackAnalytics();
+
+    // 7. PWA (홈 화면 바로가기 설치) 이벤트 및 UI 제어
+    function setupPwaInstallLogic() {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const pwaFloatingBanner = document.getElementById('pwaFloatingBanner');
+        const btnPwaInstall = document.getElementById('btnPwaInstall');
+        const btnPwaClose = document.getElementById('btnPwaClose');
+        const btnDrawerPwaInstall = document.getElementById('btnDrawerPwaInstall');
+
+        const pwaIosBackdrop = document.getElementById('pwaIosBackdrop');
+        const pwaIosModal = document.getElementById('pwaIosModal');
+        const pwaIosClose = document.getElementById('pwaIosClose');
+        const btnPwaIosConfirm = document.getElementById('btnPwaIosConfirm');
+
+        let deferredPrompt = null;
+
+        function showFloatingBanner() {
+            if (isStandalone || !pwaFloatingBanner) return;
+            const dismissed = localStorage.getItem('pwa_banner_dismissed');
+            if (dismissed && (Date.now() - parseInt(dismissed, 10) < 3 * 24 * 60 * 60 * 1000)) {
+                return;
+            }
+            setTimeout(() => {
+                pwaFloatingBanner.classList.add('active');
+            }, 1200);
+        }
+
+        function hideFloatingBanner() {
+            if (pwaFloatingBanner) {
+                pwaFloatingBanner.classList.remove('active');
+            }
+        }
+
+        function openIosModal() {
+            if (pwaIosModal && pwaIosBackdrop) {
+                pauseAllBackgroundTimers();
+                requestAnimationFrame(() => {
+                    pwaIosModal.classList.add('active');
+                    pwaIosBackdrop.classList.add('active');
+                });
+            }
+        }
+
+        function closeIosModal() {
+            if (pwaIosModal && pwaIosBackdrop) {
+                pwaIosModal.classList.remove('active');
+                pwaIosBackdrop.classList.remove('active');
+                resumeAllBackgroundTimers();
+            }
+        }
+
+        function handleInstallTrigger() {
+            if (isStandalone) {
+                alert('이미 바탕화면 앱으로 실행 중입니다! 🎉');
+                return;
+            }
+
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        hideFloatingBanner();
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                openIosModal();
+            }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showFloatingBanner();
+        });
+
+        if (btnPwaInstall) {
+            btnPwaInstall.addEventListener('click', handleInstallTrigger);
+        }
+        if (btnDrawerPwaInstall) {
+            btnDrawerPwaInstall.addEventListener('click', () => {
+                closeDrawer();
+                handleInstallTrigger();
+            });
+        }
+        if (btnPwaClose) {
+            btnPwaClose.addEventListener('click', () => {
+                hideFloatingBanner();
+                localStorage.setItem('pwa_banner_dismissed', Date.now());
+            });
+        }
+        if (pwaIosClose) pwaIosClose.addEventListener('click', closeIosModal);
+        if (pwaIosBackdrop) pwaIosBackdrop.addEventListener('click', closeIosModal);
+        if (btnPwaIosConfirm) btnPwaIosConfirm.addEventListener('click', closeIosModal);
+
+        if (!isStandalone) {
+            showFloatingBanner();
+        }
+    }
+    setupPwaInstallLogic();
 
     // 멀티탭 및 어드민 실시간 데이터 동기화 리스너
     window.addEventListener('storage', (e) => {
