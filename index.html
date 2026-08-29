@@ -885,37 +885,22 @@
         </div>
     </div>
 
-    <!-- iOS 전용 PWA 설치 안내 모달 팝업 -->
+    <!-- PWA 바로가기 추가 안내 모달 팝업 (Android / iOS / 인앱 브라우저 동적 대응) -->
     <div class="pwa-ios-backdrop" id="pwaIosBackdrop"></div>
     <div class="pwa-ios-modal" id="pwaIosModal">
         <div class="pwa-ios-header">
             <div class="pwa-ios-title">
                 <i class="fa-solid fa-mobile-screen-button"></i>
-                <span>바탕화면에 바로가기 추가하기 (iOS)</span>
+                <span id="pwaIosTitleText">바탕화면에 바로가기 추가하기</span>
             </div>
             <button type="button" class="pwa-ios-close" id="pwaIosClose">&times;</button>
         </div>
         <div class="pwa-ios-body">
-            <p style="font-size:12.5px; color:#cbd5e1; margin-bottom:14px; line-height:1.4;">Safari 브라우저에서 아래 3단계를 순서대로 진행하시면 바탕화면에 바로가기 아이콘이 추가됩니다.</p>
-            <div class="pwa-ios-step-list">
-                <div class="pwa-ios-step-item">
-                    <span class="step-num">1</span>
-                    <div class="step-desc">
-                        하단 툴바의 <strong>공유 버튼 <i class="fa-solid fa-arrow-up-from-bracket" style="color:#38bdf8;"></i></strong> 을 클릭합니다.
-                    </div>
-                </div>
-                <div class="pwa-ios-step-item">
-                    <span class="step-num">2</span>
-                    <div class="step-desc">
-                        메뉴를 아래로 올려 <strong>'홈 화면에 추가 <i class="fa-solid fa-square-plus" style="color:#38bdf8;"></i>'</strong> 를 선택합니다.
-                    </div>
-                </div>
-                <div class="pwa-ios-step-item">
-                    <span class="step-num">3</span>
-                    <div class="step-desc">
-                        우측 상단의 <strong>'추가'</strong>를 누르면 바탕화면에 바로가기가 설치됩니다!
-                    </div>
-                </div>
+            <p style="font-size:12.5px; color:#cbd5e1; margin-bottom:14px; line-height:1.4;" id="pwaIosSubText">
+                사용 중이신 브라우저 메뉴에서 바로가기를 설치하실 수 있습니다.
+            </p>
+            <div class="pwa-ios-step-list" id="pwaIosStepList">
+                <!-- JS에서 사용자 기기/브라우저 환경(Android, iOS, 인앱)에 따라 동적 스텝 렌더링 -->
             </div>
             <button type="button" class="btn-pwa-ios-confirm" id="btnPwaIosConfirm">확인했습니다</button>
         </div>

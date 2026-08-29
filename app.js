@@ -3113,7 +3113,91 @@ function initApp() {
             }
         }
 
+        function renderPwaGuideModalContent() {
+            const ua = navigator.userAgent;
+            const isIos = /iPhone|iPad|iPod/i.test(ua) && !window.MSStream;
+            const isAndroid = /Android/i.test(ua);
+            const isInApp = /KAKAOTALK|NAVER|Line|FB_IAB|Instagram/i.test(ua);
+
+            const titleText = document.getElementById('pwaIosTitleText');
+            const subText = document.getElementById('pwaIosSubText');
+            const stepList = document.getElementById('pwaIosStepList');
+
+            if (!stepList) return;
+
+            if (isInApp) {
+                if (titleText) titleText.textContent = '바탕화면에 바로가기 추가하기';
+                if (subText) subText.textContent = '카카오톡/네이버 등 인앱 브라우저에서는 바로가기 추가가 제한될 수 있습니다.';
+                stepList.innerHTML = `
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">1</span>
+                        <div class="step-desc">우측 상단(또는 하단) <strong>메뉴 버튼 (⋮ 또는 •••)</strong>을 클릭합니다.</div>
+                    </div>
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">2</span>
+                        <div class="step-desc"><strong>'다른 브라우저로 열기 (Chrome 또는 Safari)'</strong>를 선택합니다.</div>
+                    </div>
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">3</span>
+                        <div class="step-desc">이동한 브라우저에서 '바탕화면에 바로가기 설치'를 누르면 완료됩니다!</div>
+                    </div>
+                `;
+            } else if (isIos) {
+                if (titleText) titleText.textContent = '바탕화면에 바로가기 추가하기 (iOS)';
+                if (subText) subText.textContent = 'Safari 브라우저에서 아래 3단계를 순서대로 진행하시면 아이콘이 추가됩니다.';
+                stepList.innerHTML = `
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">1</span>
+                        <div class="step-desc">하단 툴바의 <strong>공유 버튼 <i class="fa-solid fa-arrow-up-from-bracket" style="color:#38bdf8;"></i></strong> 을 클릭합니다.</div>
+                    </div>
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">2</span>
+                        <div class="step-desc">메뉴를 아래로 스크롤하여 <strong>'홈 화면에 추가 <i class="fa-solid fa-square-plus" style="color:#38bdf8;"></i>'</strong> 를 선택합니다.</div>
+                    </div>
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">3</span>
+                        <div class="step-desc">우측 상단의 <strong>'추가'</strong>를 누르면 바탕화면에 바로가기가 설치됩니다!</div>
+                    </div>
+                `;
+            } else if (isAndroid) {
+                if (titleText) titleText.textContent = '바탕화면에 바로가기 추가하기 (Android)';
+                if (subText) subText.textContent = '사용 중이신 브라우저 메뉴에서 손쉽게 바탕화면에 바로가기를 추가할 수 있습니다.';
+                stepList.innerHTML = `
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">1</span>
+                        <div class="step-desc">우측 상단(또는 하단) <strong>메뉴 버튼 (점 3개 ⋮ 또는 ☰)</strong>을 누릅니다.</div>
+                    </div>
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">2</span>
+                        <div class="step-desc"><strong>'홈 화면에 추가'</strong> 또는 <strong>'앱 설치 / 현재 페이지 추가'</strong>를 선택합니다.</div>
+                    </div>
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">3</span>
+                        <div class="step-desc"><strong>'추가'</strong> 버튼을 누르면 바탕화면에 바로가기가 생성됩니다!</div>
+                    </div>
+                `;
+            } else {
+                if (titleText) titleText.textContent = '바탕화면에 바로가기 추가하기';
+                if (subText) subText.textContent = '사용 중이신 웹 브라우저 메뉴에서 바탕화면 바로가기를 추가해 주세요.';
+                stepList.innerHTML = `
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">1</span>
+                        <div class="step-desc">주소창 우측 <strong>'설치' 아이콘(<i class="fa-solid fa-download" style="color:#38bdf8;"></i>)</strong> 또는 <strong>메뉴(⋮)</strong>를 클릭합니다.</div>
+                    </div>
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">2</span>
+                        <div class="step-desc"><strong>'홈 화면에 추가'</strong> 또는 <strong>'바로가기 만들기'</strong>를 선택합니다.</div>
+                    </div>
+                    <div class="pwa-ios-step-item">
+                        <span class="step-num">3</span>
+                        <div class="step-desc"><strong>'추가'</strong> 버튼을 누르면 바탕화면에 생성이 완료됩니다!</div>
+                    </div>
+                `;
+            }
+        }
+
         function openIosModal() {
+            renderPwaGuideModalContent();
             if (pwaIosModal && pwaIosBackdrop) {
                 pauseAllBackgroundTimers();
                 requestAnimationFrame(() => {
