@@ -3111,7 +3111,7 @@ function initApp() {
         function showFloatingBanner() {
             if (isStandalone || isShortcutInstalled || !pwaFloatingBanner) return;
             const dismissed = localStorage.getItem('pwa_banner_dismissed');
-            if (dismissed && (Date.now() - parseInt(dismissed, 10) < 3 * 24 * 60 * 60 * 1000)) {
+            if (dismissed && (Date.now() - parseInt(dismissed, 10) < 5 * 24 * 60 * 60 * 1000)) {
                 return;
             }
             setTimeout(() => {
