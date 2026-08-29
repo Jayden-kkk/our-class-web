@@ -3084,9 +3084,11 @@ function initApp() {
     // 7. PWA (홈 화면 바로가기 설치) 이벤트 및 UI 제어
     function setupPwaInstallLogic() {
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(err => {
-                console.log('PWA Service Worker reg skipped:', err);
-            });
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            }).catch(() => {});
         }
 
         if (window.location.search.includes('shortcut=1')) {
@@ -3229,18 +3231,7 @@ function initApp() {
 
         function handleInstallTrigger() {
             localStorage.setItem('pwa_shortcut_installed', 'true');
-
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        hideFloatingBanner();
-                    }
-                    deferredPrompt = null;
-                });
-            } else {
-                openIosModal();
-            }
+            openIosModal();
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
