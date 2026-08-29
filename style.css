@@ -4922,6 +4922,23 @@ body.modal-open .popup-carousel-track {
     color: #fde047;
 }
 
+.btn-drawer-pwa-install.installed {
+    background: rgba(52, 211, 153, 0.12);
+    border-color: rgba(52, 211, 153, 0.35);
+    color: #34d399;
+    box-shadow: none;
+}
+
+.btn-drawer-pwa-install.installed i {
+    color: #34d399;
+}
+
+.btn-drawer-pwa-install.installed:hover {
+    background: rgba(52, 211, 153, 0.2);
+    transform: none;
+    box-shadow: none;
+}
+
 /* 2. 하단 플로팅 배너 */
 .pwa-floating-banner {
     position: fixed;
