@@ -3083,6 +3083,12 @@ function initApp() {
 
     // 7. PWA (홈 화면 바로가기 설치) 이벤트 및 UI 제어
     function setupPwaInstallLogic() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => {
+                console.log('PWA Service Worker reg skipped:', err);
+            });
+        }
+
         if (window.location.search.includes('shortcut=1')) {
             localStorage.setItem('pwa_shortcut_installed', 'true');
         }
