@@ -3133,7 +3133,7 @@ function initApp() {
 
         function handleInstallTrigger() {
             if (isStandalone) {
-                alert('이미 바탕화면 앱으로 실행 중입니다! 🎉');
+                alert('이미 바탕화면 바로가기로 실행 중입니다! 🎉');
                 return;
             }
 
