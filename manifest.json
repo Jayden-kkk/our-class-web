@@ -3,7 +3,7 @@
   "short_name": "양영중 1-6",
   "description": "양영중학교 1학년 6반 학생 및 학부모를 위한 실시간 학급 포털 알리미입니다.",
   "start_url": "/?shortcut=1",
-  "display": "minimal-ui",
+  "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "orientation": "portrait",
