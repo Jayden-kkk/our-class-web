@@ -440,6 +440,10 @@
                         <img id="lightboxTargetImg" src="" alt="확대 이미지">
                         <div class="lightbox-caption-box">
                             <span id="lightboxCaptionText" class="lightbox-caption"></span>
+                            <button type="button" class="lightbox-download-btn" id="lightboxDownloadBtn" title="사진 다운로드" aria-label="사진 다운로드">
+                                <i class="fa-solid fa-download"></i>
+                                <span>다운로드</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -472,7 +476,7 @@
                                     <p><i class="fa-solid fa-pen-to-square"></i> 평가기간: 11월 10일(화) ~ 11월 12일(목)</p>
                                 </div>
                             </div>
-                            <!-- Slide 3: 학사일정 진짜 달력 & 주요 일정 리스트 (8월~12월 선택 가능) -->
+                            <!-- Slide 3: 학사일정 진짜 달력 & 주요 일정 리스트 (월별 자유 이동 가능) -->
                             <div class="carousel-slide"
                                 style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=1000&auto=format&fit=crop');">
                                 <div class="slide-caption slide-calendar-caption">
@@ -485,7 +489,9 @@
                                                     aria-label="이전 달">
                                                     <i class="fa-solid fa-chevron-left"></i>
                                                 </button>
-                                                <h3 class="mini-cal-title" id="heroCalMonthTitle">2026년 8월</h3>
+                                                <h3 class="mini-cal-title" id="heroCalMonthTitle"
+                                                    onclick="if(window.resetHeroCalToToday) window.resetHeroCalToToday(); event.stopPropagation();"
+                                                    title="클릭 시 이번 달로 바로 이동" style="cursor: pointer;">2026년 9월</h3>
                                                 <button type="button" class="mini-cal-nav-btn" id="heroCalNextBtn"
                                                     onclick="if(window.changeHeroCalMonth) window.changeHeroCalMonth(1); event.stopPropagation();"
                                                     aria-label="다음 달">

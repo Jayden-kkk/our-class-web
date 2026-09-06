@@ -17,11 +17,10 @@ function initApp() {
     setInterval(updateClock, 30000);
 
     // 메인 배너 슬라이드 1: 실시간 오늘 날짜 및 1초 주기 시계
+    let lastHeroDateStr = '';
     function updateHeroDateTime() {
         const heroDateText = document.getElementById('heroDateText');
         const heroClockText = document.getElementById('heroClockText');
-        const ddayCountText = document.getElementById('ddayCountText');
-        const slide2DdayTag = document.getElementById('slide2DdayTag');
 
         const now = new Date();
         const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -37,30 +36,55 @@ function initApp() {
         if (heroDateText) heroDateText.textContent = `${year}년 ${month}월 ${date}일 (${dayName})`;
         if (heroClockText) heroClockText.textContent = `${hrs}:${mins}:${secs}`;
 
-        // 11월 10일 1학년 지필고사 D-Day 동적 자동 계산
-        const examDate = new Date(year, 10, 10);
-        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const diffDays = Math.ceil((examDate - todayZero) / (1000 * 60 * 60 * 24));
-        const ddayStr = diffDays > 0 ? `D-${diffDays}` : (diffDays === 0 ? 'D-Day' : `D+${Math.abs(diffDays)}`);
-
-        if (ddayCountText) ddayCountText.textContent = ddayStr;
-        if (slide2DdayTag) slide2DdayTag.textContent = ddayStr;
+        // 자정 통과 등으로 날짜가 변경되었을 때 배너 시험 D-Day 및 달력 자동 갱신
+        const currentDateString = `${year}-${month}-${date}`;
+        if (lastHeroDateStr && lastHeroDateStr !== currentDateString) {
+            if (typeof renderExamUI === 'function') renderExamUI();
+            if (typeof renderHeroMiniCalendar === 'function') renderHeroMiniCalendar();
+        }
+        lastHeroDateStr = currentDateString;
     }
     updateHeroDateTime();
     setInterval(updateHeroDateTime, 1000);
 
-    // 메인 배너 슬라이드 3: 동적 8월~12월 인터랙티브 학사일정 달력 & 이벤터
-    let calCurrentYear = 2026;
-    let calCurrentMonth = 7; // 0-indexed (7 = 8월)
+    // 메인 배너 슬라이드 3: 동적 인터랙티브 학사일정 달력 & 이벤터
+    const initialCalDate = new Date();
+    let calCurrentYear = initialCalDate.getFullYear();
+    let calCurrentMonth = initialCalDate.getMonth(); // 0-indexed (8 = 9월)
 
     const schoolEventsData = {
+        0: [ // 1월
+            { date: '1/1(목)', name: '신정 (새해 첫날)', day: 1, color: 'red' }
+        ],
+        1: [ // 2월
+            { date: '2/16(월)~2/18(수)', name: '설날 연휴 🧧', day: 17, color: 'red' }
+        ],
+        2: [ // 3월
+            { date: '3/1(일)', name: '삼일절 (국경일)', day: 1, color: 'red' },
+            { date: '3/3(화)', name: '1학기 입학식 및 개학식 🌸', day: 3, color: 'green' }
+        ],
+        3: [ // 4월
+            { date: '4/30(목)', name: '1학기 지필평가 (중간고사)', day: 30, color: 'red' }
+        ],
+        4: [ // 5월
+            { date: '5/5(화)', name: '어린이날 (공휴일)', day: 5, color: 'red' },
+            { date: '5/24(일)', name: '부처님오신날', day: 24, color: 'red' }
+        ],
+        5: [ // 6월
+            { date: '6/6(토)', name: '현충일 (국경일)', day: 6, color: 'red' }
+        ],
+        6: [ // 7월
+            { date: '7/17(금)', name: '제헌절', day: 17, color: 'blue' },
+            { date: '7/21(화)', name: '여름방학식 🏖️', day: 21, color: 'green' }
+        ],
         7: [ // 8월
             { date: '8/14(금)', name: '2학기 개학식', day: 14, color: 'green' },
             { date: '8/15(토)', name: '광복절 (국경일)', day: 15, color: 'red' }
         ],
         8: [ // 9월
             { date: '9/24(목)', name: '추석 연휴 시작 🌕', day: 24, color: 'red' },
-            { date: '9/25(금)', name: '추석 연휴 🌕', day: 25, color: 'red' }
+            { date: '9/25(금)', name: '추석 연휴 🌕', day: 25, color: 'red' },
+            { date: '9/26(토)', name: '추석 연휴 🌕', day: 26, color: 'red' }
         ],
         9: [ // 10월
             { date: '10/3(토)', name: '개천절 (국경일)', day: 3, color: 'red' },
@@ -85,8 +109,7 @@ function initApp() {
         const calEventItems = document.getElementById('calEventItems');
         if (!calDaysGrid || !calMonthTitle) return;
 
-        const monthNames = { 7: '8월', 8: '9월', 9: '10월', 10: '11월', 11: '12월' };
-        calMonthTitle.textContent = `${calCurrentYear}년 ${monthNames[calCurrentMonth] || (calCurrentMonth + 1) + '월'}`;
+        calMonthTitle.textContent = `${calCurrentYear}년 ${calCurrentMonth + 1}월`;
 
         const firstDayIndex = new Date(calCurrentYear, calCurrentMonth, 1).getDay();
         const totalDays = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
@@ -95,14 +118,16 @@ function initApp() {
         const isCurrentMonthNow = (now.getFullYear() === calCurrentYear && now.getMonth() === calCurrentMonth);
         const todayDate = isCurrentMonthNow ? now.getDate() : -1;
 
-        const monthEvents = [...(schoolEventsData[calCurrentMonth] || [])];
+        const monthEvents = (calCurrentYear === 2026 && schoolEventsData[calCurrentMonth])
+            ? [...schoolEventsData[calCurrentMonth]]
+            : [];
 
         // 어드민에 등록된 활성 시험일정 날짜를 학사일정 및 달력 점(Dot)으로 자동 연동
         try {
             const savedExamList = JSON.parse(localStorage.getItem('app_exam_list') || 'null');
             const examList = (savedExamList && Array.isArray(savedExamList)) ? savedExamList : null;
             if (examList) {
-                examList.forEach(ex => {
+                examList.forEach((ex, exIdx) => {
                     if (ex.active !== false && ex.targetDate) {
                         const parts = ex.targetDate.split('-');
                         if (parts.length === 3) {
@@ -114,7 +139,9 @@ function initApp() {
                                     day: exDay,
                                     date: `${exMonth + 1}.${exDay}`,
                                     name: `📝 [시험] ${ex.title}`,
-                                    color: 'orange'
+                                    color: 'orange',
+                                    isExam: true,
+                                    examIdx: exIdx
                                 });
                             }
                         }
@@ -125,7 +152,16 @@ function initApp() {
             console.error(err);
         }
 
+        // 날짜순 정렬
+        monthEvents.sort((a, b) => a.day - b.day);
+
         const eventDays = monthEvents.map(e => e.day);
+        const examDaysMap = {};
+        monthEvents.forEach(e => {
+            if (e.isExam || e.name.includes('[시험]') || e.name.includes('지필고사') || e.name.includes('수행평가')) {
+                examDaysMap[e.day] = (typeof e.examIdx === 'number') ? e.examIdx : 0;
+            }
+        });
 
         let gridHtml = '';
         for (let i = 0; i < firstDayIndex; i++) {
@@ -140,7 +176,13 @@ function initApp() {
             if (day === todayDate) classNames += ' today';
             if (eventDays.includes(day)) classNames += ' has-event';
 
-            gridHtml += `<div class="${classNames}">${day}</div>`;
+            let dayAttr = '';
+            if (examDaysMap[day] !== undefined) {
+                classNames += ' is-exam-day';
+                dayAttr = ` onclick="if(window.openExamModal) window.openExamModal(${examDaysMap[day]}); event.stopPropagation();" title="시험일정 상세보기"`;
+            }
+
+            gridHtml += `<div class="${classNames}"${dayAttr}>${day}</div>`;
         }
 
         // 5주/6주에 관계없이 항상 6개 행(42개 셀) 고정 렌더링으로 높이 고정
@@ -156,12 +198,25 @@ function initApp() {
             if (monthEvents.length > 0) {
                 let eventsHtml = '';
                 monthEvents.forEach(evt => {
-                    eventsHtml += `
-                        <div class="event-item">
-                            <span class="event-date ${evt.color}">${evt.date}</span>
-                            <span class="event-name" title="${evt.name.replace(/"/g, '&quot;')}">${evt.name}</span>
-                        </div>
-                    `;
+                    const isClickableExam = evt.isExam || evt.name.includes('[시험]') || evt.name.includes('지필고사') || evt.name.includes('수행평가');
+                    const targetExamIdx = (typeof evt.examIdx === 'number') ? evt.examIdx : 0;
+
+                    if (isClickableExam) {
+                        eventsHtml += `
+                            <div class="event-item is-exam-clickable" onclick="if(window.openExamModal) window.openExamModal(${targetExamIdx}); event.stopPropagation();" title="클릭하여 시험일정 상세보기">
+                                <span class="event-date ${evt.color}">${evt.date}</span>
+                                <span class="event-name" title="${evt.name.replace(/"/g, '&quot;')}">${evt.name}</span>
+                                <i class="fa-solid fa-chevron-right event-arrow-icon"></i>
+                            </div>
+                        `;
+                    } else {
+                        eventsHtml += `
+                            <div class="event-item">
+                                <span class="event-date ${evt.color}">${evt.date}</span>
+                                <span class="event-name" title="${evt.name.replace(/"/g, '&quot;')}">${evt.name}</span>
+                            </div>
+                        `;
+                    }
                 });
                 calEventItems.innerHTML = eventsHtml;
             } else {
@@ -173,21 +228,31 @@ function initApp() {
     // 전역 바인딩 (HTML inline onclick 대응 & 슬라이드 자동 넘김 일시정지)
     window.changeHeroCalMonth = function (dir) {
         if (dir === -1) {
-            if (calCurrentMonth > 7) {
-                calCurrentMonth--;
-            } else {
+            calCurrentMonth--;
+            if (calCurrentMonth < 0) {
                 calCurrentMonth = 11;
+                calCurrentYear--;
             }
         } else if (dir === 1) {
-            if (calCurrentMonth < 11) {
-                calCurrentMonth++;
-            } else {
-                calCurrentMonth = 7;
+            calCurrentMonth++;
+            if (calCurrentMonth > 11) {
+                calCurrentMonth = 0;
+                calCurrentYear++;
             }
         }
         renderHeroMiniCalendar();
 
         // 달력 버튼을 조작하는 동안 자동 슬라이더 멈춤
+        if (typeof stopHeroTimer === 'function') {
+            stopHeroTimer();
+        }
+    };
+
+    window.resetHeroCalToToday = function () {
+        const now = new Date();
+        calCurrentYear = now.getFullYear();
+        calCurrentMonth = now.getMonth();
+        renderHeroMiniCalendar();
         if (typeof stopHeroTimer === 'function') {
             stopHeroTimer();
         }
@@ -1818,11 +1883,17 @@ function initApp() {
     const imageLightboxCloseBtn = document.getElementById('imageLightboxCloseBtn');
     const lightboxTargetImg = document.getElementById('lightboxTargetImg');
     const lightboxCaptionText = document.getElementById('lightboxCaptionText');
+    const lightboxDownloadBtn = document.getElementById('lightboxDownloadBtn');
+
+    let currentLightboxImgSrc = '';
+    let currentLightboxCaption = '';
 
     function openImageLightbox(imgSrc, caption = '') {
         if (imageLightboxModal && lightboxTargetImg) {
+            currentLightboxImgSrc = imgSrc;
+            currentLightboxCaption = caption || '1학년 6반 추억 사진';
             lightboxTargetImg.src = imgSrc;
-            if (lightboxCaptionText) lightboxCaptionText.textContent = caption || '1학년 6반 추억 사진';
+            if (lightboxCaptionText) lightboxCaptionText.textContent = currentLightboxCaption;
             pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 imageLightboxModal.classList.add('active');
@@ -1841,6 +1912,79 @@ function initApp() {
     if (imageLightboxCloseBtn) imageLightboxCloseBtn.addEventListener('click', closeImageLightbox);
     if (imageLightboxBackdrop) imageLightboxBackdrop.addEventListener('click', closeImageLightbox);
     if (lightboxTargetImg) lightboxTargetImg.addEventListener('click', closeImageLightbox);
+
+    async function downloadImageFile(url, filename) {
+        if (!url) return;
+
+        // 1. Data URL 직접 다운로드
+        if (url.startsWith('data:')) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename || '양영중1-6_추억사진.jpg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            return;
+        }
+
+        // 2. Blob fetch 다운로드 (Cross-Origin 다운로드 속성 강제 보장)
+        try {
+            const res = await fetch(url, { mode: 'cors' });
+            if (!res.ok) throw new Error('Fetch failed');
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename || '양영중1-6_추억사진.jpg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        } catch (fetchErr) {
+            console.warn('Blob download fallback:', fetchErr);
+            // 3. Fallback: a 태그 직접 다운로드 또는 새 창
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename || '양영중1-6_추억사진.jpg';
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+
+    if (lightboxDownloadBtn) {
+        lightboxDownloadBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!currentLightboxImgSrc) return;
+
+            const originalContent = lightboxDownloadBtn.innerHTML;
+            lightboxDownloadBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>저장 중...</span>`;
+            lightboxDownloadBtn.disabled = true;
+
+            try {
+                const cleanCaption = (currentLightboxCaption || '양영중1-6_추억사진')
+                    .replace(/[\\/:*?"<>|]/g, '_')
+                    .trim();
+                const filename = cleanCaption.endsWith('.jpg') || cleanCaption.endsWith('.png')
+                    ? cleanCaption
+                    : `${cleanCaption}.jpg`;
+
+                await downloadImageFile(currentLightboxImgSrc, filename);
+
+                lightboxDownloadBtn.innerHTML = `<i class="fa-solid fa-check"></i> <span>저장 완료!</span>`;
+                setTimeout(() => {
+                    lightboxDownloadBtn.innerHTML = originalContent;
+                    lightboxDownloadBtn.disabled = false;
+                }, 1600);
+            } catch (err) {
+                console.error('Download error:', err);
+                lightboxDownloadBtn.innerHTML = originalContent;
+                lightboxDownloadBtn.disabled = false;
+            }
+        });
+    }
 
     // 포토갤러리 및 시험일정, 모달 내 모든 이미지 터치/클릭 시 라이트박스 확대 팝업 오픈
     document.addEventListener('click', (e) => {
