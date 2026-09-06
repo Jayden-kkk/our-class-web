@@ -1893,7 +1893,10 @@ function initApp() {
             currentLightboxImgSrc = imgSrc;
             currentLightboxCaption = caption || '1학년 6반 추억 사진';
             lightboxTargetImg.src = imgSrc;
-            if (lightboxCaptionText) lightboxCaptionText.textContent = currentLightboxCaption;
+            if (lightboxCaptionText) {
+                lightboxCaptionText.textContent = currentLightboxCaption;
+                lightboxCaptionText.title = currentLightboxCaption;
+            }
             pauseAllBackgroundTimers();
             requestAnimationFrame(() => {
                 imageLightboxModal.classList.add('active');
@@ -1959,8 +1962,8 @@ function initApp() {
             e.stopPropagation();
             if (!currentLightboxImgSrc) return;
 
-            const originalContent = lightboxDownloadBtn.innerHTML;
-            lightboxDownloadBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>저장 중...</span>`;
+            const originalContent = '<i class="fa-solid fa-download"></i>';
+            lightboxDownloadBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
             lightboxDownloadBtn.disabled = true;
 
             try {
@@ -1973,9 +1976,11 @@ function initApp() {
 
                 await downloadImageFile(currentLightboxImgSrc, filename);
 
-                lightboxDownloadBtn.innerHTML = `<i class="fa-solid fa-check"></i> <span>저장 완료!</span>`;
+                lightboxDownloadBtn.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                lightboxDownloadBtn.setAttribute('title', '저장 완료!');
                 setTimeout(() => {
                     lightboxDownloadBtn.innerHTML = originalContent;
+                    lightboxDownloadBtn.setAttribute('title', '사진 다운로드');
                     lightboxDownloadBtn.disabled = false;
                 }, 1600);
             } catch (err) {
