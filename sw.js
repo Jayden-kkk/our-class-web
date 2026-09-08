@@ -1,5 +1,5 @@
 // PWA Service Worker for Yangyoung 1-6
-const CACHE_NAME = 'yangyoung-1-6-v3';
+const CACHE_NAME = 'yangyoung-1-6-v4';
 
 const PRECACHE_ASSETS = [
     './',
