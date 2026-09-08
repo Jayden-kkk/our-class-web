@@ -4,6 +4,69 @@
 
 function initApp() {
 
+    // --- Firebase Firestore & LocalStorage 이중 통합 저장 및 실시간 동기화 헬퍼 ---
+    const subscribedSyncKeys = new Set();
+
+    async function saveToRemoteAndLocal(key, data) {
+        try {
+            const valToStore = typeof data === 'string' ? data : JSON.stringify(data);
+            localStorage.setItem(key, valToStore);
+        } catch (e) {
+            console.warn(`LocalStorage save warning for ${key}:`, e);
+        }
+
+        try {
+            if (window.db && window.setDoc && window.doc) {
+                const docRef = window.doc(window.db, "class_portal", key);
+                await window.setDoc(docRef, { data: data, updatedAt: new Date().toISOString() });
+                console.log(`🔥 Firestore synced successfully for ${key}`);
+            }
+        } catch (e) {
+            console.warn(`Firestore sync error for ${key}:`, e);
+        }
+    }
+
+    function setupRemoteSync(key, onDataReceived) {
+        if (subscribedSyncKeys.has(key)) return;
+
+        let attempts = 0;
+        const maxAttempts = 80; // 최대 12초간 대기 (150ms 간격)
+
+        function trySubscribe() {
+            if (subscribedSyncKeys.has(key)) return;
+
+            if (window.db && window.doc && window.onSnapshot) {
+                subscribedSyncKeys.add(key);
+                try {
+                    const docRef = window.doc(window.db, "class_portal", key);
+                    window.onSnapshot(docRef, (snapshot) => {
+                        if (snapshot.exists()) {
+                            const remoteData = snapshot.data()?.data;
+                            if (remoteData !== undefined && remoteData !== null) {
+                                try {
+                                    const valToStore = typeof remoteData === 'string' ? remoteData : JSON.stringify(remoteData);
+                                    localStorage.setItem(key, valToStore);
+                                } catch (e) { }
+                                onDataReceived(remoteData);
+                            }
+                        }
+                    }, (err) => {
+                        console.warn(`Firestore snapshot listener error for ${key}:`, err);
+                    });
+                    console.log(`📡 Realtime sync successfully subscribed for ${key}`);
+                } catch (e) {
+                    subscribedSyncKeys.delete(key);
+                    console.warn(`Firestore subscribe error for ${key}:`, e);
+                }
+            } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(trySubscribe, 150);
+            }
+        }
+
+        trySubscribe();
+    }
+
     // 1. 실시간 시계 (모바일 프레임 상태바 & 메인 배너 슬라이드 1)
     function updateClock() {
         const timeEl = document.getElementById('statusTime');
@@ -2049,6 +2112,11 @@ function initApp() {
         window.open('admin.html', '_blank');
     }
 
+    function closeAdminModal() {
+        if (adminModal) adminModal.classList.remove('active');
+        if (adminBackdrop) adminBackdrop.classList.remove('active');
+    }
+
     if (drawerAdminBtn) drawerAdminBtn.addEventListener('click', (e) => {
         closeDrawer();
         openAdminModal();
@@ -2279,69 +2347,6 @@ function initApp() {
             reader.onerror = (err) => reject(err);
             reader.readAsDataURL(file);
         });
-    }
-
-    // --- Firebase Firestore & LocalStorage 이중 통합 저장 헬퍼 ---
-    async function saveToRemoteAndLocal(key, data) {
-        try {
-            const valToStore = typeof data === 'string' ? data : JSON.stringify(data);
-            localStorage.setItem(key, valToStore);
-        } catch (e) {
-            console.warn(`LocalStorage save warning for ${key}:`, e);
-        }
-
-        try {
-            if (window.db && window.setDoc && window.doc) {
-                const docRef = window.doc(window.db, "class_portal", key);
-                await window.setDoc(docRef, { data: data, updatedAt: new Date().toISOString() });
-                console.log(`🔥 Firestore synced successfully for ${key}`);
-            }
-        } catch (e) {
-            console.warn(`Firestore sync error for ${key}:`, e);
-        }
-    }
-
-    // --- Firestore 실시간 클라우드 동기화 구독 헬퍼 ---
-    const subscribedSyncKeys = new Set();
-    function setupRemoteSync(key, onDataReceived) {
-        if (subscribedSyncKeys.has(key)) return;
-
-        let attempts = 0;
-        const maxAttempts = 80; // 최대 12초간 대기 (150ms 간격)
-
-        function trySubscribe() {
-            if (subscribedSyncKeys.has(key)) return;
-
-            if (window.db && window.doc && window.onSnapshot) {
-                subscribedSyncKeys.add(key);
-                try {
-                    const docRef = window.doc(window.db, "class_portal", key);
-                    window.onSnapshot(docRef, (snapshot) => {
-                        if (snapshot.exists()) {
-                            const remoteData = snapshot.data()?.data;
-                            if (remoteData !== undefined && remoteData !== null) {
-                                try {
-                                    const valToStore = typeof remoteData === 'string' ? remoteData : JSON.stringify(remoteData);
-                                    localStorage.setItem(key, valToStore);
-                                } catch (e) { }
-                                onDataReceived(remoteData);
-                            }
-                        }
-                    }, (err) => {
-                        console.warn(`Firestore snapshot listener error for ${key}:`, err);
-                    });
-                    console.log(`📡 Realtime sync successfully subscribed for ${key}`);
-                } catch (e) {
-                    subscribedSyncKeys.delete(key);
-                    console.warn(`Firestore subscribe error for ${key}:`, e);
-                }
-            } else if (attempts < maxAttempts) {
-                attempts++;
-                setTimeout(trySubscribe, 150);
-            }
-        }
-
-        trySubscribe();
     }
 
     // --- 1. 공지사항 최대 3개 등록 및 메인/모달 UI 관리 ---
