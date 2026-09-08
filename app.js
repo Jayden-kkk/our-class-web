@@ -187,9 +187,10 @@ function initApp() {
 
         // 어드민에 등록된 활성 시험일정 날짜를 학사일정 및 달력 점(Dot)으로 자동 연동
         try {
-            const savedExamList = JSON.parse(localStorage.getItem('app_exam_list') || 'null');
-            const examList = (savedExamList && Array.isArray(savedExamList)) ? savedExamList : null;
-            if (examList) {
+            const examList = (typeof getExamListFromStorage === 'function')
+                ? getExamListFromStorage()
+                : JSON.parse(localStorage.getItem('app_exam_list') || 'null');
+            if (Array.isArray(examList)) {
                 examList.forEach((ex, exIdx) => {
                     if (ex.active !== false && ex.targetDate) {
                         const parts = ex.targetDate.split('-');
@@ -2199,9 +2200,9 @@ function initApp() {
 
     // --- 1. 공지사항 최대 3개 등록 및 메인/모달 UI 관리 ---
     const defaultNotices = [
-        { active: true, tag: 'red', tagText: '[중요 공지]', date: '2026. 08. 05', title: '안전하게 여름방학 즐기기! 🍉🏖️', body: '1학년 6반 학생 여러분, 즐겁고 보람찬 여름방학 기간 동안 건강과 안전을 최우선으로 지켜주시기 바랍니다!' },
-        { active: true, tag: 'blue', tagText: '[학급 안내]', date: '2026. 08. 01', title: '2학기 희망 도서 신청 안내 📚', body: '읽고 싶은 추천 도서 목록을 담임선생님께 제출해주세요.' },
-        { active: true, tag: 'green', tagText: '[방학 안내]', date: '2026. 07. 28', title: '여름방학 방과후 수강 안내 🎨', body: '방과후 강좌 수강생들은 시간표 및 교재를 미리 확인하시기 바랍니다.' }
+        { active: false, tag: 'red', tagText: '[중요 공지]', date: '2026. 08. 05', title: '안전하게 여름방학 즐기기! 🍉🏖️', body: '1학년 6반 학생 여러분, 즐겁고 보람찬 여름방학 기간 동안 건강과 안전을 최우선으로 지켜주시기 바랍니다!' },
+        { active: false, tag: 'blue', tagText: '[학급 안내]', date: '2026. 08. 18', title: '정보숙제', body: '정보 교과 과제를 기한 내에 제출해주세요.' },
+        { active: false, tag: 'green', tagText: '[학급 안내]', date: '2026. 08. 13', title: '전학생 안내', body: '새로 전학 온 친구를 따뜻하게 맞이해주세요.' }
     ];
 
     let noticesList = JSON.parse(localStorage.getItem('app_notices_list') || 'null');
@@ -2371,10 +2372,10 @@ function initApp() {
 
     const defaultExamList = [
         { active: true, title: '2026학년도 1차 지필고사', targetDate: '2026-11-10', period: '11월 10일(화) ~ 11월 12일(목)', imgSrc: '' },
-        { active: true, title: '2026학년도 영어듣기평가', targetDate: '2026-09-20', period: '9월 20일(목)', imgSrc: '' },
-        { active: true, title: '2학기 수행평가 안내', targetDate: '2026-10-15', period: '10월 15일(목) ~ 10월 18일(일)', imgSrc: '' },
-        { active: false, title: '2차 지필고사 (예정)', targetDate: '2026-12-15', period: '12월 15일(화) ~ 12월 18일(금)', imgSrc: '' },
-        { active: false, title: '시험 5', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
+        { active: false, title: '과학 수행평가 열평형', targetDate: '2026-09-07', period: '9월 7일', imgSrc: '' },
+        { active: false, title: '2학기 수행평가 안내', targetDate: '2026-10-15', period: '10월 15일(목) ~ 10월 18일(일)', imgSrc: '' },
+        { active: false, title: '2차 지필고사 (예정)', targetDate: '2026-12-03', period: '12월 3일(목) ~ 12월 18일(금)', imgSrc: '' },
+        { active: false, title: '시험 5', targetDate: '2026-12-17', period: '12월 17일부터 3일간', imgSrc: '' },
         { active: false, title: '시험 6', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
         { active: false, title: '시험 7', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
         { active: false, title: '시험 8', targetDate: '2026-12-20', period: '기간 미정', imgSrc: '' },
@@ -2435,14 +2436,27 @@ function initApp() {
     }
 
     function showExamDetailInModal(examIdx, examList) {
-        const exam = examList[examIdx];
-        if (!exam) return;
-
         const ddayBadge = document.getElementById('examModalDdayBadge');
         const titleText = document.getElementById('examModalTitleText');
         const periodText = document.getElementById('examModalPeriodText');
         const examSlot = document.getElementById('examImageSlot');
 
+        const activeExams = (Array.isArray(examList)) ? examList.filter(e => e.active !== false) : [];
+        if (examIdx === null || examIdx === undefined || activeExams.length === 0 || !examList || !examList[examIdx] || examList[examIdx].active === false) {
+            if (ddayBadge) ddayBadge.textContent = '-';
+            if (titleText) titleText.textContent = '현재 등록된 시험일정이 없습니다.';
+            if (periodText) periodText.textContent = '추후 공지';
+            if (examSlot) {
+                examSlot.innerHTML = `
+                    <div class="slot-placeholder" style="height:140px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>등록된 시험일정이 없습니다.</span>
+                    </div>`;
+            }
+            return;
+        }
+
+        const exam = examList[examIdx];
         const ddayStr = calculateDdayStr(exam.targetDate);
 
         if (ddayBadge) ddayBadge.textContent = ddayStr;
@@ -2550,19 +2564,31 @@ function initApp() {
                 });
             }
         }
-        showExamDetailInModal(initialIdx, examList);
 
-        // 3. 메인 배너 슬라이드 2 (D-Day 배너) - 가장 임박한 활성 시험 표출 (내용이 변경되었을 때만 DOM 업데이트)
-        const mainBannerExam = examList[defaultIdx] || defaultExamList[0];
-        const mainDdayStr = calculateDdayStr(mainBannerExam.targetDate);
+        if (activeExams.length === 0) {
+            showExamDetailInModal(null, examList);
+            const slide2H2 = document.querySelector('.carousel-slide:nth-child(2) h2');
+            const newH2Html = `등록된 시험일정 없음 <span class="dday-large-tag" id="slide2DdayTag">-</span>`;
+            if (slide2H2 && slide2H2.innerHTML !== newH2Html) slide2H2.innerHTML = newH2Html;
 
-        const slide2H2 = document.querySelector('.carousel-slide:nth-child(2) h2');
-        const newH2Html = `${mainBannerExam.title} <span class="dday-large-tag" id="slide2DdayTag">${mainDdayStr}</span>`;
-        if (slide2H2 && slide2H2.innerHTML !== newH2Html) slide2H2.innerHTML = newH2Html;
+            const slide2P = document.querySelector('.carousel-slide:nth-child(2) p');
+            const newPHtml = `<i class="fa-solid fa-calendar-check"></i> 예정된 시험일정이 없습니다.`;
+            if (slide2P && slide2P.innerHTML !== newPHtml) slide2P.innerHTML = newPHtml;
+        } else {
+            showExamDetailInModal(initialIdx, examList);
 
-        const slide2P = document.querySelector('.carousel-slide:nth-child(2) p');
-        const newPHtml = `<i class="fa-solid fa-pen-to-square"></i> 평가기간: ${mainBannerExam.period}`;
-        if (slide2P && slide2P.innerHTML !== newPHtml) slide2P.innerHTML = newPHtml;
+            // 3. 메인 배너 슬라이드 2 (D-Day 배너) - 가장 임박한 활성 시험 표출 (내용이 변경되었을 때만 DOM 업데이트)
+            const mainBannerExam = examList[defaultIdx] || defaultExamList[0];
+            const mainDdayStr = calculateDdayStr(mainBannerExam.targetDate);
+
+            const slide2H2 = document.querySelector('.carousel-slide:nth-child(2) h2');
+            const newH2Html = `${mainBannerExam.title} <span class="dday-large-tag" id="slide2DdayTag">${mainDdayStr}</span>`;
+            if (slide2H2 && slide2H2.innerHTML !== newH2Html) slide2H2.innerHTML = newH2Html;
+
+            const slide2P = document.querySelector('.carousel-slide:nth-child(2) p');
+            const newPHtml = `<i class="fa-solid fa-pen-to-square"></i> 평가기간: ${mainBannerExam.period || '추후 공지'}`;
+            if (slide2P && slide2P.innerHTML !== newPHtml) slide2P.innerHTML = newPHtml;
+        }
 
         // 4. 관리자 페이지(admin.html) 셀렉터 바 (#adminExamSelectorBar) 렌더링
         const adminSelectorBar = document.getElementById('adminExamSelectorBar');
@@ -2687,6 +2713,9 @@ function initApp() {
     setupRemoteSync('app_exam_list', (remoteData) => {
         if (Array.isArray(remoteData)) {
             renderExamUI();
+            if (typeof renderHeroMiniCalendar === 'function') {
+                renderHeroMiniCalendar();
+            }
         }
     });
 
@@ -2731,7 +2760,7 @@ function initApp() {
 
         const displayText = (savedSupplyText !== null && savedSupplyText !== undefined && savedSupplyText !== '')
             ? savedSupplyText
-            : '아직 방학이라 준비물이 없습니다! 🏖️';
+            : '준비물이 없습니다.';
 
         if (adminSupplyText && adminSupplyText.value !== displayText) {
             adminSupplyText.value = displayText;

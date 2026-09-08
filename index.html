@@ -293,48 +293,23 @@
                             <div class="notice-title">
                                 <i class="fa-solid fa-bullhorn"></i>
                                 <span>1학년 6반 공지사항</span>
-                                <span class="notice-count-badge" id="modalNoticeCountBadge">등록 3개</span>
+                                <span class="notice-count-badge" id="modalNoticeCountBadge">등록 0개</span>
                             </div>
                             <button class="notice-close-btn" id="noticeCloseBtn">&times;</button>
                         </div>
 
-                        <!-- 공지사항 3개 확인 탭 바 -->
+                        <!-- 공지사항 탭 바 -->
                         <div class="notice-modal-tab-bar" id="noticeModalTabBar">
-                            <button type="button" class="notice-tab-btn active" data-notice-tab="0">📌 공지 1</button>
-                            <button type="button" class="notice-tab-btn" data-notice-tab="1">📌 공지 2</button>
-                            <button type="button" class="notice-tab-btn" data-notice-tab="2">📌 공지 3</button>
+                            <span style="font-size:12px; color:#94a3b8;">등록된 공지사항이 없습니다.</span>
                         </div>
 
                         <div class="notice-card-content" id="noticeCardContent">
-                            <div class="notice-meta-bar" id="noticeModalMetaBar">
-                                <span class="notice-badge red"><i class="fa-solid fa-bell"></i> [중요 공지]</span>
-                                <span class="notice-date" id="noticeModalDate">2026. 08. 05</span>
-                            </div>
-                            <h3 class="notice-main-heading" id="noticeModalHeading">안전하게 여름방학 즐기기! 🍉🏖️</h3>
+                            <div class="notice-meta-bar" id="noticeModalMetaBar"></div>
+                            <h3 class="notice-main-heading" id="noticeModalHeading" style="display:none;"></h3>
                             <div class="notice-body-text" id="noticeModalBodyText">
-                                <p>1학년 6반 학생 여러분, 즐겁고 보람찬 여름방학 기간 동안 건강과 안전을 최우선으로 지켜주시기 바랍니다!</p>
-                                <div class="notice-rule-box">
-                                    <div class="rule-item">
-                                        <i class="fa-solid fa-water"></i>
-                                        <div>
-                                            <strong>1. 물놀이 안전 수칙 준수</strong>
-                                            <p>계곡, 바다, 수영장 방문 시 준비운동 필수! 구명조끼 착용 및 위급 상황 안전 수칙 준수</p>
-                                        </div>
-                                    </div>
-                                    <div class="rule-item">
-                                        <i class="fa-solid fa-person-biking"></i>
-                                        <div>
-                                            <strong>2. 교통 안전 및 킥보드 주의</strong>
-                                            <p>자전거/PM 이용 시 헬멧 필수 착용, 무단횡단 금지 및 야간 활동 주의</p>
-                                        </div>
-                                    </div>
-                                    <div class="rule-item">
-                                        <i class="fa-solid fa-book-open-reader"></i>
-                                        <div>
-                                            <strong>3. 규칙적인 생활 및 자율 학습</strong>
-                                            <p>충분한 수면과 자율 독서/학습으로 알찬 여름방학 보내기!</p>
-                                        </div>
-                                    </div>
+                                <div style="padding: 24px 16px; text-align: center; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1); margin-top: 10px;">
+                                    <i class="fa-solid fa-bullhorn" style="font-size: 32px; color: #64748b; margin-bottom: 12px; display: block; opacity: 0.6;"></i>
+                                    <p style="margin-bottom: 0; line-height: 1.4; color: #e2e8f0; font-size: 14px; font-weight: 600;">등록된 공지사항이 없습니다.</p>
                                 </div>
                             </div>
                         </div>
@@ -353,10 +328,10 @@
                             <button class="supply-close-btn" id="supplyCloseBtn">&times;</button>
                         </div>
                         <div class="supply-card-content">
-                            <div class="vacation-notice-box">
-                                <i class="fa-solid fa-umbrella-beach"></i>
-                                <h4>아직 방학이라 준비물이 없습니다! 🏖️</h4>
-                                <p>즐겁고 건강한 여름방학을 보내세요! 개학 후 준비물 목록이 업데이트됩니다.</p>
+                            <div class="vacation-notice-box" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3);">
+                                <i class="fa-solid fa-clipboard-check" style="color: #34d399; font-size: 28px; margin-bottom: 8px;"></i>
+                                <h4 style="color: #f8fafc; font-size: 14px; font-weight: 700; margin-bottom: 6px;">오늘의 준비물 안내</h4>
+                                <p style="white-space: pre-wrap; font-size: 12px; color: #e2e8f0; line-height: 1.5; margin: 0;">준비물이 없습니다.</p>
                             </div>
                         </div>
                     </div>
@@ -912,7 +887,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=20260909_03"></script>
+    <script src="app.js?v=20260909_04"></script>
 </body>
 
 </html>
