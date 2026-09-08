@@ -323,20 +323,6 @@ function initApp() {
 
     renderHeroMiniCalendar();
 
-    // 2. 실시간 커스터마이저 패널 제어
-    const customizerToggleBtn = document.getElementById('customizerToggleBtn');
-    const customizerPanel = document.getElementById('customizerPanel');
-    const panelCloseBtn = document.getElementById('panelCloseBtn');
-
-    if (customizerToggleBtn && customizerPanel) {
-        customizerToggleBtn.addEventListener('click', () => {
-            customizerPanel.classList.add('active');
-        });
-        panelCloseBtn.addEventListener('click', () => {
-            customizerPanel.classList.remove('active');
-        });
-    }
-
     // 2-1. 커스터마이저 설정 적용 헬퍼
     function applyCustomizerConfig(config) {
         if (!config) return;
@@ -512,32 +498,6 @@ function initApp() {
             applyCustomizerConfig(remoteData);
         }
     });
-
-    // 2-7. 초기화 버튼
-    const btnResetConfig = document.getElementById('btnResetConfig');
-    if (btnResetConfig) {
-        btnResetConfig.addEventListener('click', async () => {
-            if (inputSchoolName) {
-                inputSchoolName.value = '1학년 6반 알리미';
-                inputSchoolName.dispatchEvent(new Event('input'));
-            }
-            colorButtons[0].click();
-            viewButtons[0].click();
-            sectionToggles.forEach(t => {
-                t.checked = true;
-                t.dispatchEvent(new Event('change'));
-            });
-
-            const defaultConfig = {
-                viewMode: 'full',
-                theme: 'theme-blue',
-                schoolName: '1학년 6반 알리미',
-                hiddenSections: []
-            };
-            await saveToRemoteAndLocal('app_customizer_config', defaultConfig);
-            applyCustomizerConfig(defaultConfig);
-        });
-    }
 
     // 3. 사이드 드로어 메뉴 (Drawer Nav)
     const drawerOpenBtn = document.getElementById('drawerOpenBtn');
@@ -731,94 +691,9 @@ function initApp() {
         });
     });
 
-    // 7. 학사일정 월별 이벤트 변경 로직 (위젯 영역)
-    const calMonth = document.getElementById('calMonth');
-    const widgetCalPrevBtn = document.getElementById('widgetCalPrevBtn');
-    const widgetCalNextBtn = document.getElementById('widgetCalNextBtn');
-    const eventList = document.getElementById('eventList');
-
-    let currentMonthVal = 8;
-
-    const mockEvents = {
-        7: [
-            { day: '05', title: '1학기 2차 지필평가' },
-            { day: '18', title: '여름방학 식전 행사' },
-            { day: '19', title: '여름방학 개식' }
-        ],
-        8: [
-            { day: '01', title: '개학식' },
-            { day: '07', title: '학생회 대표 회의' },
-            { day: '15', title: '광복절 (휴업일)' },
-            { day: '21', title: '2학기 동아리 발표회' }
-        ],
-        9: [
-            { day: '10', title: '학부모 공개수업의 날' },
-            { day: '22', title: '추석 연휴' },
-            { day: '28', title: '체육 한마당' }
-        ]
-    };
-
-    function renderEvents(m) {
-        if (!eventList || !calMonth) return;
-        calMonth.textContent = String(m).padStart(2, '0');
-        const listData = mockEvents[m] || [
-            { day: '01', title: '정기 학생 상담' },
-            { day: '15', title: '교과 융합 프로젝트' }
-        ];
-
-        eventList.innerHTML = listData.map(ev => `
-            <li>
-                <span class="event-day">${ev.day}</span>
-                <span class="event-title">${ev.title}</span>
-            </li>
-        `).join('');
-    }
-
-    if (widgetCalPrevBtn && widgetCalNextBtn) {
-        widgetCalPrevBtn.addEventListener('click', () => {
-            currentMonthVal = currentMonthVal <= 1 ? 12 : currentMonthVal - 1;
-            renderEvents(currentMonthVal);
-        });
-        widgetCalNextBtn.addEventListener('click', () => {
-            currentMonthVal = currentMonthVal >= 12 ? 1 : currentMonthVal + 1;
-            renderEvents(currentMonthVal);
-        });
-    }
-
-    // 8. 팝업존 슬라이더
-    const popupTrack = document.getElementById('popupTrack');
-    const popupCurrentIndex = document.getElementById('popupCurrentIndex');
-    const popupPrevBtn = document.getElementById('popupPrevBtn');
-    const popupNextBtn = document.getElementById('popupNextBtn');
-    const popupToggleAutoplayBtn = document.getElementById('popupToggleAutoplayBtn');
-    let popupIndex = 0;
-    const totalPopups = 2;
-    let popupAutoplay = true;
-    let popupTimer = null;
-
-    function updatePopupSlide() {
-        if (!popupTrack) return;
-        popupTrack.style.transform = `translateX(-${popupIndex * 100}%)`;
-        if (popupCurrentIndex) popupCurrentIndex.textContent = popupIndex + 1;
-    }
-
-    function startPopupTimer() {
-        if (popupTimer) clearInterval(popupTimer);
-        popupTimer = setInterval(() => {
-            if (popupAutoplay) {
-                popupIndex = (popupIndex + 1) % totalPopups;
-                updatePopupSlide();
-            }
-        }, 5000);
-    }
-    function stopPopupTimer() {
-        if (popupTimer) clearInterval(popupTimer);
-    }
-
     // 팝업/모달 오픈 시 배경 롤링 타이머 일시 정지 (배경 롤링으로 인한 깜빡임 100% 원천 차단)
     function pauseAllBackgroundTimers() {
         stopHeroTimer();
-        stopPopupTimer();
         document.body.classList.add('modal-open');
     }
 
@@ -826,33 +701,9 @@ function initApp() {
         const activeModal = document.querySelector('.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active, .lightbox-modal.active, .drawer-menu.active, .admin-modal.active, .pwa-ios-modal.active');
         if (!activeModal) {
             startHeroTimer();
-            startPopupTimer();
             document.body.classList.remove('modal-open');
         }
     }
-
-    if (popupPrevBtn) {
-        popupPrevBtn.addEventListener('click', () => {
-            popupIndex = (popupIndex - 1 + totalPopups) % totalPopups;
-            updatePopupSlide();
-        });
-    }
-    if (popupNextBtn) {
-        popupNextBtn.addEventListener('click', () => {
-            popupIndex = (popupIndex + 1) % totalPopups;
-            updatePopupSlide();
-        });
-    }
-    if (popupToggleAutoplayBtn) {
-        popupToggleAutoplayBtn.addEventListener('click', () => {
-            popupAutoplay = !popupAutoplay;
-            const icon = popupToggleAutoplayBtn.querySelector('i');
-            if (icon) {
-                icon.className = popupAutoplay ? 'fa-solid fa-pause' : 'fa-solid fa-play';
-            }
-        });
-    }
-    startPopupTimer();
 
     // 9. 맨 위로 이동 (Scroll to top)
     const scrollTopBtn = document.getElementById('scrollTopBtn');
@@ -1738,14 +1589,12 @@ function initApp() {
                 if (weekRangeTextEl) {
                     weekRangeTextEl.textContent = `일자: ${getTimetableWeekRangeStr()}`;
                 }
-                alert("시간표 데이터를 불러오는 데 실패했습니다.");
             }
         } catch (error) {
-            console.error("시간표 데이터를 불러오는 중 오류 발생:", error);
+            console.warn("시간표 데이터를 불러오는 중 오류 발생:", error);
             if (weekRangeTextEl) {
                 weekRangeTextEl.textContent = `일자: ${getTimetableWeekRangeStr()}`;
             }
-            alert("시간표 데이터를 불러오는 데 실패했습니다.");
         } finally {
             // 로딩 시각 효과 해제 (표 표시, 로딩 오버레이 숨김 & 회전 중지)
             if (tableWrapper) {
@@ -2124,22 +1973,21 @@ function initApp() {
     if (adminCloseBtn) adminCloseBtn.addEventListener('click', closeAdminModal);
     if (adminBackdrop) adminBackdrop.addEventListener('click', closeAdminModal);
 
-    // 새창 관리자 페이지(admin.html) 저장 시 실시간 멀티탭/새창 동기화 리스너
+    // 멀티탭 및 관리자 페이지(admin.html) 저장 시 실시간 멀티탭/새창 동기화 리스너
     window.addEventListener('storage', (e) => {
         if (e.key === 'app_notices_list' && typeof renderNoticesUI === 'function') {
             renderNoticesUI();
-        } else if (e.key === 'app_exam_data' && typeof renderExamUI === 'function') {
+        } else if (e.key === 'app_exam_list' && typeof renderExamUI === 'function') {
             renderExamUI();
         } else if (e.key === 'app_gallery_items' && typeof renderGallerySlider === 'function') {
             renderGallerySlider();
         } else if (e.key === 'app_supply_text' && typeof renderSupplyUI === 'function') {
             renderSupplyUI();
-        } else if (e.key === 'app_school_name') {
-            const name = localStorage.getItem('app_school_name');
-            if (name) {
-                const titleEl = document.getElementById('displaySchoolName');
-                if (titleEl) titleEl.textContent = name;
-            }
+        } else if (e.key === 'app_customizer_config' && typeof applyCustomizerConfig === 'function') {
+            try {
+                const config = JSON.parse(e.newValue || localStorage.getItem('app_customizer_config') || 'null');
+                if (config) applyCustomizerConfig(config);
+            } catch (err) { }
         }
     });
 
@@ -3439,13 +3287,6 @@ function initApp() {
         }
     }
     setupPwaInstallLogic();
-
-    // 멀티탭 및 어드민 실시간 데이터 동기화 리스너
-    window.addEventListener('storage', (e) => {
-        if (e.key === 'app_exam_list' && typeof renderExamUI === 'function') {
-            renderExamUI();
-        }
-    });
 }
 
 if (document.readyState === 'loading') {
