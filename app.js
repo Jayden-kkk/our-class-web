@@ -467,7 +467,7 @@ function initApp() {
 
             const defaultConfig = {
                 viewMode: 'full',
-                theme: 'theme-green',
+                theme: 'theme-blue',
                 schoolName: '1학년 6반 알리미',
                 hiddenSections: []
             };
@@ -2302,9 +2302,18 @@ function initApp() {
     }
 
     // --- Firestore 실시간 클라우드 동기화 구독 헬퍼 ---
+    const subscribedSyncKeys = new Set();
     function setupRemoteSync(key, onDataReceived) {
+        if (subscribedSyncKeys.has(key)) return;
+
+        let attempts = 0;
+        const maxAttempts = 80; // 최대 12초간 대기 (150ms 간격)
+
         function trySubscribe() {
+            if (subscribedSyncKeys.has(key)) return;
+
             if (window.db && window.doc && window.onSnapshot) {
+                subscribedSyncKeys.add(key);
                 try {
                     const docRef = window.doc(window.db, "class_portal", key);
                     window.onSnapshot(docRef, (snapshot) => {
@@ -2321,18 +2330,18 @@ function initApp() {
                     }, (err) => {
                         console.warn(`Firestore snapshot listener error for ${key}:`, err);
                     });
+                    console.log(`📡 Realtime sync successfully subscribed for ${key}`);
                 } catch (e) {
+                    subscribedSyncKeys.delete(key);
                     console.warn(`Firestore subscribe error for ${key}:`, e);
                 }
+            } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(trySubscribe, 150);
             }
         }
 
-        if (window.db && window.onSnapshot) {
-            trySubscribe();
-        } else {
-            setTimeout(trySubscribe, 600);
-            setTimeout(trySubscribe, 1800);
-        }
+        trySubscribe();
     }
 
     // --- 1. 공지사항 최대 3개 등록 및 메인/모달 UI 관리 ---
@@ -3377,14 +3386,13 @@ function initApp() {
         }
 
         function handleInstallTrigger() {
-            localStorage.setItem('pwa_shortcut_installed', 'true');
-
             const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.MSStream;
 
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
+                    if (choiceResult && choiceResult.outcome === 'accepted') {
+                        localStorage.setItem('pwa_shortcut_installed', 'true');
                         hideFloatingBanner();
                     }
                     deferredPrompt = null;

@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1학년 6반 학급 포털 문서 규칙
+    // 학생, 학부모 등 모든 방문자(비로그인 상태 포함): 실시간 읽기 허용
+    // 어드민 관리자(Firebase Auth로 로그인된 상태): 생성, 수정, 삭제(쓰기) 허용
+    match /class_portal/{document=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
