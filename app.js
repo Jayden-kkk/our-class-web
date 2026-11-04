@@ -557,11 +557,9 @@ function initApp() {
 
     function startHeroTimer() {
         stopHeroTimer();
-        if (!heroAutoPlay) return;
-        if (heroCarousel) {
-            heroCarousel.classList.add('is-playing');
-            heroCarousel.classList.remove('is-paused');
-        }
+        if (!heroAutoPlay || !heroCarousel || heroSlides.length === 0) return;
+        heroCarousel.classList.add('is-playing');
+        heroCarousel.classList.remove('is-paused');
         heroTimer = setInterval(() => {
             gotoHeroSlide(heroIndex + 1);
         }, 4000);
@@ -599,6 +597,23 @@ function initApp() {
                 document.body.classList.remove('modal-open');
             }
         }, 320);
+    }
+
+    // 공통 모달/백드롭 열기·닫기 헬퍼 (중복 제거 및 애니메이션 일관성 보장)
+    function openModalPair(modal, backdrop) {
+        if (!modal || !backdrop) return;
+        pauseAllBackgroundTimers();
+        requestAnimationFrame(() => {
+            modal.classList.add('active');
+            backdrop.classList.add('active');
+        });
+    }
+
+    function closeModalPair(modal, backdrop) {
+        if (!modal || !backdrop) return;
+        modal.classList.remove('active');
+        backdrop.classList.remove('active');
+        resumeAllBackgroundTimers();
     }
 
     if (heroPlayPauseBtn) {
@@ -691,20 +706,6 @@ function initApp() {
             }
         });
     });
-
-    // 팝업/모달 오픈 시 배경 롤링 타이머 일시 정지 (배경 롤링으로 인한 깜빡임 100% 원천 차단)
-    function pauseAllBackgroundTimers() {
-        stopHeroTimer();
-        document.body.classList.add('modal-open');
-    }
-
-    function resumeAllBackgroundTimers() {
-        const activeModal = document.querySelector('.notice-modal.active, .timetable-modal.active, .supply-modal.active, .exam-modal.active, .gallery-modal.active, .weather-modal.active, .meal-modal.active, .lightbox-modal.active, .drawer-menu.active, .admin-modal.active, .pwa-ios-modal.active');
-        if (!activeModal) {
-            startHeroTimer();
-            document.body.classList.remove('modal-open');
-        }
-    }
 
     // 9. 맨 위로 이동 (Scroll to top)
     const scrollTopBtn = document.getElementById('scrollTopBtn');
@@ -824,18 +825,7 @@ function initApp() {
 
     async function fetchWeatherData(lat = cachedLat, lon = cachedLon, customLocText = null) {
         const displayLoc = customLocText || cachedLocText;
-
-        // 즉시 기본값 및 시간별 예보 렌더링
-        if (weatherTemp) weatherTemp.textContent = '27°C';
-        if (weatherMiniBadge) weatherMiniBadge.textContent = '27°C';
-        if (weatherStatusText) weatherStatusText.textContent = '맑음';
-        if (weatherWindSpeed) weatherWindSpeed.textContent = '1.8 m/s';
-        if (weatherIconLarge) weatherIconLarge.innerHTML = `<i class="fa-solid fa-sun"></i>`;
-        if (quickWeatherIcon) quickWeatherIcon.className = 'fa-solid fa-sun';
         if (weatherLocationText) weatherLocationText.textContent = displayLoc;
-        if (weatherCardInner) weatherCardInner.className = 'weather-card-inner weather-bg-clear';
-        renderRealisticWeatherEffects('맑음');
-        renderHourlyForecastFallback();
 
         try {
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,weathercode&timezone=Asia%2FSeoul`;
@@ -1072,20 +1062,10 @@ function initApp() {
 
     // 모달 제어
     function openWeatherModal() {
-        if (weatherModal && weatherBackdrop) {
-            pauseAllBackgroundTimers();
-            requestAnimationFrame(() => {
-                weatherModal.classList.add('active');
-                weatherBackdrop.classList.add('active');
-            });
-        }
+        openModalPair(weatherModal, weatherBackdrop);
     }
     function closeWeatherModal() {
-        if (weatherModal && weatherBackdrop) {
-            weatherModal.classList.remove('active');
-            weatherBackdrop.classList.remove('active');
-            resumeAllBackgroundTimers();
-        }
+        closeModalPair(weatherModal, weatherBackdrop);
     }
 
     if (quickWeatherBtn) quickWeatherBtn.addEventListener('click', openWeatherModal);
@@ -1360,20 +1340,12 @@ function initApp() {
         if (mealModal && mealBackdrop) {
             resetMealSelectedDayToToday(); // 모달을 열 때 오늘 요일로 자동 초기화
             renderMealModalData();
-            pauseAllBackgroundTimers();
-            requestAnimationFrame(() => {
-                mealModal.classList.add('active');
-                mealBackdrop.classList.add('active');
-            });
+            openModalPair(mealModal, mealBackdrop);
         }
     }
 
     function closeMealModal() {
-        if (mealModal && mealBackdrop) {
-            mealModal.classList.remove('active');
-            mealBackdrop.classList.remove('active');
-            resumeAllBackgroundTimers();
-        }
+        closeModalPair(mealModal, mealBackdrop);
     }
 
     if (quickMealBtn) quickMealBtn.addEventListener('click', openMealModal);
@@ -1402,7 +1374,9 @@ function initApp() {
         });
     }
 
-    initAutoMealDate();
+    if (mealCard || mealModal) {
+        initAutoMealDate();
+    }
 
     // 10. 드로어 메뉴 & 퀵 메뉴 6종 + 컴시간알리미 시간표 모달 바로가기
     const timetableModal = document.getElementById('timetableModal');
@@ -1413,7 +1387,7 @@ function initApp() {
     const refreshTimetableBtn = document.getElementById('refresh-timetable-btn');
     if (refreshTimetableBtn) {
         refreshTimetableBtn.addEventListener('click', () => {
-            loadYangYoungTimetable();
+            loadYangYoungTimetable(true);
         });
     }
 
@@ -1547,8 +1521,12 @@ function initApp() {
         return `${fmt(monday)} ~ ${fmt(friday)}`;
     }
 
+    let timetableLoaded = false;
+
     // Firebase Cloud Functions API에서 양영중학교 1학년 6반 주간 시간표 불러오기
-    async function loadYangYoungTimetable() {
+    async function loadYangYoungTimetable(forceRefresh = false) {
+        if (!forceRefresh && timetableLoaded) return;
+
         const tableWrapper = document.querySelector('.timetable-table-wrapper');
         const refreshBtn = document.getElementById('refresh-timetable-btn');
         const weekRangeTextEl = document.getElementById('week-range-text');
@@ -1584,6 +1562,7 @@ function initApp() {
                     weekRangeTextEl.textContent = `일자: ${rangeStr}`;
                 }
                 renderTimetableData(resJson.schedule);
+                timetableLoaded = true;
                 console.log("🔥 양영중 1학년 6반 주간 시간표 수신 및 렌더링 성공:", resJson);
             } else {
                 console.warn("시간표 API 응답 실패 또는 형식 오류:", resJson);
@@ -1612,25 +1591,21 @@ function initApp() {
         }
     }
 
-    // 페이지 로드 시 initial timetable load 실행
-    loadYangYoungTimetable();
+    // 페이지 로드 시 학생 포털(시간표 모달이 있는 화면)에서만 initial timetable load 실행
+    if (timetableModal) {
+        loadYangYoungTimetable();
+    }
 
     function openTimetableModal() {
         if (timetableModal && timetableBackdrop) {
-            loadYangYoungTimetable();
-            pauseAllBackgroundTimers();
-            requestAnimationFrame(() => {
-                timetableModal.classList.add('active');
-                timetableBackdrop.classList.add('active');
-            });
+            if (!timetableLoaded) {
+                loadYangYoungTimetable();
+            }
+            openModalPair(timetableModal, timetableBackdrop);
         }
     }
     function closeTimetableModal() {
-        if (timetableModal && timetableBackdrop) {
-            timetableModal.classList.remove('active');
-            timetableBackdrop.classList.remove('active');
-            resumeAllBackgroundTimers();
-        }
+        closeModalPair(timetableModal, timetableBackdrop);
     }
 
     const drawerNoticeBtn = document.getElementById('drawerNoticeBtn');
@@ -1662,19 +1637,11 @@ function initApp() {
             if (typeof renderNoticesUI === 'function') {
                 renderNoticesUI(validIdx);
             }
-            pauseAllBackgroundTimers();
-            requestAnimationFrame(() => {
-                noticeModal.classList.add('active');
-                noticeBackdrop.classList.add('active');
-            });
+            openModalPair(noticeModal, noticeBackdrop);
         }
     }
     function closeNoticeModal() {
-        if (noticeModal && noticeBackdrop) {
-            noticeModal.classList.remove('active');
-            noticeBackdrop.classList.remove('active');
-            resumeAllBackgroundTimers();
-        }
+        closeModalPair(noticeModal, noticeBackdrop);
     }
 
     if (drawerNoticeBtn) drawerNoticeBtn.addEventListener('click', () => { closeDrawer(); openNoticeModal(); });
@@ -1688,20 +1655,10 @@ function initApp() {
     const supplyCloseBtn = document.getElementById('supplyCloseBtn');
 
     function openSupplyModal() {
-        if (supplyModal && supplyBackdrop) {
-            pauseAllBackgroundTimers();
-            requestAnimationFrame(() => {
-                supplyModal.classList.add('active');
-                supplyBackdrop.classList.add('active');
-            });
-        }
+        openModalPair(supplyModal, supplyBackdrop);
     }
     function closeSupplyModal() {
-        if (supplyModal && supplyBackdrop) {
-            supplyModal.classList.remove('active');
-            supplyBackdrop.classList.remove('active');
-            resumeAllBackgroundTimers();
-        }
+        closeModalPair(supplyModal, supplyBackdrop);
     }
     if (drawerSupplyBtn) drawerSupplyBtn.addEventListener('click', () => { closeDrawer(); openSupplyModal(); });
     if (quickSupplyBtn) quickSupplyBtn.addEventListener('click', openSupplyModal);
@@ -1719,20 +1676,12 @@ function initApp() {
             if (typeof renderExamUI === 'function') {
                 renderExamUI(validIdx);
             }
-            pauseAllBackgroundTimers();
-            requestAnimationFrame(() => {
-                examModal.classList.add('active');
-                examBackdrop.classList.add('active');
-            });
+            openModalPair(examModal, examBackdrop);
         }
     }
     window.openExamModal = openExamModal;
     function closeExamModal() {
-        if (examModal && examBackdrop) {
-            examModal.classList.remove('active');
-            examBackdrop.classList.remove('active');
-            resumeAllBackgroundTimers();
-        }
+        closeModalPair(examModal, examBackdrop);
     }
     if (drawerExamBtn) drawerExamBtn.addEventListener('click', () => { closeDrawer(); openExamModal(); });
     if (quickExamBtn) quickExamBtn.addEventListener('click', openExamModal);
@@ -1747,11 +1696,7 @@ function initApp() {
     function openGalleryModal() {
         if (galleryModal && galleryBackdrop) {
             renderGalleryModalContent();
-            pauseAllBackgroundTimers();
-            requestAnimationFrame(() => {
-                galleryModal.classList.add('active');
-                galleryBackdrop.classList.add('active');
-            });
+            openModalPair(galleryModal, galleryBackdrop);
         }
     }
     function renderGalleryModalContent() {
@@ -1780,11 +1725,7 @@ function initApp() {
         }
     }
     function closeGalleryModal() {
-        if (galleryModal && galleryBackdrop) {
-            galleryModal.classList.remove('active');
-            galleryBackdrop.classList.remove('active');
-            resumeAllBackgroundTimers();
-        }
+        closeModalPair(galleryModal, galleryBackdrop);
     }
     if (drawerGalleryBtn) drawerGalleryBtn.addEventListener('click', () => { closeDrawer(); openGalleryModal(); });
     if (galleryCloseBtn) galleryCloseBtn.addEventListener('click', closeGalleryModal);
@@ -2281,7 +2222,10 @@ function initApp() {
 
         if (idx === null || idx === undefined || !noticesList[idx] || noticesList[idx].active === false) {
             if (metaBar) metaBar.innerHTML = '';
-            if (heading) heading.textContent = '';
+            if (heading) {
+                heading.textContent = '';
+                heading.style.display = 'none';
+            }
             if (bodyText) {
                 bodyText.innerHTML = `
                     <div style="padding: 24px 16px; text-align: center; background: rgba(255, 255, 255, 0.02); border-radius: 12px; border: 1px dashed rgba(255, 255, 255, 0.1); margin-top: 10px;">
@@ -2302,7 +2246,10 @@ function initApp() {
         if (metaBar) {
             metaBar.innerHTML = `<span class="notice-badge ${badgeClass}"><i class="fa-solid fa-bell"></i> ${badgeText}</span><span class="notice-date">${notice.date}</span>`;
         }
-        if (heading) heading.textContent = notice.title;
+        if (heading) {
+            heading.textContent = notice.title || '';
+            heading.style.display = notice.title ? 'block' : 'none';
+        }
         if (bodyText) {
             bodyText.innerHTML = `
                 <p style="margin-bottom: 12px; line-height: 1.5; color: #cbd5e1; font-size: 12.5px;">${notice.body}</p>
@@ -2405,17 +2352,6 @@ function initApp() {
         return defaultExamList;
     }
 
-    function calculateDdayStr(targetDateStr) {
-        if (!targetDateStr) return 'D-Day';
-        const parts = targetDateStr.split('-');
-        if (parts.length !== 3) return 'D-Day';
-        const target = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
-        const today = new Date();
-        const todayZero = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const diffDays = Math.ceil((target - todayZero) / (1000 * 60 * 60 * 24));
-        return diffDays > 0 ? `D-${diffDays}` : (diffDays === 0 ? 'D-Day' : `D+${Math.abs(diffDays)}`);
-    }
-
     function calculateDdayNumber(targetDateStr) {
         if (!targetDateStr) return 99999;
         const parts = targetDateStr.split('-');
@@ -2424,6 +2360,12 @@ function initApp() {
         const today = new Date();
         const todayZero = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         return Math.ceil((target - todayZero) / (1000 * 60 * 60 * 24));
+    }
+
+    function calculateDdayStr(targetDateStr) {
+        const diffDays = calculateDdayNumber(targetDateStr);
+        if (diffDays === 99999) return 'D-Day';
+        return diffDays > 0 ? `D-${diffDays}` : (diffDays === 0 ? 'D-Day' : `D+${Math.abs(diffDays)}`);
     }
 
     if (adminExamDateInput) {
@@ -2725,7 +2667,7 @@ function initApp() {
             btnSyncComtime.disabled = true;
             btnSyncComtime.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 최신 데이터 동기화 중...`;
             try {
-                await loadYangYoungTimetable();
+                await loadYangYoungTimetable(true);
                 alert('✅ 양영중학교 1학년 6반 시간표 최신 데이터가 성공적으로 동기화되었습니다!');
             } catch (err) {
                 console.error("시간표 동기화 오류:", err);
@@ -3109,10 +3051,14 @@ function initApp() {
     function trackAnalytics() {
         let totalVisits = parseInt(localStorage.getItem('app_total_visits') || '1284', 10);
         let todayVisits = parseInt(localStorage.getItem('app_today_visits') || '42', 10);
-        totalVisits++;
-        todayVisits++;
-        localStorage.setItem('app_total_visits', totalVisits);
-        localStorage.setItem('app_today_visits', todayVisits);
+
+        // 메인 학생 포털(index.html) 접속 시에만 방문 카운트 증가 (관리자 페이지 새로고침 시 허수 증가 방지)
+        if (!document.body.classList.contains('admin-page-body')) {
+            totalVisits++;
+            todayVisits++;
+            localStorage.setItem('app_total_visits', totalVisits);
+            localStorage.setItem('app_today_visits', todayVisits);
+        }
 
         const statTotal = document.getElementById('statTotalVisits');
         const statToday = document.getElementById('statTodayVisits');
@@ -3250,26 +3196,14 @@ function initApp() {
 
         function openIosModal() {
             renderPwaGuideModalContent();
-            if (pwaIosModal && pwaIosBackdrop) {
-                pauseAllBackgroundTimers();
-                requestAnimationFrame(() => {
-                    pwaIosModal.classList.add('active');
-                    pwaIosBackdrop.classList.add('active');
-                });
-            }
+            openModalPair(pwaIosModal, pwaIosBackdrop);
         }
 
         function closeIosModal() {
-            if (pwaIosModal && pwaIosBackdrop) {
-                pwaIosModal.classList.remove('active');
-                pwaIosBackdrop.classList.remove('active');
-                resumeAllBackgroundTimers();
-            }
+            closeModalPair(pwaIosModal, pwaIosBackdrop);
         }
 
         function handleInstallTrigger() {
-            const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) && !window.MSStream;
-
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
@@ -3279,8 +3213,6 @@ function initApp() {
                     }
                     deferredPrompt = null;
                 });
-            } else if (isIos) {
-                openIosModal();
             } else {
                 openIosModal();
             }

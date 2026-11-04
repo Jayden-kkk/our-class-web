@@ -1,6 +1,55 @@
 const { onRequest } = require("firebase-functions/v2/https");
-const Timetable = require("comcigan-parser");
 const cors = require("cors")({ origin: true });
+
+// 컴시간(comcigan) 측의 JS 난독화(hour-obfuscated-v2)를 자동으로 복호화하기 위한 패치
+function patchComciganIconv() {
+    const iconvPaths = ["iconv-lite", "comcigan-parser/node_modules/iconv-lite"];
+    for (const modPath of iconvPaths) {
+        try {
+            const iconv = require(modPath);
+            if (iconv && !iconv._comciganPatched) {
+                const origDecode = iconv.decode;
+                iconv.decode = function (buf, enc) {
+                    let str = origDecode.call(this, buf, enc);
+                    if (typeof str === "string" && str.includes("hour-obfuscated")) {
+                        str = str.replace(
+                            /\/\* hour-obfuscated-[^*]*\*\/\(function\(a,k\)\{[\s\S]*?\}\)\((\[\[[\s\S]*?\]\]),\s*(\d+)\);/g,
+                            (match, arrJson, kStr) => {
+                                try {
+                                    const a = JSON.parse(arrJson);
+                                    const k = parseInt(kStr, 10);
+                                    let s = "";
+                                    for (let i = 0; i < a.length; i++) {
+                                        if (a[i][0]) {
+                                            s += a[i][1];
+                                            continue;
+                                        }
+                                        const b = a[i][1];
+                                        for (let j = 0; j < b.length; j += 4) {
+                                            s += String.fromCharCode(
+                                                parseInt(b.substr(j, 4), 16) ^ ((k + (j / 4) * 13) & 255)
+                                            );
+                                        }
+                                    }
+                                    return s;
+                                } catch (err) {
+                                    return match;
+                                }
+                            }
+                        );
+                    }
+                    return str;
+                };
+                iconv._comciganPatched = true;
+            }
+        } catch (e) {
+            // ignore if path does not exist
+        }
+    }
+}
+patchComciganIconv();
+
+const Timetable = require("comcigan-parser");
 
 // 날짜 포맷 (YY-MM-DD)
 function formatDate(date) {
