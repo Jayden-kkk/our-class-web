@@ -65,28 +65,28 @@
 
 ---
 
-## 3. [2026-11-13] 컴시간 보안 강화(AES-256 + 2중 난독화) 및 Firebase 요금제(Spark) 전환에 따른 시간표 미표시 해결
+## 3. [2026-11-13] 컴시간 보안 강화(AES-256 + 2중 난독화 + 세션 토큰)로 인한 시간표 미표시 해결
 
 ### 📌 증상
 - 11월 13일 기준 주간 시간표 모달을 열었을 때 다시 시간표가 표시되지 않는 현상 발생.
 - 기존 Cloud Function (`https://us-central1-our-class-web.cloudfunctions.net/getTimetable`) 호출 시 `500/503 Server Error` 반환.
 
-### 🔍 원인 분석 (복합 원인 2가지)
+### 🔍 원인 분석
 1. **컴시간알리미(`comci.net:4082/st`) 보안 프로토콜 대폭 강화**
    - 기존의 단순 `hour-obfuscated-v2` 난독화에 더해, 내부에 **2차 난독화 블록(`/* hour-ajax-obfuscated-v1 */`)**이 추가됨.
    - 페이지 접속 시 발급되는 세션 토큰(`window.__HourRequestToken` / `X-Hour-Token` 헤더 및 `HourSession4082S` 쿠키) 검증이 추가됨.
    - 학교 검색 및 시간표 조회 API 응답이 평문 JSON에서 **`enc5:` 프리픽스 기반 AES-256-CBC 암호문(`HChange`)**으로 변경됨.
    - JSON 내부의 학교명·교사명·과목명·일자 문자열이 **Base64 + XOR + EUC-KR(`QnmsbChange`)** 방식으로 한 번 더 암호화되어 기존 `comcigan-parser` 라이브러리가 완전히 동작 불능 상태가 됨.
-2. **Firebase 프로젝트(`our-class-web`)의 Blaze(종량제) 요금제 비활성화**
-   - Cloud Functions 배포/실행에 필요한 Blaze 요금제가 해제(Spark 무료 플랜 상태)되면서 Google Cloud 측에서 기존 Cloud Function 엔드포인트 실행 및 재배포를 차단함.
+2. **Firebase CLI 배포 시 일시적 Extensions API 오탐**
+   - `firebase deploy --only functions` 실행 시 `firebaseextensions.googleapis.com` API 조회 과정에서 일시적으로 Blaze 플랜 오탐 에러가 발생할 수 있으며, 이 경우 `firebase deploy --only functions:getTimetable`로 함수명을 명시하여 배포하면 정상 배포됨.
 
 ### ✅ 해결 방법
-1. **신규 컴시간 다중 복호화(AES-256-CBC + XOR + 세션 토큰) 자체 파서 구현 ([`scripts/update-timetable.js`](file:///c:/Users/HOME/Desktop/junwoo/scripts/update-timetable.js), [`functions/index.js`](file:///c:/Users/HOME/Desktop/junwoo/functions/index.js))**
-   - 외부 라이브러리에 의존하지 않고 `hour-obfuscated-v2` 및 `hour-ajax-obfuscated-v1` 반복 복호화, `X-Hour-Token` 헤더 전달, `HChange`(AES-256-CBC) 복호화, `QnmsbChange`(XOR + EUC-KR) 복호화를 모두 수행하는 파서를 구현하여 [`timetable-data.json`](file:///c:/Users/HOME/Desktop/junwoo/timetable-data.json)을 생성.
-2. **무료 플랜에서도 영구 작동하는 다중 소스(GitHub Raw + 정적 JSON + Cloud Function) 구조 적용 ([`app.js`](file:///c:/Users/HOME/Desktop/junwoo/app.js))**
-   - [`fetchTimetableWithFallback`](file:///c:/Users/HOME/Desktop/junwoo/app.js#L1527-L1563)을 통해 GitHub Raw 최신 `timetable-data.json` → Firebase Hosting 로컬 `./timetable-data.json` → Cloud Functions 순으로 빠르게 폴백 조회하도록 개선하여 Cloud Functions가 비활성화된 무료(Spark) 플랜에서도 즉시 시간표가 표시되도록 조치.
-3. **GitHub Actions 무인 자동 동기화 구축 ([`.github/workflows/update-timetable.yml`](file:///c:/Users/HOME/Desktop/junwoo/.github/workflows/update-timetable.yml))**
-   - 매일 4회(KST 07:30, 12:30, 18:30, 23:30) 및 수동 실행(`workflow_dispatch`) 시 자동으로 컴시간 최신 시간표를 가져와 [`timetable-data.json`](file:///c:/Users/HOME/Desktop/junwoo/timetable-data.json)을 갱신·커밋하도록 구성.
+1. **신규 컴시간 다중 복호화(AES-256-CBC + XOR + 세션 토큰) 자체 파서 구현 및 Cloud Functions 배포 ([`functions/index.js`](file:///c:/Users/HOME/Desktop/junwoo/functions/index.js), [`scripts/update-timetable.js`](file:///c:/Users/HOME/Desktop/junwoo/scripts/update-timetable.js))**
+   - `comcigan-parser` 의존성을 제거하고 `hour-obfuscated-v2` 및 `hour-ajax-obfuscated-v1` 반복 복호화, `X-Hour-Token` 헤더 전달, `HChange`(AES-256-CBC) 복호화, `QnmsbChange`(XOR + EUC-KR) 복호화를 직접 수행하는 파서를 [`functions/index.js`](file:///c:/Users/HOME/Desktop/junwoo/functions/index.js)에 구현 및 배포 완료 (`getTimetable`).
+2. **3중 안전망(Cloud Functions → GitHub Raw → 로컬 JSON) 폴백 구조 적용 ([`app.js`](file:///c:/Users/HOME/Desktop/junwoo/app.js))**
+   - [`fetchTimetableWithFallback`](file:///c:/Users/HOME/Desktop/junwoo/app.js#L1527-L1557)을 통해 **① 실시간 Cloud Functions(`getTimetable`) → ② GitHub Raw 최신 [`timetable-data.json`](file:///c:/Users/HOME/Desktop/junwoo/timetable-data.json) → ③ 호스팅 로컬 `./timetable-data.json`** 순서로 조회하도록 개선.
+3. **GitHub Actions 자동 백업 동기화 구축 ([`.github/workflows/update-timetable.yml`](file:///c:/Users/HOME/Desktop/junwoo/.github/workflows/update-timetable.yml))**
+   - 매일 4회(KST 07:30, 12:30, 18:30, 23:30) 자동으로 컴시간 최신 시간표를 가져와 백업용 [`timetable-data.json`](file:///c:/Users/HOME/Desktop/junwoo/timetable-data.json)을 갱신하도록 구성.
 
 
 

@@ -1530,17 +1530,11 @@ function initApp() {
         const localJsonUrl = `./timetable-data.json?${cacheBuster}`;
         const cloudFuncUrl = `https://us-central1-our-class-web.cloudfunctions.net/getTimetable${forceRefresh ? `?refresh=1&${cacheBuster}` : ''}`;
 
-        const sources = forceRefresh
-            ? [
-                { url: githubRawUrl, timeoutMs: 3500 },
-                { url: localJsonUrl, timeoutMs: 2500 },
-                { url: cloudFuncUrl, timeoutMs: 3500 }
-            ]
-            : [
-                { url: githubRawUrl, timeoutMs: 3000 },
-                { url: localJsonUrl, timeoutMs: 2500 },
-                { url: cloudFuncUrl, timeoutMs: 3500 }
-            ];
+        const sources = [
+            { url: cloudFuncUrl, timeoutMs: 5500 },
+            { url: githubRawUrl, timeoutMs: 3500 },
+            { url: localJsonUrl, timeoutMs: 2500 }
+        ];
 
         for (const src of sources) {
             const controller = new AbortController();
