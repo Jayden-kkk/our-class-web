@@ -1523,7 +1523,46 @@ function initApp() {
 
     let timetableLoaded = false;
 
-    // Firebase Cloud Functions API에서 양영중학교 1학년 6반 주간 시간표 불러오기
+    // 양영중학교 1학년 6반 주간 시간표 불러오기 (다중 소스: GitHub Raw -> 로컬 정적 JSON -> Cloud Functions 폴백)
+    async function fetchTimetableWithFallback(forceRefresh = false) {
+        const cacheBuster = `t=${Date.now()}`;
+        const githubRawUrl = `https://raw.githubusercontent.com/Jayden-kkk/our-class-web/main/timetable-data.json?${cacheBuster}`;
+        const localJsonUrl = `./timetable-data.json?${cacheBuster}`;
+        const cloudFuncUrl = `https://us-central1-our-class-web.cloudfunctions.net/getTimetable${forceRefresh ? `?refresh=1&${cacheBuster}` : ''}`;
+
+        const sources = forceRefresh
+            ? [
+                { url: githubRawUrl, timeoutMs: 3500 },
+                { url: localJsonUrl, timeoutMs: 2500 },
+                { url: cloudFuncUrl, timeoutMs: 3500 }
+            ]
+            : [
+                { url: githubRawUrl, timeoutMs: 3000 },
+                { url: localJsonUrl, timeoutMs: 2500 },
+                { url: cloudFuncUrl, timeoutMs: 3500 }
+            ];
+
+        for (const src of sources) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), src.timeoutMs);
+            try {
+                const response = await fetch(src.url, {
+                    signal: controller.signal,
+                    cache: 'no-store'
+                });
+                clearTimeout(timer);
+                if (!response.ok) continue;
+                const data = await response.json();
+                if (data && data.success && data.schedule) {
+                    return data;
+                }
+            } catch (_) {
+                clearTimeout(timer);
+            }
+        }
+        throw new Error('모든 시간표 데이터 소스 응답 실패');
+    }
+
     async function loadYangYoungTimetable(forceRefresh = false) {
         if (!forceRefresh && timetableLoaded) return;
 
@@ -1550,15 +1589,12 @@ function initApp() {
             if (icon) icon.classList.add('fa-spin');
         }
 
-        const apiUrl = "https://us-central1-our-class-web.cloudfunctions.net/getTimetable";
         try {
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const resJson = await response.json();
+            const resJson = await fetchTimetableWithFallback(forceRefresh);
 
             if (resJson && resJson.success && resJson.schedule) {
                 if (weekRangeTextEl) {
-                    const rangeStr = resJson.currentWeekRange || getTimetableWeekRangeStr();
+                    const rangeStr = getTimetableWeekRangeStr() || resJson.currentWeekRange;
                     weekRangeTextEl.textContent = `일자: ${rangeStr}`;
                 }
                 renderTimetableData(resJson.schedule);

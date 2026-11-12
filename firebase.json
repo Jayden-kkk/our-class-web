@@ -8,7 +8,9 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "functions/**"
+      "functions/**",
+      "scripts/**",
+      "ERROR_LOG.md"
     ]
   },
   "functions": [

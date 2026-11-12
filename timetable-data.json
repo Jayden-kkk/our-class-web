@@ -1,0 +1,380 @@
+{
+  "success": true,
+  "schoolName": "양영중학교",
+  "grade": 1,
+  "classNum": 6,
+  "currentWeekRange": "26-11-09 ~ 26-11-13",
+  "updatedAt": "2026-11-12T16:46:51.673Z",
+  "schedule": [
+    [
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 0,
+        "weekdayString": "월",
+        "classTime": 1,
+        "teacher": "양선",
+        "subject": "과학"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 0,
+        "weekdayString": "월",
+        "classTime": 2,
+        "teacher": "황은",
+        "subject": "체육"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 0,
+        "weekdayString": "월",
+        "classTime": 3,
+        "teacher": "정해",
+        "subject": "수학"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 0,
+        "weekdayString": "월",
+        "classTime": 4,
+        "teacher": "이혜",
+        "subject": "국어A"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 0,
+        "weekdayString": "월",
+        "classTime": 5,
+        "teacher": "김혜",
+        "subject": "스포"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 0,
+        "weekdayString": "월",
+        "classTime": 6,
+        "teacher": "김혜",
+        "subject": "스포"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 0,
+        "weekdayString": "월",
+        "classTime": 7,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 0,
+        "weekdayString": "월",
+        "classTime": 8,
+        "teacher": "",
+        "subject": ""
+      }
+    ],
+    [
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 1,
+        "weekdayString": "화",
+        "classTime": 1,
+        "teacher": "시*",
+        "subject": "자습"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 1,
+        "weekdayString": "화",
+        "classTime": 2,
+        "teacher": "시*",
+        "subject": "시험"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 1,
+        "weekdayString": "화",
+        "classTime": 3,
+        "teacher": "시*",
+        "subject": "시험"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 1,
+        "weekdayString": "화",
+        "classTime": 4,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 1,
+        "weekdayString": "화",
+        "classTime": 5,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 1,
+        "weekdayString": "화",
+        "classTime": 6,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 1,
+        "weekdayString": "화",
+        "classTime": 7,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 1,
+        "weekdayString": "화",
+        "classTime": 8,
+        "teacher": "",
+        "subject": ""
+      }
+    ],
+    [
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 2,
+        "weekdayString": "수",
+        "classTime": 1,
+        "teacher": "시*",
+        "subject": "자습"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 2,
+        "weekdayString": "수",
+        "classTime": 2,
+        "teacher": "시*",
+        "subject": "시험"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 2,
+        "weekdayString": "수",
+        "classTime": 3,
+        "teacher": "시*",
+        "subject": "시험"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 2,
+        "weekdayString": "수",
+        "classTime": 4,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 2,
+        "weekdayString": "수",
+        "classTime": 5,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 2,
+        "weekdayString": "수",
+        "classTime": 6,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 2,
+        "weekdayString": "수",
+        "classTime": 7,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 2,
+        "weekdayString": "수",
+        "classTime": 8,
+        "teacher": "",
+        "subject": ""
+      }
+    ],
+    [
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 3,
+        "weekdayString": "목",
+        "classTime": 1,
+        "teacher": "시*",
+        "subject": "자습"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 3,
+        "weekdayString": "목",
+        "classTime": 2,
+        "teacher": "시*",
+        "subject": "자습"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 3,
+        "weekdayString": "목",
+        "classTime": 3,
+        "teacher": "시*",
+        "subject": "시험"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 3,
+        "weekdayString": "목",
+        "classTime": 4,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 3,
+        "weekdayString": "목",
+        "classTime": 5,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 3,
+        "weekdayString": "목",
+        "classTime": 6,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 3,
+        "weekdayString": "목",
+        "classTime": 7,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 3,
+        "weekdayString": "목",
+        "classTime": 8,
+        "teacher": "",
+        "subject": ""
+      }
+    ],
+    [
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 4,
+        "weekdayString": "금",
+        "classTime": 1,
+        "teacher": "이초",
+        "subject": "도덕A"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 4,
+        "weekdayString": "금",
+        "classTime": 2,
+        "teacher": "정해",
+        "subject": "수학"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 4,
+        "weekdayString": "금",
+        "classTime": 3,
+        "teacher": "이혜",
+        "subject": "국어A"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 4,
+        "weekdayString": "금",
+        "classTime": 4,
+        "teacher": "이선",
+        "subject": "사회"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 4,
+        "weekdayString": "금",
+        "classTime": 5,
+        "teacher": "전푸",
+        "subject": "영어"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 4,
+        "weekdayString": "금",
+        "classTime": 6,
+        "teacher": "오은",
+        "subject": "한문"
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 4,
+        "weekdayString": "금",
+        "classTime": 7,
+        "teacher": "",
+        "subject": ""
+      },
+      {
+        "grade": 1,
+        "class": 6,
+        "weekday": 4,
+        "weekdayString": "금",
+        "classTime": 8,
+        "teacher": "",
+        "subject": ""
+      }
+    ]
+  ]
+}
