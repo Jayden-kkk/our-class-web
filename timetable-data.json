@@ -4,7 +4,7 @@
   "grade": 1,
   "classNum": 6,
   "currentWeekRange": "26-11-23 ~ 26-11-27",
-  "updatedAt": "2026-11-22T20:48:04.648Z",
+  "updatedAt": "2026-11-23T02:59:35.393Z",
   "schedule": [
     [
       {
@@ -114,8 +114,8 @@
         "weekday": 1,
         "weekdayString": "화",
         "classTime": 4,
-        "teacher": "최정",
-        "subject": "정보"
+        "teacher": "이혜",
+        "subject": "국어A"
       },
       {
         "grade": 1,
